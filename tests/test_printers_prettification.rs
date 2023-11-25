@@ -1,4 +1,4 @@
-//! https://github.com/lelit/pglast/blob/v5/tests/test_printers_prettification.py
+// https://github.com/lelit/pglast/blob/v5/tests/test_printers_prettification.py
 
 use pg_deparser::stream::IndentedStream;
 
