@@ -1,4 +1,4 @@
-/// Options for the stream.
+/// Options accepted by `IndentedStream`.
 #[derive(Default)]
 pub struct Options {
     /// An integer value that, if given, is used to print lists on a single line, when they
@@ -10,6 +10,8 @@ pub struct Options {
 }
 
 /// Indented SQL parse tree writer.
+///
+/// This struct emit a prettified representation of a *parse tree*.
 pub struct IndentedStream {
     compact_lists_margin: Option<usize>,
     split_string_literals_threshold: Option<usize>,
