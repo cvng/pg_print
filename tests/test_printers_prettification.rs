@@ -57,7 +57,7 @@ fn test_prettification() {
                 expected = expected[0..expected.len() - 1].to_owned() + "\n"
             }
 
-            let prettified = IndentedStream::new().call(original);
+            let prettified = IndentedStream::default().call(original);
 
             assert_eq!(expected, prettified, "{}:{}:", src.display(), lineno);
         }
