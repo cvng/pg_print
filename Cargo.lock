@@ -288,8 +288,8 @@ dependencies = [
 name = "pg_deparser"
 version = "0.1.0"
 dependencies = [
+ "glob",
  "pg_query",
- "regex",
  "thiserror",
 ]
 

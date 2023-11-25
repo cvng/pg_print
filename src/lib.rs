@@ -1,4 +1,2 @@
-mod deparse;
-mod error;
-
-pub use deparse::deparse;
+pub mod error;
+pub mod stream;
