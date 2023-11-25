@@ -25,15 +25,7 @@ fn test_prettification() {
 
             let prettified = IndentedStream::new().call(original);
 
-            assert_eq!(
-                expected,
-                prettified,
-                "{}:{}:{} != {}",
-                src.display(),
-                lineno,
-                expected,
-                prettified
-            );
+            assert_eq!(expected, prettified, "{}:{}:", src.display(), lineno,);
         }
     }
 }
