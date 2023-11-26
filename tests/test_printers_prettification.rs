@@ -1,7 +1,5 @@
 // https://github.com/lelit/pglast/blob/v5/tests/test_printers_prettification.py
 
-use pg_deparser::stream::IndentedStream;
-
 const PASSES: [&str; 1] = [
     // "tests/test_printers_prettification/ddl/alter_default_privileges.sql",
     // "tests/test_printers_prettification/ddl/alter_subscription.sql",
@@ -57,7 +55,7 @@ fn test_prettification() {
                 expected = expected[0..expected.len() - 1].to_owned() + "\n"
             }
 
-            let prettified = IndentedStream::default().call(original);
+            let prettified = pg_deparser::unparse(original);
 
             assert_eq!(expected, prettified, "{}:{}:", src.display(), lineno);
         }
