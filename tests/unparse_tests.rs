@@ -3,7 +3,7 @@
 use pg_deparser::unparse;
 use pg_query::parse;
 
-const PASSES: [&str; 1] = [
+const PASSES: [&str; 2] = [
     // "tests/sql/ddl/alter_default_privileges.sql",
     // "tests/sql/ddl/alter_subscription.sql",
     // "tests/sql/ddl/alter_table.sql",
@@ -22,7 +22,7 @@ const PASSES: [&str; 1] = [
     // "tests/sql/ddl/create_rule.sql",
     // "tests/sql/ddl/create_schema.sql",
     // "tests/sql/ddl/create_sequence.sql",
-    // "tests/sql/ddl/create_table.sql",
+    "tests/sql/ddl/create_table.sql",
     // "tests/sql/ddl/create_transform.sql",
     // "tests/sql/ddl/create_trigger.sql",
     "tests/sql/ddl/create_type.sql",

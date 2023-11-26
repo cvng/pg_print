@@ -1,12 +1,37 @@
 // Adapted from https://github.com/pganalyze/libpg_query/blob/15-latest/src/postgres_deparse.c.
 
 use crate::algorithm::Printer;
+use pg_query::protobuf::CollateClause;
+use pg_query::protobuf::ColumnDef;
+use pg_query::protobuf::ConstrType;
+use pg_query::protobuf::Constraint;
+use pg_query::protobuf::CreateStmt;
 use pg_query::protobuf::DefElem;
 use pg_query::protobuf::DefineStmt;
 use pg_query::protobuf::ObjectType;
+use pg_query::protobuf::RangeVar;
 use pg_query::protobuf::RawStmt;
+use pg_query::protobuf::TypeName;
 use pg_query::Node;
 use pg_query::NodeEnum;
+
+enum DeparseNodeContext {
+    None,
+    // Parent node type (and sometimes field).
+    InsertRelation,
+    InsertOnConflict,
+    Update,
+    Returning,
+    AExpr,
+    Xmlattributes,
+    Xmlnamespaces,
+    CreateType,
+    AlterType,
+    SetStatement,
+    // Identifier vs constant context.
+    Identifier,
+    Constraint,
+}
 
 impl Printer {
     pub fn stmt(&mut self, stmt: &RawStmt) {
@@ -81,7 +106,7 @@ impl Printer {
             NodeEnum::ClosePortalStmt(_) => todo!(),
             NodeEnum::ClusterStmt(_) => todo!(),
             NodeEnum::CopyStmt(_) => todo!(),
-            NodeEnum::CreateStmt(_) => todo!(),
+            NodeEnum::CreateStmt(node) => node_create_stmt(self, node, false),
             NodeEnum::DefineStmt(node) => node_define_stmt(self, node),
             NodeEnum::DropStmt(_) => todo!(),
             NodeEnum::TruncateStmt(_) => todo!(),
@@ -253,6 +278,55 @@ impl Printer {
     }
 }
 
+fn node_create_stmt(str: &mut Printer, node: &CreateStmt, is_foreign_table: bool) {
+    str.cbox(0);
+
+    str.word("create ");
+
+    if is_foreign_table {
+        str.word("foreign ");
+    }
+
+    // TODO: node_opt_temp(str, &node.relation.unwrap().relpersistence);
+
+    str.word("table ");
+
+    if node.if_not_exists {
+        str.word("if not exists ");
+    }
+
+    node_range_var(
+        str,
+        node.relation.as_ref().unwrap(),
+        DeparseNodeContext::None,
+    );
+    str.nbsp();
+
+    if node.of_typename.is_some() {
+        str.word("of ");
+        node_type_name(str, node.of_typename.as_ref().unwrap());
+        str.space();
+    }
+
+    if !node.table_elts.is_empty() {
+        str.word("(");
+        str.hardbreak();
+        for (i, elt) in node.table_elts.iter().enumerate() {
+            if i > 0 {
+                str.trailing_comma(i == node.table_elts.len());
+            }
+            node_table_element(str, elt);
+        }
+        str.word(")");
+    }
+
+    str.end();
+}
+
+fn node_range_var(str: &mut Printer, node: &RangeVar, _ctx: DeparseNodeContext) {
+    str.ident(node.relname.clone());
+}
+
 fn node_define_stmt(str: &mut Printer, node: &DefineStmt) {
     str.cbox(0);
 
@@ -312,8 +386,103 @@ fn node_define_stmt(str: &mut Printer, node: &DefineStmt) {
     str.end();
 }
 
-fn node_any_name(str: &mut Printer, parts: &[Node]) {
-    for (i, part) in parts.iter().enumerate() {
+fn node_column_def(str: &mut Printer, node: &ColumnDef) {
+    if !node.colname.is_empty() {
+        str.ident(node.colname.clone());
+        str.nbsp();
+    }
+
+    if (node.type_name.is_some()) {
+        node_type_name(str, node.type_name.as_ref().unwrap());
+        str.nbsp();
+    }
+
+    if (node.raw_default.is_some()) {
+        str.word("using ");
+        node_expr(str, node.raw_default.as_ref().unwrap());
+        str.space();
+    }
+
+    if !node.fdwoptions.is_empty() {
+        node_create_generic_options(str, &node.fdwoptions);
+        str.space();
+    }
+
+    for constraint in node.constraints.iter() {
+        match constraint.node.as_ref().unwrap() {
+            NodeEnum::Constraint(constraint) => {
+                node_constraint(str, constraint);
+                str.space();
+            }
+            _ => unreachable!(),
+        }
+    }
+
+    if (node.coll_clause.is_some()) {
+        node_collate_clause(str, node.coll_clause.as_ref().unwrap());
+    }
+}
+
+fn node_type_name(str: &mut Printer, node: &TypeName) {
+    if node.names.len() == 2 && str_val(node.names.first().unwrap()).eq("pg_catalog") {
+        match str_val(node.names.last().unwrap()).as_str() {
+            "int4" => str.word("int"),
+            _ => todo!(),
+        }
+    } else {
+        node_any_name(str, &node.names);
+    }
+}
+
+fn node_expr(str: &mut Printer, node: &Node) {
+    todo!()
+}
+
+fn node_create_generic_options(str: &mut Printer, list: &[Node]) {
+    todo!()
+}
+
+fn node_constraint(str: &mut Printer, node: &Constraint) {
+    if !node.conname.is_empty() {
+        str.word("constraint ");
+        str.ident(node.conname.clone());
+        str.space();
+    }
+
+    match node.contype() {
+        ConstrType::ConstrPrimary => str.word("primary key "),
+        _ => todo!(),
+    }
+}
+
+fn node_opt_with(str: &mut Printer, list: &[Node]) {
+    if !list.is_empty() {
+        str.word("with ");
+        node_rel_options(str, list);
+        str.space();
+    }
+}
+
+fn node_rel_options(str: &mut Printer, list: &[Node]) {
+    todo!()
+}
+
+fn node_collate_clause(str: &mut Printer, node: &CollateClause) {
+    todo!()
+}
+
+fn node_table_element(str: &mut Printer, node: &Node) {
+    match node.node.as_ref().unwrap() {
+        NodeEnum::ColumnDef(node) => node_column_def(str, node),
+        NodeEnum::Constraint(_) => todo!(),
+        NodeEnum::IndexElem(_) => todo!(),
+        NodeEnum::DefElem(_) => todo!(),
+        _ => unreachable!(),
+    }
+}
+
+fn node_any_name(str: &mut Printer, list: &[Node]) {
+    for (i, part) in list.iter().enumerate() {
         if i > 0 {
             str.word(".");
         }
