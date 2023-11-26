@@ -1,4 +1,4 @@
-// https://github.com/lelit/pglast/blob/v5/tests/test_printers_prettification.py
+// Adapted from https://github.com/lelit/pglast/blob/v5/tests/test_printers_prettification.py.
 
 use pg_deparser::unparse;
 use pg_query::parse;
