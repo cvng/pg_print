@@ -1,6 +1,7 @@
 // Adapted from https://github.com/pganalyze/libpg_query/blob/15-latest/src/postgres_deparse.c.
 
 use crate::algorithm::Printer;
+use crate::INDENT;
 use pg_query::protobuf::CollateClause;
 use pg_query::protobuf::ColumnDef;
 use pg_query::protobuf::ConstrType;
@@ -279,7 +280,7 @@ impl Printer {
 }
 
 fn node_create_stmt(str: &mut Printer, node: &CreateStmt, is_foreign_table: bool) {
-    str.cbox(0);
+    str.cbox(INDENT);
 
     str.word("create ");
 
@@ -310,17 +311,18 @@ fn node_create_stmt(str: &mut Printer, node: &CreateStmt, is_foreign_table: bool
 
     if !node.table_elts.is_empty() {
         str.word("(");
-        str.hardbreak();
+        str.hardbreak_if_nonempty();
         for (i, elt) in node.table_elts.iter().enumerate() {
-            if i > 0 {
-                str.trailing_comma(i == node.table_elts.len());
-            }
             node_table_element(str, elt);
+            str.comma(i >= node.table_elts.len() - 1);
+            str.hardbreak();
         }
+        str.offset(-INDENT);
+        str.end();
         str.word(")");
     }
 
-    str.end();
+    str.hardbreak();
 }
 
 fn node_range_var(str: &mut Printer, node: &RangeVar, _ctx: DeparseNodeContext) {
@@ -387,32 +389,29 @@ fn node_define_stmt(str: &mut Printer, node: &DefineStmt) {
 }
 
 fn node_column_def(str: &mut Printer, node: &ColumnDef) {
-    if !node.colname.is_empty() {
-        str.ident(node.colname.clone());
+    str.ident(node.colname.clone());
+
+    if let Some(type_name) = &node.type_name {
         str.nbsp();
+        node_type_name(str, type_name);
     }
 
-    if (node.type_name.is_some()) {
-        node_type_name(str, node.type_name.as_ref().unwrap());
+    if let Some(raw_default) = &node.raw_default {
         str.nbsp();
-    }
-
-    if (node.raw_default.is_some()) {
         str.word("using ");
-        node_expr(str, node.raw_default.as_ref().unwrap());
-        str.space();
+        node_expr(str, raw_default);
     }
 
     if !node.fdwoptions.is_empty() {
+        str.nbsp();
         node_create_generic_options(str, &node.fdwoptions);
-        str.space();
     }
 
     for constraint in node.constraints.iter() {
         match constraint.node.as_ref().unwrap() {
             NodeEnum::Constraint(constraint) => {
+                str.nbsp();
                 node_constraint(str, constraint);
-                str.space();
             }
             _ => unreachable!(),
         }
@@ -450,7 +449,7 @@ fn node_constraint(str: &mut Printer, node: &Constraint) {
     }
 
     match node.contype() {
-        ConstrType::ConstrPrimary => str.word("primary key "),
+        ConstrType::ConstrPrimary => str.word("primary key"),
         _ => todo!(),
     }
 }

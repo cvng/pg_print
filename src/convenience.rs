@@ -101,6 +101,12 @@ impl Printer {
         }
     }
 
+    pub fn comma(&mut self, is_last: bool) {
+        if !is_last {
+            self.word(",");
+        }
+    }
+
     pub fn neverbreak(&mut self) {
         self.scan_break(BreakToken {
             never_break: true,

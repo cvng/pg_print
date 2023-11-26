@@ -58,7 +58,10 @@ fn test_unparse_statements() {
                 expected = expected[0..expected.len() - 1].to_owned() + "\n"
             }
 
-            let prettified = unparse(&parse(original).unwrap().protobuf).unwrap();
+            let prettified = unparse(&parse(original).unwrap().protobuf)
+                .unwrap()
+                .trim_end()
+                .to_string();
 
             assert_eq!(expected, prettified, "{}:{}:", src.display(), lineno);
         }
