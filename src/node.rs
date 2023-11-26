@@ -2,6 +2,7 @@
 
 use crate::algorithm::Printer;
 use crate::INDENT;
+use pg_query::protobuf::AConst;
 use pg_query::protobuf::CollateClause;
 use pg_query::protobuf::ColumnDef;
 use pg_query::protobuf::ConstrType;
@@ -423,14 +424,141 @@ fn node_column_def(str: &mut Printer, node: &ColumnDef) {
 }
 
 fn node_type_name(str: &mut Printer, node: &TypeName) {
+    let mut skip_typmods = false;
+
+    if node.setof {
+        str.word("setof ");
+    }
+
     if node.names.len() == 2 && str_val(node.names.first().unwrap()).eq("pg_catalog") {
-        match str_val(node.names.last().unwrap()).as_str() {
+        let name = str_val(node.names.last().unwrap());
+        match name.as_str() {
             "int4" => str.word("int"),
-            _ => todo!(),
+            "bpchar" => str.word("char"),
+            "varchar" => str.word("varchar"),
+            "numeric" => str.word("numeric"),
+            "bool" => str.word("boolean"),
+            "int2" => str.word("smallint"),
+            "int4" => str.word("int"),
+            "int8" => str.word("bigint"),
+            "real" | "float4" => str.word("real"),
+            "float8" => str.word("double precision"),
+            "time" => str.word("time"),
+            "timetz" => {
+                str.word("time ");
+                if !node.typmods.is_empty() {
+                    str.word("(");
+                    for (i, typmod) in node.typmods.iter().enumerate() {
+                        node_signed_iconst(str, typmod);
+                        str.comma(i >= node.typmods.len() - 1);
+                    }
+                    str.word(") ");
+                }
+                str.word("with time zone");
+                skip_typmods = true;
+            }
+            "timestamp" => str.word("timestamp"),
+            "timestamptz" => {
+                str.word("timestamp ");
+                if !node.typmods.is_empty() {
+                    str.word("(");
+                    for (i, typmod) in node.typmods.iter().enumerate() {
+                        node_signed_iconst(str, typmod);
+                        str.comma(i >= node.typmods.len() - 1);
+                    }
+                    str.word(") ");
+                }
+                str.word("with time zone");
+                skip_typmods = true;
+            }
+            "interval" if node.typmods.is_empty() => str.word("interval"),
+            "interval" if !node.typmods.is_empty() => {
+                str.word("interval");
+                node_interval_typmods(str, node);
+
+                skip_typmods = true;
+            }
+            _ => {
+                str.word("pg_catalog.");
+                str.word(name);
+            }
         }
     } else {
         node_any_name(str, &node.names);
     }
+}
+
+fn node_signed_iconst(str: &mut Printer, node: &Node) {
+    str.word(format!("{}", int_val(node)));
+}
+
+fn node_interval_typmods(str: &mut Printer, node: &TypeName) {
+    /*
+    const char *name = strVal(lsecond(type_name->names));
+    Assert(strcmp(name, "interval") == 0);
+    Assert(list_length(type_name->typmods) >= 1);
+    Assert(IsA(linitial(type_name->typmods), A_Const));
+    Assert(IsA(&castNode(A_Const, linitial(type_name->typmods))->val, Integer));
+
+    int fields = intVal(&castNode(A_Const, linitial(type_name->typmods))->val);
+
+    // This logic is based on intervaltypmodout in timestamp.c
+    switch (fields)
+    {
+        case INTERVAL_MASK(YEAR):
+            appendStringInfoString(str, " year");
+            break;
+        case INTERVAL_MASK(MONTH):
+            appendStringInfoString(str, " month");
+            break;
+        case INTERVAL_MASK(DAY):
+            appendStringInfoString(str, " day");
+            break;
+        case INTERVAL_MASK(HOUR):
+            appendStringInfoString(str, " hour");
+            break;
+        case INTERVAL_MASK(MINUTE):
+            appendStringInfoString(str, " minute");
+            break;
+        case INTERVAL_MASK(SECOND):
+            appendStringInfoString(str, " second");
+            break;
+        case INTERVAL_MASK(YEAR) | INTERVAL_MASK(MONTH):
+            appendStringInfoString(str, " year to month");
+            break;
+        case INTERVAL_MASK(DAY) | INTERVAL_MASK(HOUR):
+            appendStringInfoString(str, " day to hour");
+            break;
+        case INTERVAL_MASK(DAY) | INTERVAL_MASK(HOUR) | INTERVAL_MASK(MINUTE):
+            appendStringInfoString(str, " day to minute");
+            break;
+        case INTERVAL_MASK(DAY) | INTERVAL_MASK(HOUR) | INTERVAL_MASK(MINUTE) | INTERVAL_MASK(SECOND):
+            appendStringInfoString(str, " day to second");
+            break;
+        case INTERVAL_MASK(HOUR) | INTERVAL_MASK(MINUTE):
+            appendStringInfoString(str, " hour to minute");
+            break;
+        case INTERVAL_MASK(HOUR) | INTERVAL_MASK(MINUTE) | INTERVAL_MASK(SECOND):
+            appendStringInfoString(str, " hour to second");
+            break;
+        case INTERVAL_MASK(MINUTE) | INTERVAL_MASK(SECOND):
+            appendStringInfoString(str, " minute to second");
+            break;
+        case INTERVAL_FULL_RANGE:
+            // Nothing
+            break;
+        default:
+            Assert(false);
+            break;
+    }
+
+    if (list_length(type_name->typmods) == 2)
+    {
+        int precision = intVal(&castNode(A_Const, lsecond(type_name->typmods))->val);
+        if (precision != INTERVAL_FULL_PRECISION)
+            appendStringInfo(str, "(%d)", precision);
+    }
+    */
 }
 
 fn node_expr(str: &mut Printer, node: &Node) {
@@ -492,6 +620,13 @@ fn node_any_name(str: &mut Printer, list: &[Node]) {
 fn str_val(node: &Node) -> String {
     match node.node.as_ref().unwrap() {
         NodeEnum::String(node) => node.sval.clone(),
+        _ => unreachable!(),
+    }
+}
+
+fn int_val(node: &Node) -> i32 {
+    match node.node.as_ref().unwrap() {
+        NodeEnum::Integer(node) => node.ival,
         _ => unreachable!(),
     }
 }
