@@ -1,6 +1,11 @@
+// Adapted from https://github.com/pganalyze/libpg_query/blob/15-latest/src/postgres_deparse.c.
+
 use crate::algorithm::Printer;
+use pg_query::protobuf::DefElem;
 use pg_query::protobuf::DefineStmt;
+use pg_query::protobuf::ObjectType;
 use pg_query::protobuf::RawStmt;
+use pg_query::Node;
 use pg_query::NodeEnum;
 
 impl Printer {
@@ -77,7 +82,7 @@ impl Printer {
             NodeEnum::ClusterStmt(_) => todo!(),
             NodeEnum::CopyStmt(_) => todo!(),
             NodeEnum::CreateStmt(_) => todo!(),
-            NodeEnum::DefineStmt(node) => self.node_define_stmt(node),
+            NodeEnum::DefineStmt(node) => node_define_stmt(self, node),
             NodeEnum::DropStmt(_) => todo!(),
             NodeEnum::TruncateStmt(_) => todo!(),
             NodeEnum::CommentStmt(_) => todo!(),
@@ -246,15 +251,79 @@ impl Printer {
             NodeEnum::AConst(_) => todo!(),
         }
     }
+}
 
-    fn node_define_stmt(&mut self, node: &DefineStmt) {
-        self.cbox(0);
-        self.keyword("create ");
-        self.keyword("type ");
-        match node.defnames[0].node.as_ref().unwrap() {
-            NodeEnum::String(string) => self.word(string.sval.clone()),
-            _ => unreachable!(),
-        };
-        self.end();
+fn node_define_stmt(str: &mut Printer, node: &DefineStmt) {
+    str.cbox(0);
+
+    str.word("create ");
+
+    if node.replace {
+        str.word("or replace ");
+    }
+
+    match node.kind() {
+        ObjectType::ObjectAggregate => str.word("aggregate "),
+        ObjectType::ObjectOperator => str.word("operator "),
+        ObjectType::ObjectType => str.word("type "),
+        ObjectType::ObjectTsparser => str.word("text search parser "),
+        ObjectType::ObjectTsdictionary => str.word("text seach dictionary "),
+        ObjectType::ObjectTstemplate => str.word("text search template "),
+        ObjectType::ObjectTsconfiguration => str.word("text search configuration "),
+        ObjectType::ObjectCollation => str.word("collation "),
+        _ => unreachable!(),
+    };
+
+    if node.if_not_exists {
+        str.word("if not exists ");
+    }
+
+    match node.kind() {
+        ObjectType::ObjectAggregate => todo!(),
+        ObjectType::ObjectOperator => todo!(),
+        ObjectType::ObjectType
+        | ObjectType::ObjectTsparser
+        | ObjectType::ObjectTsdictionary
+        | ObjectType::ObjectTstemplate
+        | ObjectType::ObjectTsconfiguration
+        | ObjectType::ObjectCollation => node_any_name(str, &node.defnames),
+        _ => unreachable!(),
+    }
+    str.space();
+
+    if !node.oldstyle && matches!(node.kind(), ObjectType::ObjectAggregate) {
+        todo!();
+        str.space();
+    }
+
+    if (matches!(node.kind(), ObjectType::ObjectCollation)
+        && node.definition.len() == 1
+        && matches!(
+            node.definition.first().unwrap().node.as_ref().unwrap(),
+            NodeEnum::DefElem(node) if node.defname.eq("from"),
+        ))
+    {
+        str.word("from ");
+        todo!();
+    } else if (!node.definition.is_empty()) {
+        todo!()
+    }
+
+    str.end();
+}
+
+fn node_any_name(str: &mut Printer, parts: &[Node]) {
+    for (i, part) in parts.iter().enumerate() {
+        if i > 0 {
+            str.word(".");
+        }
+        str.ident(str_val(part));
+    }
+}
+
+fn str_val(node: &Node) -> String {
+    match node.node.as_ref().unwrap() {
+        NodeEnum::String(node) => node.sval.clone(),
+        _ => unreachable!(),
     }
 }
