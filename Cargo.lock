@@ -290,7 +290,6 @@ version = "0.1.0"
 dependencies = [
  "glob",
  "pg_query",
- "thiserror",
 ]
 
 [[package]]

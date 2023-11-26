@@ -55,7 +55,7 @@ fn test_prettification() {
                 expected = expected[0..expected.len() - 1].to_owned() + "\n"
             }
 
-            let prettified = pg_deparser::unparse(original);
+            let prettified = pg_deparser::unparse(&pg_query::parse(original).unwrap().protobuf);
 
             assert_eq!(expected, prettified, "{}:{}:", src.display(), lineno);
         }
