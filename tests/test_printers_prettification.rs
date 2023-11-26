@@ -1,5 +1,8 @@
 // https://github.com/lelit/pglast/blob/v5/tests/test_printers_prettification.py
 
+use pg_deparser::unparse;
+use pg_query::parse;
+
 const PASSES: [&str; 1] = [
     // "tests/test_printers_prettification/ddl/alter_default_privileges.sql",
     // "tests/test_printers_prettification/ddl/alter_subscription.sql",
@@ -55,7 +58,7 @@ fn test_prettification() {
                 expected = expected[0..expected.len() - 1].to_owned() + "\n"
             }
 
-            let prettified = pg_deparser::unparse(&pg_query::parse(original).unwrap().protobuf);
+            let prettified = unparse(&parse(original).unwrap().protobuf).unwrap();
 
             assert_eq!(expected, prettified, "{}:{}:", src.display(), lineno);
         }

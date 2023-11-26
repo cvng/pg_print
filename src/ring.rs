@@ -1,5 +1,6 @@
 use std::collections::VecDeque;
-use std::ops::{Index, IndexMut};
+use std::ops::Index;
+use std::ops::IndexMut;
 
 pub struct RingBuffer<T> {
     data: VecDeque<T>,

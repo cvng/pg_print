@@ -29,6 +29,10 @@ impl Printer {
         self.scan_string(s);
     }
 
+    pub fn keyword<S: Into<Cow<'static, str>>>(&mut self, wrd: S) {
+        self.word(wrd.into().to_ascii_uppercase());
+    }
+
     fn spaces(&mut self, n: usize) {
         self.scan_break(BreakToken {
             blank_space: n,

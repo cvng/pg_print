@@ -1,10 +1,11 @@
 use crate::algorithm::Printer;
+use pg_query::protobuf::DefineStmt;
 use pg_query::protobuf::RawStmt;
 use pg_query::NodeEnum;
 
 impl Printer {
     pub fn stmt(&mut self, stmt: &RawStmt) {
-        match *stmt.stmt.clone().unwrap().node.as_ref().unwrap() {
+        match stmt.stmt.as_ref().unwrap().node.as_ref().unwrap() {
             NodeEnum::Alias(_) => todo!(),
             NodeEnum::RangeVar(_) => todo!(),
             NodeEnum::TableFunc(_) => todo!(),
@@ -76,7 +77,7 @@ impl Printer {
             NodeEnum::ClusterStmt(_) => todo!(),
             NodeEnum::CopyStmt(_) => todo!(),
             NodeEnum::CreateStmt(_) => todo!(),
-            NodeEnum::DefineStmt(_) => todo!(),
+            NodeEnum::DefineStmt(node) => self.node_define_stmt(node),
             NodeEnum::DropStmt(_) => todo!(),
             NodeEnum::TruncateStmt(_) => todo!(),
             NodeEnum::CommentStmt(_) => todo!(),
@@ -244,5 +245,16 @@ impl Printer {
             NodeEnum::OidList(_) => todo!(),
             NodeEnum::AConst(_) => todo!(),
         }
+    }
+
+    fn node_define_stmt(&mut self, node: &DefineStmt) {
+        self.cbox(0);
+        self.keyword("create ");
+        self.keyword("type ");
+        match node.defnames[0].node.as_ref().unwrap() {
+            NodeEnum::String(string) => self.word(string.sval.clone()),
+            _ => unreachable!(),
+        };
+        self.end();
     }
 }
