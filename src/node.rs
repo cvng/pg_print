@@ -575,7 +575,7 @@ fn node_interval_typmods(str: &mut Printer, node: &TypeName) {
     let interval_fields = node
         .typmods
         .first()
-        .map(a_const_ival)
+        .map(a_const_int_val)
         .map(|ival| Some(NodeEnum::Integer(Integer { ival })))
         .map(|node| Node { node })
         .as_ref()
@@ -605,7 +605,7 @@ fn node_interval_typmods(str: &mut Printer, node: &TypeName) {
         let precision = node
             .typmods
             .last()
-            .map(a_const_ival)
+            .map(a_const_int_val)
             .map(|ival| Some(NodeEnum::Integer(Integer { ival })))
             .map(|node| Node { node })
             .as_ref()
@@ -692,24 +692,24 @@ fn node_any_name(str: &mut Printer, list: &[Node]) {
 
 fn str_val(node: &Node) -> String {
     match node.node.as_ref().unwrap() {
-        NodeEnum::String(node) => node.sval.clone(),
+        NodeEnum::String(val) => val.sval.clone(),
         _ => unreachable!(),
     }
 }
 
 fn int_val(node: &Node) -> i32 {
     match node.node.as_ref().unwrap() {
-        NodeEnum::Integer(node) => node.ival,
+        NodeEnum::Integer(val) => val.ival,
         _ => unreachable!(),
     }
 }
 
-fn a_const_ival(node: &Node) -> i32 {
+fn a_const_int_val(node: &Node) -> i32 {
     match node.node.as_ref().unwrap() {
         NodeEnum::AConst(AConst {
-            val: Some(Val::Ival(Integer { ival, .. })),
+            val: Some(Val::Ival(val)),
             ..
-        }) => *ival,
+        }) => val.ival,
         _ => unreachable!(),
     }
 }
