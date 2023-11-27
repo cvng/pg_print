@@ -47,6 +47,11 @@ enum PrintFrame {
 
 pub const SIZE_INFINITY: isize = 0xffff;
 
+#[derive(Clone, Default)]
+pub struct PrinterOptions {
+    pub keyword_lowercase: bool,
+}
+
 pub struct Printer {
     out: String,
     // Number of spaces left on line
@@ -69,6 +74,8 @@ pub struct Printer {
     indent: usize,
     // Buffered indentation to avoid writing trailing whitespace
     pending_indentation: usize,
+    // Options
+    opts: PrinterOptions,
 }
 
 #[derive(Clone)]
@@ -89,6 +96,7 @@ impl Printer {
             print_stack: Vec::new(),
             indent: 0,
             pending_indentation: 0,
+            opts: PrinterOptions::default(),
         }
     }
 
@@ -372,5 +380,9 @@ impl Printer {
         self.out
             .extend(iter::repeat(' ').take(self.pending_indentation));
         self.pending_indentation = 0;
+    }
+
+    pub fn options(&self) -> PrinterOptions {
+        self.opts.clone()
     }
 }

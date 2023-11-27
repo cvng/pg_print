@@ -30,7 +30,11 @@ impl Printer {
     }
 
     pub fn word<S: Into<Cow<'static, str>>>(&mut self, wrd: S) {
-        self.verbatim(wrd.into().to_ascii_uppercase());
+        self.verbatim(if self.options().keyword_lowercase {
+            wrd.into().to_ascii_lowercase()
+        } else {
+            wrd.into().to_ascii_uppercase()
+        });
     }
 
     pub fn ident<S: Into<Cow<'static, str>>>(&mut self, wrd: S) {
