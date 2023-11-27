@@ -104,6 +104,7 @@ impl Printer {
     pub fn comma(&mut self, is_last: bool) {
         if !is_last {
             self.word(",");
+            self.space();
         }
     }
 

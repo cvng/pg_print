@@ -326,7 +326,9 @@ fn node_create_stmt(str: &mut Printer, node: &CreateStmt, is_foreign_table: bool
         str.hardbreak_if_nonempty();
         for (i, elt) in node.table_elts.iter().enumerate() {
             node_table_element(str, elt);
-            str.comma(i >= node.table_elts.len() - 1);
+            if i < node.table_elts.len() - 1 {
+                str.word(",");
+            }
             str.hardbreak();
         }
         str.offset(-INDENT);
@@ -628,12 +630,28 @@ fn node_constraint(str: &mut Printer, node: &Constraint) {
     if !node.conname.is_empty() {
         str.keyword("constraint ");
         str.ident(node.conname.clone());
-        str.space();
+        str.nbsp();
     }
 
     match node.contype() {
         ConstrType::ConstrPrimary => str.keyword("primary key"),
         _ => todo!(),
+    }
+
+    if !node.keys.is_empty() {
+        str.nbsp();
+        str.word("(");
+        node_column_list(str, &node.keys);
+        str.word(")");
+    }
+}
+
+fn node_column_list(str: &mut Printer, list: &[Node]) {
+    for (i, column) in list.iter().enumerate() {
+        str.ident(str_val(column));
+        if i < list.len() - 1 {
+            str.word(", ");
+        }
     }
 }
 
