@@ -591,7 +591,7 @@ fn node_collate_clause(str: &mut Printer, node: &CollateClause) {
 fn node_table_element(str: &mut Printer, node: &Node) {
     match node.node.as_ref().unwrap() {
         NodeEnum::ColumnDef(node) => node_column_def(str, node),
-        NodeEnum::Constraint(_) => todo!(),
+        NodeEnum::Constraint(node) => node_constraint(str, node),
         NodeEnum::IndexElem(_) => todo!(),
         NodeEnum::DefElem(_) => todo!(),
         _ => unreachable!(),

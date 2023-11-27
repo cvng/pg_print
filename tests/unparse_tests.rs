@@ -47,8 +47,6 @@ fn test_unparse_statements() {
             .split("\n\n")
             .map(|case| case.trim())
         {
-            lineno += case.matches('\n').count() + 2;
-
             let parts = case.split("\n=\n").collect::<Vec<_>>();
             let original = parts[0].trim();
             let parts = parts[1].split("\n:\n").collect::<Vec<_>>();
@@ -64,6 +62,8 @@ fn test_unparse_statements() {
                 .to_string();
 
             assert_eq!(expected, prettified, "{}:{}:", src.display(), lineno);
+
+            lineno += case.matches('\n').count() + 2;
         }
     }
 }
