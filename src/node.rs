@@ -44,7 +44,7 @@ enum DeparseNodeContext {
     SetStatement,
     // Identifier vs constant context.
     Identifier,
-    Constraint,
+    Constant,
 }
 
 impl Printer {
@@ -337,7 +337,7 @@ fn node_create_stmt(str: &mut Printer, node: &CreateStmt, is_foreign_table: bool
     str.hardbreak();
 }
 
-fn node_range_var(str: &mut Printer, node: &RangeVar, _ctx: DeparseNodeContext) {
+fn node_range_var(str: &mut Printer, node: &RangeVar, context: DeparseNodeContext) {
     str.ident(node.relname.clone());
 }
 
@@ -442,8 +442,8 @@ fn node_type_name(str: &mut Printer, node: &TypeName) {
 
     if node.names.len() == 2 && str_val(node.names.first().unwrap()) == "pg_catalog" {
         let name = str_val(node.names.last().unwrap());
+
         match name.as_str() {
-            "int4" => str.word("int"),
             "bpchar" => str.word("char"),
             "varchar" => str.word("varchar"),
             "numeric" => str.word("numeric"),
@@ -481,12 +481,13 @@ fn node_type_name(str: &mut Printer, node: &TypeName) {
                 str.word("with time zone");
                 skip_typmods = true;
             }
-            "interval" if node.typmods.is_empty() => str.word("interval"),
-            "interval" if !node.typmods.is_empty() => {
+            "interval" => {
                 str.word("interval");
-                node_interval_typmods(str, node);
 
-                skip_typmods = true;
+                if !node.typmods.is_empty() {
+                    node_interval_typmods(str, node);
+                    skip_typmods = true;
+                }
             }
             _ => {
                 str.word("pg_catalog.");
@@ -496,6 +497,72 @@ fn node_type_name(str: &mut Printer, node: &TypeName) {
     } else {
         node_any_name(str, &node.names);
     }
+
+    if !node.typmods.is_empty() && !skip_typmods {
+        str.word("(");
+        for (i, typmod) in node.typmods.iter().enumerate() {
+            match typmod.node.as_ref().unwrap() {
+                NodeEnum::AConst(node) => node_a_const(str, node),
+                NodeEnum::ParamRef(node) => node_param_ref(str, typmod),
+                NodeEnum::ColumnRef(node) => node_column_ref(str, typmod),
+                _ => unreachable!(),
+            }
+            str.comma(i >= node.typmods.len() - 1);
+        }
+        str.word(")");
+    }
+}
+
+fn node_value(str: &mut Printer, node: &AConst, context: DeparseNodeContext) {
+    let Some(val) = node.val.as_ref() else {
+        str.keyword("null");
+        return;
+    };
+
+    match val {
+        Val::Ival(_) | Val::Fval(_) => node_numeric_only(str, val),
+        Val::Boolval(val) => str.word(if val.boolval { "true" } else { "false" }),
+        Val::Sval(val) => match context {
+            DeparseNodeContext::Identifier => str.ident(val.sval.clone()),
+            DeparseNodeContext::Constant => deparse_string_literal(str, &val.sval),
+            _ => str.word(val.sval.clone()),
+        },
+        Val::Bsval(val) => match val.bsval.chars().next().unwrap() {
+            'x' => {
+                str.word("x");
+                deparse_string_literal(str, &val.bsval[1..])
+            }
+            'b' => {
+                str.word("b");
+                deparse_string_literal(str, &val.bsval[1..])
+            }
+            _ => unreachable!(),
+        },
+    }
+}
+
+fn node_numeric_only(str: &mut Printer, val: &Val) {
+    match val {
+        Val::Ival(val) => str.word(format!("{}", val.ival)),
+        Val::Fval(val) => str.word(val.fval.clone()),
+        _ => unreachable!(),
+    }
+}
+
+fn deparse_string_literal(str: &mut Printer, val: &str) {
+    todo!()
+}
+
+fn node_a_const(str: &mut Printer, node: &AConst) {
+    node_value(str, node, DeparseNodeContext::Constant);
+}
+
+fn node_param_ref(str: &mut Printer, node: &Node) {
+    todo!()
+}
+
+fn node_column_ref(str: &mut Printer, node: &Node) {
+    todo!()
 }
 
 fn node_signed_iconst(str: &mut Printer, node: &Node) {
@@ -544,7 +611,7 @@ fn node_interval_typmods(str: &mut Printer, node: &TypeName) {
             .unwrap();
 
         if precision != INTERVAL_FULL_PRECISION {
-            str.word(format!("{}", precision));
+            str.word(format!(" ({})", precision));
         }
     }
 }

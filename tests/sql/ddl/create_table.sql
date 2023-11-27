@@ -18,7 +18,7 @@ CREATE TABLE films (
 CREATE TABLE films (
     code char(5),
     title varchar(40),
-    did integer,
+    did int,
     date_prod date,
     kind varchar(10),
     len interval hour to second (3),
