@@ -294,19 +294,18 @@ impl Printer {
 
 fn node_create_stmt(str: &mut Printer, node: &CreateStmt, is_foreign_table: bool) {
     str.cbox(INDENT);
-
-    str.word("create ");
+    str.keyword("create ");
 
     if is_foreign_table {
-        str.word("foreign ");
+        str.keyword("foreign ");
     }
 
     // TODO: node_opt_temp(str, &node.relation.unwrap().relpersistence);
 
-    str.word("table ");
+    str.keyword("table ");
 
     if node.if_not_exists {
-        str.word("if not exists ");
+        str.keyword("if not exists ");
     }
 
     node_range_var(
@@ -317,7 +316,7 @@ fn node_create_stmt(str: &mut Printer, node: &CreateStmt, is_foreign_table: bool
     str.nbsp();
 
     if node.of_typename.is_some() {
-        str.word("of ");
+        str.keyword("of ");
         node_type_name(str, node.of_typename.as_ref().unwrap());
         str.space();
     }
@@ -344,27 +343,26 @@ fn node_range_var(str: &mut Printer, node: &RangeVar, _ctx: DeparseNodeContext) 
 
 fn node_define_stmt(str: &mut Printer, node: &DefineStmt) {
     str.cbox(0);
-
-    str.word("create ");
+    str.keyword("create ");
 
     if node.replace {
-        str.word("or replace ");
+        str.keyword("or replace ");
     }
 
     match node.kind() {
-        ObjectType::ObjectAggregate => str.word("aggregate "),
-        ObjectType::ObjectOperator => str.word("operator "),
-        ObjectType::ObjectType => str.word("type "),
-        ObjectType::ObjectTsparser => str.word("text search parser "),
-        ObjectType::ObjectTsdictionary => str.word("text seach dictionary "),
-        ObjectType::ObjectTstemplate => str.word("text search template "),
-        ObjectType::ObjectTsconfiguration => str.word("text search configuration "),
-        ObjectType::ObjectCollation => str.word("collation "),
+        ObjectType::ObjectAggregate => str.keyword("aggregate "),
+        ObjectType::ObjectOperator => str.keyword("operator "),
+        ObjectType::ObjectType => str.keyword("type "),
+        ObjectType::ObjectTsparser => str.keyword("text search parser "),
+        ObjectType::ObjectTsdictionary => str.keyword("text seach dictionary "),
+        ObjectType::ObjectTstemplate => str.keyword("text search template "),
+        ObjectType::ObjectTsconfiguration => str.keyword("text search configuration "),
+        ObjectType::ObjectCollation => str.keyword("collation "),
         _ => unreachable!(),
     };
 
     if node.if_not_exists {
-        str.word("if not exists ");
+        str.keyword("if not exists ");
     }
 
     match node.kind() {
@@ -392,7 +390,7 @@ fn node_define_stmt(str: &mut Printer, node: &DefineStmt) {
             NodeEnum::DefElem(node) if node.defname == "from",
         ))
     {
-        str.word("from ");
+        str.keyword("from ");
         todo!();
     } else if (!node.definition.is_empty()) {
         todo!()
@@ -439,7 +437,7 @@ fn node_type_name(str: &mut Printer, node: &TypeName) {
     let mut skip_typmods = false;
 
     if node.setof {
-        str.word("setof ");
+        str.keyword("setof ");
     }
 
     if node.names.len() == 2 && str_val(node.names.first().unwrap()) == "pg_catalog" {
@@ -561,20 +559,20 @@ fn node_create_generic_options(str: &mut Printer, list: &[Node]) {
 
 fn node_constraint(str: &mut Printer, node: &Constraint) {
     if !node.conname.is_empty() {
-        str.word("constraint ");
+        str.keyword("constraint ");
         str.ident(node.conname.clone());
         str.space();
     }
 
     match node.contype() {
-        ConstrType::ConstrPrimary => str.word("primary key"),
+        ConstrType::ConstrPrimary => str.keyword("primary key"),
         _ => todo!(),
     }
 }
 
 fn node_opt_with(str: &mut Printer, list: &[Node]) {
     if !list.is_empty() {
-        str.word("with ");
+        str.keyword("with ");
         node_rel_options(str, list);
         str.space();
     }
