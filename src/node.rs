@@ -505,15 +505,15 @@ fn node_signed_iconst(str: &mut Printer, node: &Node) {
 }
 
 fn node_interval_typmods(str: &mut Printer, node: &TypeName) {
-    let fields = match node.typmods.first().unwrap().node.as_ref().unwrap() {
-        NodeEnum::AConst(AConst {
-            val: Some(Val::Ival(val)),
-            ..
-        }) => int_val(&Node {
-            node: Some(NodeEnum::Integer(val.clone())),
-        }),
-        _ => unreachable!(),
-    };
+    let fields = node
+        .typmods
+        .first()
+        .map(a_const_ival)
+        .map(|ival| Some(NodeEnum::Integer(Integer { ival })))
+        .map(|node| Node { node })
+        .as_ref()
+        .map(int_val)
+        .unwrap();
 
     // See https://github.com/pganalyze/libpg_query/blob/15-latest/src/postgres_deparse.c#L3784.
     match fields {
@@ -535,7 +535,16 @@ fn node_interval_typmods(str: &mut Printer, node: &TypeName) {
     };
 
     if node.typmods.len() == 2 {
-        let precision = int_val(node.typmods.last().unwrap());
+        let precision = node
+            .typmods
+            .last()
+            .map(a_const_ival)
+            .map(|ival| Some(NodeEnum::Integer(Integer { ival })))
+            .map(|node| Node { node })
+            .as_ref()
+            .map(int_val)
+            .unwrap();
+
         if precision != INTERVAL_FULL_PRECISION {
             str.word(format!("{}", precision));
         }
@@ -608,6 +617,16 @@ fn str_val(node: &Node) -> String {
 fn int_val(node: &Node) -> i32 {
     match node.node.as_ref().unwrap() {
         NodeEnum::Integer(node) => node.ival,
+        _ => unreachable!(),
+    }
+}
+
+fn a_const_ival(node: &Node) -> i32 {
+    match node.node.as_ref().unwrap() {
+        NodeEnum::AConst(AConst {
+            val: Some(Val::Ival(Integer { ival, .. })),
+            ..
+        }) => *ival,
         _ => unreachable!(),
     }
 }
