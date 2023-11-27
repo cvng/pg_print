@@ -503,7 +503,7 @@ fn node_signed_iconst(str: &mut Printer, node: &Node) {
 }
 
 fn node_interval_typmods(str: &mut Printer, node: &TypeName) {
-    let fields = node
+    let interval_fields = node
         .typmods
         .first()
         .map(a_const_ival)
@@ -514,7 +514,7 @@ fn node_interval_typmods(str: &mut Printer, node: &TypeName) {
         .unwrap();
 
     // See https://github.com/pganalyze/libpg_query/blob/15-latest/src/postgres_deparse.c#L3784.
-    match fields {
+    match interval_fields {
         x if x == 1 << YEAR => str.word(" year"),
         x if x == 1 << MONTH => str.word(" month"),
         x if x == 1 << DAY => str.word(" day"),

@@ -47,11 +47,6 @@ enum PrintFrame {
 
 pub const SIZE_INFINITY: isize = 0xffff;
 
-#[derive(Clone, Default)]
-pub struct PrinterOptions {
-    pub keyword_lowercase: bool,
-}
-
 pub struct Printer {
     out: String,
     // Number of spaces left on line
