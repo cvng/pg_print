@@ -2,6 +2,7 @@
 
 use crate::algorithm::Printer;
 use crate::INDENT;
+use pg_query::protobuf::a_const::Val;
 use pg_query::protobuf::AConst;
 use pg_query::protobuf::CollateClause;
 use pg_query::protobuf::ColumnDef;
@@ -10,12 +11,23 @@ use pg_query::protobuf::Constraint;
 use pg_query::protobuf::CreateStmt;
 use pg_query::protobuf::DefElem;
 use pg_query::protobuf::DefineStmt;
+use pg_query::protobuf::Integer;
 use pg_query::protobuf::ObjectType;
 use pg_query::protobuf::RangeVar;
 use pg_query::protobuf::RawStmt;
 use pg_query::protobuf::TypeName;
 use pg_query::Node;
 use pg_query::NodeEnum;
+
+const MONTH: i32 = 1;
+const YEAR: i32 = 2;
+const DAY: i32 = 3;
+const HOUR: i32 = 10;
+const MINUTE: i32 = 11;
+const SECOND: i32 = 12;
+
+const INTERVAL_FULL_RANGE: i32 = 0x7FFF;
+const INTERVAL_FULL_PRECISION: i32 = 0xFFFF;
 
 enum DeparseNodeContext {
     None,
@@ -377,7 +389,7 @@ fn node_define_stmt(str: &mut Printer, node: &DefineStmt) {
         && node.definition.len() == 1
         && matches!(
             node.definition.first().unwrap().node.as_ref().unwrap(),
-            NodeEnum::DefElem(node) if node.defname.eq("from"),
+            NodeEnum::DefElem(node) if node.defname == "from",
         ))
     {
         str.word("from ");
@@ -430,7 +442,7 @@ fn node_type_name(str: &mut Printer, node: &TypeName) {
         str.word("setof ");
     }
 
-    if node.names.len() == 2 && str_val(node.names.first().unwrap()).eq("pg_catalog") {
+    if node.names.len() == 2 && str_val(node.names.first().unwrap()) == "pg_catalog" {
         let name = str_val(node.names.last().unwrap());
         match name.as_str() {
             "int4" => str.word("int"),
@@ -493,72 +505,41 @@ fn node_signed_iconst(str: &mut Printer, node: &Node) {
 }
 
 fn node_interval_typmods(str: &mut Printer, node: &TypeName) {
-    /*
-    const char *name = strVal(lsecond(type_name->names));
-    Assert(strcmp(name, "interval") == 0);
-    Assert(list_length(type_name->typmods) >= 1);
-    Assert(IsA(linitial(type_name->typmods), A_Const));
-    Assert(IsA(&castNode(A_Const, linitial(type_name->typmods))->val, Integer));
+    let fields = match node.typmods.first().unwrap().node.as_ref().unwrap() {
+        NodeEnum::AConst(AConst {
+            val: Some(Val::Ival(val)),
+            ..
+        }) => int_val(&Node {
+            node: Some(NodeEnum::Integer(val.clone())),
+        }),
+        _ => unreachable!(),
+    };
 
-    int fields = intVal(&castNode(A_Const, linitial(type_name->typmods))->val);
+    // See https://github.com/pganalyze/libpg_query/blob/15-latest/src/postgres_deparse.c#L3784.
+    match fields {
+        x if x == 1 << YEAR => str.word(" year"),
+        x if x == 1 << MONTH => str.word(" month"),
+        x if x == 1 << DAY => str.word(" day"),
+        x if x == 1 << HOUR => str.word(" hour"),
+        x if x == 1 << MINUTE => str.word(" minute"),
+        x if x == 1 << SECOND => str.word(" second"),
+        x if x == 1 << YEAR | 1 << MONTH => str.word(" year to month"),
+        x if x == 1 << DAY | 1 << HOUR => str.word(" day to hour"),
+        x if x == 1 << DAY | 1 << HOUR | 1 << MINUTE => str.word(" day to minute"),
+        x if x == 1 << DAY | 1 << HOUR | 1 << MINUTE | 1 << SECOND => str.word(" day to second"),
+        x if x == 1 << HOUR | 1 << MINUTE => str.word(" hour to minute"),
+        x if x == 1 << HOUR | 1 << MINUTE | 1 << SECOND => str.word(" hour to second"),
+        x if x == 1 << MINUTE | 1 << SECOND => str.word(" minute to second"),
+        INTERVAL_FULL_RANGE => {}
+        _ => unreachable!(),
+    };
 
-    // This logic is based on intervaltypmodout in timestamp.c
-    switch (fields)
-    {
-        case INTERVAL_MASK(YEAR):
-            appendStringInfoString(str, " year");
-            break;
-        case INTERVAL_MASK(MONTH):
-            appendStringInfoString(str, " month");
-            break;
-        case INTERVAL_MASK(DAY):
-            appendStringInfoString(str, " day");
-            break;
-        case INTERVAL_MASK(HOUR):
-            appendStringInfoString(str, " hour");
-            break;
-        case INTERVAL_MASK(MINUTE):
-            appendStringInfoString(str, " minute");
-            break;
-        case INTERVAL_MASK(SECOND):
-            appendStringInfoString(str, " second");
-            break;
-        case INTERVAL_MASK(YEAR) | INTERVAL_MASK(MONTH):
-            appendStringInfoString(str, " year to month");
-            break;
-        case INTERVAL_MASK(DAY) | INTERVAL_MASK(HOUR):
-            appendStringInfoString(str, " day to hour");
-            break;
-        case INTERVAL_MASK(DAY) | INTERVAL_MASK(HOUR) | INTERVAL_MASK(MINUTE):
-            appendStringInfoString(str, " day to minute");
-            break;
-        case INTERVAL_MASK(DAY) | INTERVAL_MASK(HOUR) | INTERVAL_MASK(MINUTE) | INTERVAL_MASK(SECOND):
-            appendStringInfoString(str, " day to second");
-            break;
-        case INTERVAL_MASK(HOUR) | INTERVAL_MASK(MINUTE):
-            appendStringInfoString(str, " hour to minute");
-            break;
-        case INTERVAL_MASK(HOUR) | INTERVAL_MASK(MINUTE) | INTERVAL_MASK(SECOND):
-            appendStringInfoString(str, " hour to second");
-            break;
-        case INTERVAL_MASK(MINUTE) | INTERVAL_MASK(SECOND):
-            appendStringInfoString(str, " minute to second");
-            break;
-        case INTERVAL_FULL_RANGE:
-            // Nothing
-            break;
-        default:
-            Assert(false);
-            break;
+    if node.typmods.len() == 2 {
+        let precision = int_val(node.typmods.last().unwrap());
+        if precision != INTERVAL_FULL_PRECISION {
+            str.word(format!("{}", precision));
+        }
     }
-
-    if (list_length(type_name->typmods) == 2)
-    {
-        int precision = intVal(&castNode(A_Const, lsecond(type_name->typmods))->val);
-        if (precision != INTERVAL_FULL_PRECISION)
-            appendStringInfo(str, "(%d)", precision);
-    }
-    */
 }
 
 fn node_expr(str: &mut Printer, node: &Node) {
