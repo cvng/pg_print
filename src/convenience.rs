@@ -24,21 +24,17 @@ impl Printer {
         self.scan_end();
     }
 
-    pub fn verbatim<S: Into<Cow<'static, str>>>(&mut self, wrd: S) {
+    pub fn word<S: Into<Cow<'static, str>>>(&mut self, wrd: S) {
         let s = wrd.into();
         self.scan_string(s);
     }
 
-    pub fn word<S: Into<Cow<'static, str>>>(&mut self, wrd: S) {
-        self.verbatim(if self.options().keyword_lowercase {
-            wrd.into().to_ascii_lowercase()
-        } else {
-            wrd.into().to_ascii_uppercase()
-        });
+    pub fn keyword<S: Into<Cow<'static, str>>>(&mut self, wrd: S) {
+        self.word(wrd.into().to_ascii_uppercase());
     }
 
     pub fn ident<S: Into<Cow<'static, str>>>(&mut self, wrd: S) {
-        self.verbatim(wrd);
+        self.word(wrd);
     }
 
     fn spaces(&mut self, n: usize) {

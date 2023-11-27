@@ -2,7 +2,7 @@ create table a (id serial primary key, value integer)
 =
 CREATE TABLE a (
     id serial PRIMARY KEY,
-    value INT
+    value int
 )
 
 CREATE TABLE films (
