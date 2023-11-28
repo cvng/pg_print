@@ -20,27 +20,27 @@ use pg_query::Node;
 use pg_query::NodeEnum;
 use std::ops::Deref;
 
-pub const MONTH: i32 = 1;
-pub const YEAR: i32 = 2;
-pub const DAY: i32 = 3;
-pub const HOUR: i32 = 10;
-pub const MINUTE: i32 = 11;
-pub const SECOND: i32 = 12;
+const MONTH: i32 = 1;
+const YEAR: i32 = 2;
+const DAY: i32 = 3;
+const HOUR: i32 = 10;
+const MINUTE: i32 = 11;
+const SECOND: i32 = 12;
 
-pub const INTERVAL_FULL_RANGE: i32 = 0x7FFF;
-pub const INTERVAL_FULL_PRECISION: i32 = 0xFFFF;
+const INTERVAL_FULL_RANGE: i32 = 0x7FFF;
+const INTERVAL_FULL_PRECISION: i32 = 0xFFFF;
 
-pub const RELPERSISTENCE_TEMP: char = 't';
-pub const RELPERSISTENCE_UNLOGGED: char = 'u';
-pub const RELPERSISTENCE_PERMANENT: char = 'p';
+const RELPERSISTENCE_TEMP: char = 't';
+const RELPERSISTENCE_UNLOGGED: char = 'u';
+const RELPERSISTENCE_PERMANENT: char = 'p';
 
-pub const PARTITION_STRATEGY_HASH: char = 'h';
-pub const PARTITION_STRATEGY_LIST: char = 'l';
-pub const PARTITION_STRATEGY_RANGE: char = 'r';
+const PARTITION_STRATEGY_HASH: char = 'h';
+const PARTITION_STRATEGY_LIST: char = 'l';
+const PARTITION_STRATEGY_RANGE: char = 'r';
 
-pub const ESCAPE_STRING_SYNTAX: char = 'E';
+const ESCAPE_STRING_SYNTAX: char = 'E';
 
-pub enum DeparseNodeContext {
+enum DeparseNodeContext {
     None,
     // Parent node type (and sometimes field).
     InsertRelation,
@@ -59,7 +59,7 @@ pub enum DeparseNodeContext {
 }
 
 // See https://github.com/pganalyze/libpg_query/blob/15-latest/src/postgres_deparse.c#L53.
-pub fn deparse_string_literal(str: &mut Printer, val: &str) {
+fn deparse_string_literal(str: &mut Printer, val: &str) {
     if val.contains('\\') {
         str.word(ESCAPE_STRING_SYNTAX.to_string());
     }
