@@ -341,6 +341,8 @@ fn node_create_stmt(str: &mut Printer, node: &CreateStmt, is_foreign_table: bool
         str.word(") ");
     }
 
+    node_opt_with(str, &node.options);
+
     match node.oncommit() {
         OnCommitAction::OncommitNoop => {}
         OnCommitAction::OncommitPreserveRows => str.keyword("on commit preserve rows "),
@@ -537,8 +539,8 @@ fn node_type_name(str: &mut Printer, node: &TypeName) {
     }
 }
 
-fn node_value(str: &mut Printer, node: &AConst, context: DeparseNodeContext) {
-    let Some(val) = node.val.as_ref() else {
+fn node_value(str: &mut Printer, node: Option<&Val>, context: DeparseNodeContext) {
+    let Some(val) = node else {
         str.keyword("null");
         return;
     };
@@ -578,7 +580,7 @@ fn deparse_string_literal(str: &mut Printer, val: &str) {
 }
 
 fn node_a_const(str: &mut Printer, node: &AConst) {
-    node_value(str, node, DeparseNodeContext::Constant);
+    node_value(str, node.val.as_ref(), DeparseNodeContext::Constant);
 }
 
 fn node_param_ref(str: &mut Printer, node: &Node) {
@@ -687,7 +689,35 @@ fn node_opt_with(str: &mut Printer, list: &[Node]) {
 }
 
 fn node_rel_options(str: &mut Printer, list: &[Node]) {
-    todo!()
+    str.word("(");
+
+    for (i, option) in list.iter().enumerate() {
+        match option.node.as_ref().unwrap() {
+            NodeEnum::DefElem(node) => {
+                str.ident(node.defnamespace.clone());
+                str.word(".");
+                str.ident(node.defname.clone());
+                if let Some(arg) = &node.arg {
+                    str.word(" = ");
+                    node_def_arg(str, arg, false);
+                }
+            }
+            _ => unreachable!(),
+        }
+
+        str.comma(i < list.len() - 1);
+    }
+
+    str.word(")");
+}
+
+fn node_def_arg(str: &mut Printer, node: &Node, is_operator_def_arg: bool) {
+    match node.node.as_ref().unwrap() {
+        NodeEnum::Integer(ref val) => {
+            node_value(str, Some(&Val::Ival(val.clone())), DeparseNodeContext::None)
+        }
+        _ => todo!(),
+    }
 }
 
 fn node_collate_clause(str: &mut Printer, node: &CollateClause) {
