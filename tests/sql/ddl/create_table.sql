@@ -41,25 +41,8 @@ WITH (fillfactor=70)
 CREATE TABLE distributors (
     did int,
     name varchar(40),
-    UNIQUE (name) WITH (fillfactor = 70)
-                  USING INDEX TABLESPACE indexes
+    UNIQUE (name) WITH (fillfactor = 70) USING INDEX TABLESPACE indexes
 ) WITH (fillfactor = 70)
-
-CREATE TABLE distributors (
-    did     integer,
-    name    varchar(40),
-    UNIQUE(name) WITH (fillfactor=70) USING INDEX TABLESPACE indexes
-)
-WITH (fillfactor=70)
-=
-CREATE TABLE distributors (
-  did integer,
-  name varchar(40),
-  UNIQUE (name) WITH (fillfactor = 70)
-                USING INDEX TABLESPACE indexes
-) WITH (fillfactor = 70)
-:
-{'comma_at_eoln': True}
 
 CREATE TABLE measurement_y2016m07
     PARTITION OF measurement (

@@ -338,16 +338,16 @@ fn node_create_stmt(str: &mut Printer, node: &CreateStmt, is_foreign_table: bool
         }
         str.offset(-INDENT);
         str.end();
-        str.word(") ");
+        str.word(")");
     }
 
     node_opt_with(str, &node.options);
 
     match node.oncommit() {
         OnCommitAction::OncommitNoop => {}
-        OnCommitAction::OncommitPreserveRows => str.keyword("on commit preserve rows "),
-        OnCommitAction::OncommitDeleteRows => str.keyword("on commit delete rows "),
-        OnCommitAction::OncommitDrop => str.keyword("on commit drop "),
+        OnCommitAction::OncommitPreserveRows => str.keyword(" on commit preserve rows "),
+        OnCommitAction::OncommitDeleteRows => str.keyword(" on commit delete rows "),
+        OnCommitAction::OncommitDrop => str.keyword(" on commit drop "),
         _ => unreachable!(),
     }
 
@@ -680,7 +680,7 @@ fn node_constraint(str: &mut Printer, node: &Constraint) {
     }
 
     if !node.indexspace.is_empty() {
-        str.keyword(" using index tablespace ");
+        str.keyword("using index tablespace ");
         str.ident(node.indexspace.clone());
     }
 }
@@ -698,7 +698,7 @@ fn node_opt_with(str: &mut Printer, list: &[Node]) {
     if !list.is_empty() {
         str.keyword(" with ");
         node_rel_options(str, list);
-        str.space();
+        str.nbsp();
     }
 }
 
