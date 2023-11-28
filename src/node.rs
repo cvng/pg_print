@@ -13,6 +13,7 @@ use pg_query::protobuf::DefElem;
 use pg_query::protobuf::DefineStmt;
 use pg_query::protobuf::Integer;
 use pg_query::protobuf::ObjectType;
+use pg_query::protobuf::OnCommitAction;
 use pg_query::protobuf::RangeVar;
 use pg_query::protobuf::RawStmt;
 use pg_query::protobuf::TypeName;
@@ -28,6 +29,10 @@ const SECOND: i32 = 12;
 
 const INTERVAL_FULL_RANGE: i32 = 0x7FFF;
 const INTERVAL_FULL_PRECISION: i32 = 0xFFFF;
+
+const RELPERSISTENCE_TEMP: char = 't';
+const RELPERSISTENCE_UNLOGGED: char = 'u';
+const RELPERSISTENCE_PERMANENT: char = 'p';
 
 enum DeparseNodeContext {
     None,
@@ -300,7 +305,7 @@ fn node_create_stmt(str: &mut Printer, node: &CreateStmt, is_foreign_table: bool
         str.keyword("foreign ");
     }
 
-    // TODO: node_opt_temp(str, &node.relation.unwrap().relpersistence);
+    node_opt_temp(str, &node.relation.as_ref().unwrap().relpersistence);
 
     str.keyword("table ");
 
@@ -315,9 +320,9 @@ fn node_create_stmt(str: &mut Printer, node: &CreateStmt, is_foreign_table: bool
     );
     str.nbsp();
 
-    if node.of_typename.is_some() {
+    if let Some(of_typename) = &node.of_typename {
         str.keyword("of ");
-        node_type_name(str, node.of_typename.as_ref().unwrap());
+        node_type_name(str, of_typename);
         str.space();
     }
 
@@ -333,10 +338,27 @@ fn node_create_stmt(str: &mut Printer, node: &CreateStmt, is_foreign_table: bool
         }
         str.offset(-INDENT);
         str.end();
-        str.word(")");
+        str.word(") ");
+    }
+
+    match node.oncommit() {
+        OnCommitAction::OncommitNoop => {}
+        OnCommitAction::OncommitPreserveRows => str.keyword("on commit preserve rows "),
+        OnCommitAction::OncommitDeleteRows => str.keyword("on commit delete rows "),
+        OnCommitAction::OncommitDrop => str.keyword("on commit drop "),
+        _ => unreachable!(),
     }
 
     str.hardbreak();
+}
+
+fn node_opt_temp(str: &mut Printer, persistence: &str) {
+    match persistence.chars().next().unwrap() {
+        RELPERSISTENCE_TEMP => str.keyword("temporary "),
+        RELPERSISTENCE_UNLOGGED => str.keyword("unlogged "),
+        RELPERSISTENCE_PERMANENT => {}
+        _ => unreachable!(),
+    }
 }
 
 fn node_range_var(str: &mut Printer, node: &RangeVar, context: DeparseNodeContext) {

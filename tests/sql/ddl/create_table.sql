@@ -28,7 +28,7 @@ CREATE TABLE films (
 create temporary table a (id serial) on commit drop
 =
 CREATE TEMPORARY TABLE a (
-  id serial
+    id serial
 ) ON COMMIT DROP
 
 CREATE TABLE distributors (
