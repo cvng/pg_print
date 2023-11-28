@@ -426,7 +426,9 @@ fn node_define_stmt(str: &mut Printer, node: &DefineStmt) {
 }
 
 fn node_column_def(str: &mut Printer, node: &ColumnDef) {
-    str.ident(node.colname.clone());
+    if !node.colname.is_empty() {
+        str.ident(node.colname.clone());
+    }
 
     if let Some(type_name) = &node.type_name {
         str.nbsp();
@@ -669,6 +671,18 @@ fn node_constraint(str: &mut Printer, node: &Constraint) {
         node_column_list(str, &node.keys);
         str.word(")");
     }
+
+    match node.contype() {
+        ConstrType::ConstrPrimary | ConstrType::ConstrUnique | ConstrType::ConstrExclusion => {
+            node_opt_with(str, &node.options)
+        }
+        _ => {}
+    }
+
+    if !node.indexspace.is_empty() {
+        str.keyword(" using index tablespace ");
+        str.ident(node.indexspace.clone());
+    }
 }
 
 fn node_column_list(str: &mut Printer, list: &[Node]) {
@@ -682,7 +696,7 @@ fn node_column_list(str: &mut Printer, list: &[Node]) {
 
 fn node_opt_with(str: &mut Printer, list: &[Node]) {
     if !list.is_empty() {
-        str.keyword("with ");
+        str.keyword(" with ");
         node_rel_options(str, list);
         str.space();
     }
@@ -694,8 +708,10 @@ fn node_rel_options(str: &mut Printer, list: &[Node]) {
     for (i, option) in list.iter().enumerate() {
         match option.node.as_ref().unwrap() {
             NodeEnum::DefElem(node) => {
-                str.ident(node.defnamespace.clone());
-                str.word(".");
+                if !node.defnamespace.is_empty() {
+                    str.ident(node.defnamespace.clone());
+                    str.word(".");
+                }
                 str.ident(node.defname.clone());
                 if let Some(arg) = &node.arg {
                     str.word(" = ");
@@ -705,7 +721,7 @@ fn node_rel_options(str: &mut Printer, list: &[Node]) {
             _ => unreachable!(),
         }
 
-        str.comma(i < list.len() - 1);
+        str.comma(i >= list.len() - 1);
     }
 
     str.word(")");
