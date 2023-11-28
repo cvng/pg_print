@@ -19,6 +19,7 @@ use pg_query::protobuf::RawStmt;
 use pg_query::protobuf::TypeName;
 use pg_query::Node;
 use pg_query::NodeEnum;
+use std::ops::Deref;
 
 const MONTH: i32 = 1;
 const YEAR: i32 = 2;
@@ -326,6 +327,22 @@ fn node_create_stmt(str: &mut Printer, node: &CreateStmt, is_foreign_table: bool
         str.space();
     }
 
+    if node.partbound.is_some() {
+        str.word("partition of ");
+        node_range_var(
+            str,
+            node.inh_relations
+                .first()
+                .and_then(|node| match node.node.as_ref().unwrap() {
+                    NodeEnum::RangeVar(node) => Some(node),
+                    _ => None,
+                })
+                .unwrap(),
+            DeparseNodeContext::None,
+        );
+        str.word(" ");
+    }
+
     if !node.table_elts.is_empty() {
         str.word("(");
         str.hardbreak_if_nonempty();
@@ -435,10 +452,10 @@ fn node_column_def(str: &mut Printer, node: &ColumnDef) {
         node_type_name(str, type_name);
     }
 
-    if let Some(raw_default) = &node.raw_default {
+    if node.raw_default.is_some() {
         str.nbsp();
         str.word("using ");
-        node_expr(str, raw_default);
+        node_expr(str, node.raw_default.as_deref());
     }
 
     if !node.fdwoptions.is_empty() {
@@ -468,8 +485,8 @@ fn node_type_name(str: &mut Printer, node: &TypeName) {
         str.keyword("setof ");
     }
 
-    if node.names.len() == 2 && str_val(node.names.first().unwrap()) == "pg_catalog" {
-        let name = str_val(node.names.last().unwrap());
+    if node.names.len() == 2 && str_val(node.names.first().unwrap()).unwrap() == "pg_catalog" {
+        let name = str_val(node.names.last().unwrap()).unwrap();
 
         match name.as_str() {
             "bpchar" => str.word("char"),
@@ -594,18 +611,19 @@ fn node_column_ref(str: &mut Printer, node: &Node) {
 }
 
 fn node_signed_iconst(str: &mut Printer, node: &Node) {
-    str.word(format!("{}", int_val(node)));
+    str.word(format!("{}", int_val(node).unwrap()));
 }
 
 fn node_interval_typmods(str: &mut Printer, node: &TypeName) {
     let interval_fields = node
         .typmods
         .first()
-        .map(a_const_int_val)
+        .and_then(a_const_int_val)
         .map(|ival| Some(NodeEnum::Integer(Integer { ival })))
         .map(|node| Node { node })
         .as_ref()
         .map(int_val)
+        .unwrap()
         .unwrap();
 
     // See https://github.com/pganalyze/libpg_query/blob/15-latest/src/postgres_deparse.c#L3784.
@@ -631,11 +649,12 @@ fn node_interval_typmods(str: &mut Printer, node: &TypeName) {
         let precision = node
             .typmods
             .last()
-            .map(a_const_int_val)
+            .and_then(a_const_int_val)
             .map(|ival| Some(NodeEnum::Integer(Integer { ival })))
             .map(|node| Node { node })
             .as_ref()
             .map(int_val)
+            .unwrap()
             .unwrap();
 
         if precision != INTERVAL_FULL_PRECISION {
@@ -644,8 +663,15 @@ fn node_interval_typmods(str: &mut Printer, node: &TypeName) {
     }
 }
 
-fn node_expr(str: &mut Printer, node: &Node) {
-    todo!()
+fn node_expr(str: &mut Printer, node: Option<&Node>) {
+    let Some(node) = node else {
+        return;
+    };
+
+    match node.node.as_ref().unwrap() {
+        NodeEnum::AConst(node) => node_a_const(str, node),
+        node => todo!("{:?}", node),
+    }
 }
 
 fn node_create_generic_options(str: &mut Printer, list: &[Node]) {
@@ -660,6 +686,10 @@ fn node_constraint(str: &mut Printer, node: &Constraint) {
     }
 
     match node.contype() {
+        ConstrType::ConstrDefault => {
+            str.keyword("default");
+            node_expr(str, node.raw_expr.as_deref());
+        }
         ConstrType::ConstrPrimary => str.keyword("primary key"),
         ConstrType::ConstrUnique => str.keyword("unique"),
         _ => todo!("{:?}", node.contype()),
@@ -687,7 +717,7 @@ fn node_constraint(str: &mut Printer, node: &Constraint) {
 
 fn node_column_list(str: &mut Printer, list: &[Node]) {
     for (i, column) in list.iter().enumerate() {
-        str.ident(str_val(column));
+        str.ident(str_val(column).unwrap());
         if i < list.len() - 1 {
             str.word(", ");
         }
@@ -755,30 +785,30 @@ fn node_any_name(str: &mut Printer, list: &[Node]) {
         if i > 0 {
             str.word(".");
         }
-        str.ident(str_val(part));
+        str.ident(str_val(part).unwrap());
     }
 }
 
-fn str_val(node: &Node) -> String {
+fn str_val(node: &Node) -> Option<String> {
     match node.node.as_ref().unwrap() {
-        NodeEnum::String(val) => val.sval.clone(),
-        _ => unreachable!(),
+        NodeEnum::String(val) => Some(val.sval.clone()),
+        _ => None,
     }
 }
 
-fn int_val(node: &Node) -> i32 {
+fn int_val(node: &Node) -> Option<i32> {
     match node.node.as_ref().unwrap() {
-        NodeEnum::Integer(val) => val.ival,
-        _ => unreachable!(),
+        NodeEnum::Integer(val) => Some(val.ival),
+        _ => None,
     }
 }
 
-fn a_const_int_val(node: &Node) -> i32 {
+fn a_const_int_val(node: &Node) -> Option<i32> {
     match node.node.as_ref().unwrap() {
         NodeEnum::AConst(AConst {
             val: Some(Val::Ival(val)),
             ..
-        }) => val.ival,
-        _ => unreachable!(),
+        }) => Some(val.ival),
+        _ => None,
     }
 }
