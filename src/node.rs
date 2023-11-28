@@ -14,6 +14,7 @@ use pg_query::protobuf::DefineStmt;
 use pg_query::protobuf::Integer;
 use pg_query::protobuf::ObjectType;
 use pg_query::protobuf::OnCommitAction;
+use pg_query::protobuf::PartitionBoundSpec;
 use pg_query::protobuf::RangeVar;
 use pg_query::protobuf::RawStmt;
 use pg_query::protobuf::TypeName;
@@ -34,6 +35,12 @@ const INTERVAL_FULL_PRECISION: i32 = 0xFFFF;
 const RELPERSISTENCE_TEMP: char = 't';
 const RELPERSISTENCE_UNLOGGED: char = 'u';
 const RELPERSISTENCE_PERMANENT: char = 'p';
+
+const PARTITION_STRATEGY_HASH: char = 'h';
+const PARTITION_STRATEGY_LIST: char = 'l';
+const PARTITION_STRATEGY_RANGE: char = 'r';
+
+const ESCAPE_STRING_SYNTAX: char = 'E';
 
 enum DeparseNodeContext {
     None,
@@ -298,6 +305,25 @@ impl Printer {
     }
 }
 
+// See https://github.com/pganalyze/libpg_query/blob/15-latest/src/postgres_deparse.c#L53.
+fn deparse_string_literal(str: &mut Printer, val: &str) {
+    if val.contains('\\') {
+        str.word(ESCAPE_STRING_SYNTAX.to_string());
+    }
+
+    str.word('\''.to_string());
+
+    for c in val.chars() {
+        if c == '\'' || c == '\\' {
+            str.word(c.to_string());
+        }
+
+        str.word(c.to_string());
+    }
+
+    str.word('\''.to_string());
+}
+
 fn node_create_stmt(str: &mut Printer, node: &CreateStmt, is_foreign_table: bool) {
     str.cbox(INDENT);
     str.keyword("create ");
@@ -356,6 +382,13 @@ fn node_create_stmt(str: &mut Printer, node: &CreateStmt, is_foreign_table: bool
         str.offset(-INDENT);
         str.end();
         str.word(")");
+    } else if node.partbound.is_none() && node.of_typename.is_none() {
+        str.word("()");
+    };
+
+    if let Some(partbound) = &node.partbound {
+        node_partition_bound_spec(str, partbound);
+        str.word(" ");
     }
 
     node_opt_with(str, &node.options);
@@ -369,6 +402,44 @@ fn node_create_stmt(str: &mut Printer, node: &CreateStmt, is_foreign_table: bool
     }
 
     str.hardbreak();
+}
+
+fn node_partition_bound_spec(str: &mut Printer, node: &PartitionBoundSpec) {
+    if node.is_default {
+        str.keyword("default");
+        return;
+    }
+
+    str.keyword("for values ");
+
+    match node.strategy.chars().next().unwrap() {
+        PARTITION_STRATEGY_HASH => {
+            str.keyword(format!(
+                "with (modulus {}, remainder {})",
+                node.modulus, node.remainder
+            ));
+        }
+        PARTITION_STRATEGY_LIST => {
+            str.keyword("in (");
+            node_expr_list(str, &node.listdatums);
+            str.word(")");
+        }
+        PARTITION_STRATEGY_RANGE => {
+            str.keyword("from (");
+            node_expr_list(str, &node.lowerdatums);
+            str.keyword(") to (");
+            node_expr_list(str, &node.upperdatums);
+            str.word(")");
+        }
+        _ => unreachable!(),
+    }
+}
+
+fn node_expr_list(str: &mut Printer, list: &[Node]) {
+    for (i, expr) in list.iter().enumerate() {
+        node_expr(str, Some(expr));
+        str.comma(i >= list.len() - 1);
+    }
 }
 
 fn node_opt_temp(str: &mut Printer, persistence: &str) {
@@ -594,10 +665,6 @@ fn node_numeric_only(str: &mut Printer, val: &Val) {
     }
 }
 
-fn deparse_string_literal(str: &mut Printer, val: &str) {
-    todo!()
-}
-
 fn node_a_const(str: &mut Printer, node: &AConst) {
     node_value(str, node.val.as_ref(), DeparseNodeContext::Constant);
 }
@@ -614,6 +681,7 @@ fn node_signed_iconst(str: &mut Printer, node: &Node) {
     str.word(format!("{}", int_val(node).unwrap()));
 }
 
+// See https://github.com/pganalyze/libpg_query/blob/15-latest/src/postgres_deparse.c#L3774.
 fn node_interval_typmods(str: &mut Printer, node: &TypeName) {
     let interval_fields = node
         .typmods
@@ -626,7 +694,6 @@ fn node_interval_typmods(str: &mut Printer, node: &TypeName) {
         .unwrap()
         .unwrap();
 
-    // See https://github.com/pganalyze/libpg_query/blob/15-latest/src/postgres_deparse.c#L3784.
     match interval_fields {
         x if x == 1 << YEAR => str.word(" year"),
         x if x == 1 << MONTH => str.word(" month"),
