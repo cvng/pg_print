@@ -657,7 +657,8 @@ fn node_constraint(str: &mut Printer, node: &Constraint) {
 
     match node.contype() {
         ConstrType::ConstrPrimary => str.keyword("primary key"),
-        _ => todo!(),
+        ConstrType::ConstrUnique => str.keyword("unique"),
+        _ => todo!("{:?}", node.contype()),
     }
 
     if !node.keys.is_empty() {

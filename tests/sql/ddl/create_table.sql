@@ -39,9 +39,9 @@ CREATE TABLE distributors (
 WITH (fillfactor=70)
 =
 CREATE TABLE distributors (
-    did integer
-  , name varchar(40)
-  , UNIQUE (name) WITH (fillfactor = 70)
+    did int,
+    name varchar(40),
+    UNIQUE (name) WITH (fillfactor = 70)
                   USING INDEX TABLESPACE indexes
 ) WITH (fillfactor = 70)
 
