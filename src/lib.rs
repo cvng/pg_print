@@ -3,6 +3,7 @@
 mod algorithm;
 mod convenience;
 mod create_stmt;
+mod create_table_as_stmt;
 mod define_stmt;
 mod node;
 mod ring;

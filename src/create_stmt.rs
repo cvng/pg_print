@@ -40,7 +40,7 @@ const PARTITION_STRATEGY_RANGE: char = 'r';
 
 const ESCAPE_STRING_SYNTAX: char = 'E';
 
-enum DeparseNodeContext {
+pub enum DeparseNodeContext {
     None,
     // Parent node type (and sometimes field).
     InsertRelation,
@@ -148,13 +148,7 @@ pub fn node_create_stmt(str: &mut Printer, node: &CreateStmt, is_foreign_table: 
 
     node_opt_with(str, &node.options);
 
-    match node.oncommit() {
-        OnCommitAction::OncommitNoop => {}
-        OnCommitAction::OncommitPreserveRows => str.keyword(" on commit preserve rows "),
-        OnCommitAction::OncommitDeleteRows => str.keyword(" on commit delete rows "),
-        OnCommitAction::OncommitDrop => str.keyword(" on commit drop "),
-        _ => unreachable!(),
-    }
+    node_on_commit_action(str, &node.oncommit());
 
     if !node.tablespacename.is_empty() {
         str.keyword("tablespace ");
@@ -162,6 +156,16 @@ pub fn node_create_stmt(str: &mut Printer, node: &CreateStmt, is_foreign_table: 
     }
 
     str.hardbreak();
+}
+
+pub fn node_on_commit_action(str: &mut Printer, node: &OnCommitAction) {
+    match node {
+        OnCommitAction::Undefined => {}
+        OnCommitAction::OncommitNoop => {}
+        OnCommitAction::OncommitPreserveRows => str.keyword(" on commit preserve rows"),
+        OnCommitAction::OncommitDeleteRows => str.keyword(" on commit delete rows"),
+        OnCommitAction::OncommitDrop => str.keyword(" on commit drop"),
+    }
 }
 
 fn node_opt_inherit(str: &mut Printer, list: &[Node]) {
@@ -201,14 +205,14 @@ fn node_partition_bound_spec(str: &mut Printer, node: &PartitionBoundSpec) {
     }
 }
 
-fn node_expr_list(str: &mut Printer, list: &[Node]) {
+pub fn node_expr_list(str: &mut Printer, list: &[Node]) {
     for (i, expr) in list.iter().enumerate() {
         node_expr(str, Some(expr));
         str.comma(i >= list.len() - 1);
     }
 }
 
-fn node_opt_temp(str: &mut Printer, persistence: &str) {
+pub fn node_opt_temp(str: &mut Printer, persistence: &str) {
     match persistence.chars().next().unwrap() {
         RELPERSISTENCE_TEMP => str.keyword("temporary "),
         RELPERSISTENCE_UNLOGGED => str.keyword("unlogged "),
@@ -217,7 +221,7 @@ fn node_opt_temp(str: &mut Printer, persistence: &str) {
     }
 }
 
-fn node_range_var(str: &mut Printer, node: &RangeVar, context: DeparseNodeContext) {
+pub fn node_range_var(str: &mut Printer, node: &RangeVar, context: DeparseNodeContext) {
     str.ident(node.relname.clone());
 }
 
@@ -490,7 +494,7 @@ fn node_constraint(str: &mut Printer, node: &Constraint) {
     }
 }
 
-fn node_column_list(str: &mut Printer, list: &[Node]) {
+pub fn node_column_list(str: &mut Printer, list: &[Node]) {
     for (i, column) in list.iter().enumerate() {
         str.ident(str_val(column).unwrap());
         if i < list.len() - 1 {
@@ -499,7 +503,7 @@ fn node_column_list(str: &mut Printer, list: &[Node]) {
     }
 }
 
-fn node_opt_with(str: &mut Printer, list: &[Node]) {
+pub fn node_opt_with(str: &mut Printer, list: &[Node]) {
     if !list.is_empty() {
         str.keyword(" with ");
         node_rel_options(str, list);

@@ -2,6 +2,7 @@
 
 use crate::algorithm::Printer;
 use crate::create_stmt;
+use crate::create_table_as_stmt::node_create_table_as_stmt;
 use crate::define_stmt;
 use crate::INDENT;
 use pg_query::protobuf::a_const::Val;
@@ -120,7 +121,7 @@ impl Printer {
             NodeEnum::DropdbStmt(_) => todo!(),
             NodeEnum::VacuumStmt(_) => todo!(),
             NodeEnum::ExplainStmt(_) => todo!(),
-            NodeEnum::CreateTableAsStmt(_) => todo!(),
+            NodeEnum::CreateTableAsStmt(node) => node_create_table_as_stmt(self, node),
             NodeEnum::CreateSeqStmt(_) => todo!(),
             NodeEnum::AlterSeqStmt(_) => todo!(),
             NodeEnum::VariableSetStmt(_) => todo!(),
