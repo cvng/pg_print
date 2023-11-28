@@ -354,7 +354,7 @@ fn node_create_stmt(str: &mut Printer, node: &CreateStmt, is_foreign_table: bool
     }
 
     if node.partbound.is_some() {
-        str.word("partition of ");
+        str.keyword("partition of ");
         node_range_var(
             str,
             node.inh_relations
@@ -389,6 +389,8 @@ fn node_create_stmt(str: &mut Printer, node: &CreateStmt, is_foreign_table: bool
     if let Some(partbound) = &node.partbound {
         node_partition_bound_spec(str, partbound);
         str.word(" ");
+    } else {
+        node_opt_inherit(str, &node.inh_relations);
     }
 
     node_opt_with(str, &node.options);
@@ -401,7 +403,18 @@ fn node_create_stmt(str: &mut Printer, node: &CreateStmt, is_foreign_table: bool
         _ => unreachable!(),
     }
 
+    if !node.tablespacename.is_empty() {
+        str.keyword("tablespace ");
+        str.ident(node.tablespacename.clone());
+    }
+
     str.hardbreak();
+}
+
+fn node_opt_inherit(str: &mut Printer, list: &[Node]) {
+    if !list.is_empty() {
+        todo!("{:?}", list)
+    }
 }
 
 fn node_partition_bound_spec(str: &mut Printer, node: &PartitionBoundSpec) {
@@ -410,7 +423,7 @@ fn node_partition_bound_spec(str: &mut Printer, node: &PartitionBoundSpec) {
         return;
     }
 
-    str.keyword("for values ");
+    str.keyword(" for values ");
 
     match node.strategy.chars().next().unwrap() {
         PARTITION_STRATEGY_HASH => {
@@ -754,7 +767,7 @@ fn node_constraint(str: &mut Printer, node: &Constraint) {
 
     match node.contype() {
         ConstrType::ConstrDefault => {
-            str.keyword("default");
+            str.keyword("default ");
             node_expr(str, node.raw_expr.as_deref());
         }
         ConstrType::ConstrPrimary => str.keyword("primary key"),
