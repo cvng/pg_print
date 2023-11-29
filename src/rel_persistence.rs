@@ -10,6 +10,18 @@ pub enum RelPersistence {
     Permanent,
 }
 
+impl fmt::Print for RelPersistence {
+    fn print(&self, p: &mut fmt::Printer) -> fmt::Option {
+        match self {
+            Self::Temp => p.keyword("temporary "),
+            Self::Unlogged => p.keyword("unlogged "),
+            Self::Permanent => {}
+        }
+
+        Some(())
+    }
+}
+
 impl TryFrom<String> for RelPersistence {
     type Error = ();
 
@@ -20,17 +32,5 @@ impl TryFrom<String> for RelPersistence {
             RELPERSISTENCE_PERMANENT => Ok(Self::Permanent),
             _ => Err(()),
         }
-    }
-}
-
-impl fmt::Print for RelPersistence {
-    fn print(&self, p: &mut fmt::Printer) -> fmt::Option {
-        match self {
-            Self::Temp => p.keyword("temporary "),
-            Self::Unlogged => p.keyword("unlogged "),
-            Self::Permanent => {}
-        }
-
-        Some(())
     }
 }

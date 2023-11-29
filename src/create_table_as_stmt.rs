@@ -1,7 +1,6 @@
 use crate::fmt;
 use crate::rel_persistence::RelPersistence;
 use pg_query::protobuf::CreateTableAsStmt;
-use pg_query::NodeEnum;
 
 impl fmt::Print for CreateTableAsStmt {
     fn print(&self, p: &mut fmt::Printer) -> fmt::Option {
@@ -31,11 +30,7 @@ impl fmt::Print for CreateTableAsStmt {
 
         p.keyword("as ");
 
-        match self.query.as_ref().unwrap().node.as_ref().unwrap() {
-            NodeEnum::ExecuteStmt(node) => node.print(p)?,
-            NodeEnum::SelectStmt(node) => node.print(p)?,
-            _ => {}
-        }
+        self.query.as_ref().unwrap().print(p)?;
 
         p.word(" ");
 
