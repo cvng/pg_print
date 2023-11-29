@@ -1,10 +1,23 @@
 use crate::create_stmt::node_any_name;
-use crate::create_stmt::node_interval_typmods;
 use crate::create_stmt::node_signed_iconst;
 use crate::fmt;
+use crate::utils::a_const_int_val;
+use crate::utils::int_val;
 use crate::utils::str_val;
+use pg_query::protobuf::Integer;
 use pg_query::protobuf::TypeName;
+use pg_query::Node;
 use pg_query::NodeEnum;
+
+const MONTH: i32 = 1;
+const YEAR: i32 = 2;
+const DAY: i32 = 3;
+const HOUR: i32 = 10;
+const MINUTE: i32 = 11;
+const SECOND: i32 = 12;
+
+const INTERVAL_FULL_RANGE: i32 = 0x7FFF;
+const INTERVAL_FULL_PRECISION: i32 = 0xFFFF;
 
 impl fmt::Print for TypeName {
     fn print(&self, p: &mut fmt::Printer) -> fmt::Option {
@@ -87,5 +100,54 @@ impl fmt::Print for TypeName {
         }
 
         Some(())
+    }
+}
+
+// See https://github.com/pganalyze/libpg_query/blob/15-latest/src/postgres_deparse.c#L3774.
+fn node_interval_typmods(str: &mut fmt::Printer, node: &TypeName) {
+    let interval_fields = node
+        .typmods
+        .first()
+        .and_then(a_const_int_val)
+        .map(|ival| Some(NodeEnum::Integer(Integer { ival })))
+        .map(|node| Node { node })
+        .as_ref()
+        .map(int_val)
+        .unwrap()
+        .unwrap();
+
+    match interval_fields {
+        x if x == 1 << YEAR => str.word(" year"),
+        x if x == 1 << MONTH => str.word(" month"),
+        x if x == 1 << DAY => str.word(" day"),
+        x if x == 1 << HOUR => str.word(" hour"),
+        x if x == 1 << MINUTE => str.word(" minute"),
+        x if x == 1 << SECOND => str.word(" second"),
+        x if x == 1 << YEAR | 1 << MONTH => str.word(" year to month"),
+        x if x == 1 << DAY | 1 << HOUR => str.word(" day to hour"),
+        x if x == 1 << DAY | 1 << HOUR | 1 << MINUTE => str.word(" day to minute"),
+        x if x == 1 << DAY | 1 << HOUR | 1 << MINUTE | 1 << SECOND => str.word(" day to second"),
+        x if x == 1 << HOUR | 1 << MINUTE => str.word(" hour to minute"),
+        x if x == 1 << HOUR | 1 << MINUTE | 1 << SECOND => str.word(" hour to second"),
+        x if x == 1 << MINUTE | 1 << SECOND => str.word(" minute to second"),
+        INTERVAL_FULL_RANGE => {}
+        _ => unreachable!(),
+    };
+
+    if node.typmods.len() == 2 {
+        let precision = node
+            .typmods
+            .last()
+            .and_then(a_const_int_val)
+            .map(|ival| Some(NodeEnum::Integer(Integer { ival })))
+            .map(|node| Node { node })
+            .as_ref()
+            .map(int_val)
+            .unwrap()
+            .unwrap();
+
+        if precision != INTERVAL_FULL_PRECISION {
+            str.word(format!(" ({})", precision));
+        }
     }
 }

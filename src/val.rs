@@ -1,4 +1,3 @@
-use crate::create_stmt::node_numeric_only;
 use crate::fmt;
 use crate::fmt::DeparseNodeContext;
 use crate::utils::deparse_string_literal;
@@ -12,7 +11,8 @@ impl fmt::Print for Option<Val> {
         };
 
         match val {
-            Val::Ival(_) | Val::Fval(_) => node_numeric_only(p, val),
+            Val::Ival(val) => p.word(format!("{}", val.ival)),
+            Val::Fval(val) => p.word(val.fval.clone()),
             Val::Boolval(val) => p.word(if val.boolval { "true" } else { "false" }),
             Val::Sval(val) => match ctx.context {
                 DeparseNodeContext::Identifier => p.ident(val.sval.clone()),
