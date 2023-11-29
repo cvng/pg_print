@@ -1,12 +1,29 @@
 // Adapted from https://github.com/pganalyze/libpg_query/blob/15-latest/src/postgres_deparse.c.
 
 use crate::algorithm::Printer;
+use crate::create_stmt;
+use crate::create_table_as_stmt::node_create_table_as_stmt;
+use crate::define_stmt;
+use crate::INDENT;
+use pg_query::protobuf::a_const::Val;
+use pg_query::protobuf::AConst;
+use pg_query::protobuf::CollateClause;
+use pg_query::protobuf::ColumnDef;
+use pg_query::protobuf::ConstrType;
+use pg_query::protobuf::Constraint;
+use pg_query::protobuf::CreateStmt;
 use pg_query::protobuf::DefElem;
 use pg_query::protobuf::DefineStmt;
+use pg_query::protobuf::Integer;
 use pg_query::protobuf::ObjectType;
+use pg_query::protobuf::OnCommitAction;
+use pg_query::protobuf::PartitionBoundSpec;
+use pg_query::protobuf::RangeVar;
 use pg_query::protobuf::RawStmt;
+use pg_query::protobuf::TypeName;
 use pg_query::Node;
 use pg_query::NodeEnum;
+use std::ops::Deref;
 
 impl Printer {
     pub fn stmt(&mut self, stmt: &RawStmt) {
@@ -81,8 +98,8 @@ impl Printer {
             NodeEnum::ClosePortalStmt(_) => todo!(),
             NodeEnum::ClusterStmt(_) => todo!(),
             NodeEnum::CopyStmt(_) => todo!(),
-            NodeEnum::CreateStmt(_) => todo!(),
-            NodeEnum::DefineStmt(node) => node_define_stmt(self, node),
+            NodeEnum::CreateStmt(node) => create_stmt::node_create_stmt(self, node, false),
+            NodeEnum::DefineStmt(node) => define_stmt::node_define_stmt(self, node),
             NodeEnum::DropStmt(_) => todo!(),
             NodeEnum::TruncateStmt(_) => todo!(),
             NodeEnum::CommentStmt(_) => todo!(),
@@ -104,7 +121,7 @@ impl Printer {
             NodeEnum::DropdbStmt(_) => todo!(),
             NodeEnum::VacuumStmt(_) => todo!(),
             NodeEnum::ExplainStmt(_) => todo!(),
-            NodeEnum::CreateTableAsStmt(_) => todo!(),
+            NodeEnum::CreateTableAsStmt(node) => node_create_table_as_stmt(self, node),
             NodeEnum::CreateSeqStmt(_) => todo!(),
             NodeEnum::AlterSeqStmt(_) => todo!(),
             NodeEnum::VariableSetStmt(_) => todo!(),
@@ -250,80 +267,5 @@ impl Printer {
             NodeEnum::OidList(_) => todo!(),
             NodeEnum::AConst(_) => todo!(),
         }
-    }
-}
-
-fn node_define_stmt(str: &mut Printer, node: &DefineStmt) {
-    str.cbox(0);
-
-    str.word("create ");
-
-    if node.replace {
-        str.word("or replace ");
-    }
-
-    match node.kind() {
-        ObjectType::ObjectAggregate => str.word("aggregate "),
-        ObjectType::ObjectOperator => str.word("operator "),
-        ObjectType::ObjectType => str.word("type "),
-        ObjectType::ObjectTsparser => str.word("text search parser "),
-        ObjectType::ObjectTsdictionary => str.word("text seach dictionary "),
-        ObjectType::ObjectTstemplate => str.word("text search template "),
-        ObjectType::ObjectTsconfiguration => str.word("text search configuration "),
-        ObjectType::ObjectCollation => str.word("collation "),
-        _ => unreachable!(),
-    };
-
-    if node.if_not_exists {
-        str.word("if not exists ");
-    }
-
-    match node.kind() {
-        ObjectType::ObjectAggregate => todo!(),
-        ObjectType::ObjectOperator => todo!(),
-        ObjectType::ObjectType
-        | ObjectType::ObjectTsparser
-        | ObjectType::ObjectTsdictionary
-        | ObjectType::ObjectTstemplate
-        | ObjectType::ObjectTsconfiguration
-        | ObjectType::ObjectCollation => node_any_name(str, &node.defnames),
-        _ => unreachable!(),
-    }
-    str.space();
-
-    if !node.oldstyle && matches!(node.kind(), ObjectType::ObjectAggregate) {
-        todo!();
-        str.space();
-    }
-
-    if (matches!(node.kind(), ObjectType::ObjectCollation)
-        && node.definition.len() == 1
-        && matches!(
-            node.definition.first().unwrap().node.as_ref().unwrap(),
-            NodeEnum::DefElem(node) if node.defname.eq("from"),
-        ))
-    {
-        str.word("from ");
-        todo!();
-    } else if (!node.definition.is_empty()) {
-        todo!()
-    }
-
-    str.end();
-}
-
-fn node_any_name(str: &mut Printer, parts: &[Node]) {
-    for (i, part) in parts.iter().enumerate() {
-        if i > 0 {
-            str.word(".");
-        }
-        str.ident(str_val(part));
-    }
-}
-
-fn str_val(node: &Node) -> String {
-    match node.node.as_ref().unwrap() {
-        NodeEnum::String(node) => node.sval.clone(),
-        _ => unreachable!(),
     }
 }
