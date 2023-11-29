@@ -23,6 +23,7 @@ mod type_name;
 mod utils;
 mod with_clause;
 mod rel_persistence;
+mod val;
 
 use fmt::Print;
 use fmt::Printer;

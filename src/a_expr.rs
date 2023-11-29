@@ -1,12 +1,11 @@
 use crate::create_stmt::node_qual_op;
 use crate::fmt;
-use crate::fmt::Context;
 use crate::fmt::DeparseNodeContext;
 use pg_query::protobuf::AExpr;
 use pg_query::protobuf::AExprKind;
 
 impl fmt::Print for AExpr {
-    fn print_in_context(&self, p: &mut fmt::Printer, ctx: &Context) -> fmt::Option {
+    fn print_in_context(&self, p: &mut fmt::Printer, ctx: &fmt::Context) -> fmt::Option {
         let need_lexpr_parens = false;
         let need_rexpr_parens = false;
 

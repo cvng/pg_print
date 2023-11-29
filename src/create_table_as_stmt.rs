@@ -20,7 +20,7 @@ impl fmt::Print for CreateTableAsStmt {
                 .as_ref()
                 .unwrap()
                 .relpersistence
-                .as_ref(),
+                .clone(),
         )
         .ok()?
         .print(p)?;

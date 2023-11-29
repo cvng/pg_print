@@ -10,10 +10,10 @@ pub enum RelPersistence {
     Permanent,
 }
 
-impl TryFrom<&str> for RelPersistence {
+impl TryFrom<String> for RelPersistence {
     type Error = ();
 
-    fn try_from(value: &str) -> Result<Self, Self::Error> {
+    fn try_from(value: String) -> Result<Self, Self::Error> {
         match value.chars().next().unwrap() {
             RELPERSISTENCE_TEMP => Ok(Self::Temp),
             RELPERSISTENCE_UNLOGGED => Ok(Self::Unlogged),

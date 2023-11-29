@@ -1,10 +1,9 @@
 use crate::fmt;
-use crate::fmt::Context;
 use crate::fmt::DeparseNodeContext;
 use crate::fmt::Print;
 use crate::fmt::Printer;
+use crate::rel_persistence::RelPersistence;
 use crate::utils::a_const_int_val;
-use crate::utils::deparse_string_literal;
 use crate::utils::int_val;
 use crate::utils::is_op;
 use crate::utils::str_val;
@@ -16,7 +15,6 @@ use pg_query::protobuf::RangeVar;
 use pg_query::protobuf::TypeName;
 use pg_query::Node;
 use pg_query::NodeEnum;
-use crate::rel_persistence::RelPersistence;
 
 const MONTH: i32 = 1;
 const YEAR: i32 = 2;
@@ -29,7 +27,7 @@ const INTERVAL_FULL_RANGE: i32 = 0x7FFF;
 const INTERVAL_FULL_PRECISION: i32 = 0xFFFF;
 
 impl fmt::Print for CreateStmt {
-    fn print_in_context(&self, p: &mut Printer, ctx: &Context) -> fmt::Option {
+    fn print_in_context(&self, p: &mut Printer, ctx: &fmt::Context) -> fmt::Option {
         p.cbox(INDENT);
         p.keyword("create ");
 
@@ -37,7 +35,7 @@ impl fmt::Print for CreateStmt {
             p.keyword("foreign ");
         }
 
-        RelPersistence::try_from(self.relation.as_ref().unwrap().relpersistence.as_ref())
+        RelPersistence::try_from(self.relation.as_ref().unwrap().relpersistence.clone())
             .ok()?
             .print(p)?;
 
@@ -128,35 +126,7 @@ pub fn node_range_var(str: &mut Printer, node: &RangeVar, _context: DeparseNodeC
     str.ident(node.relname.clone());
 }
 
-pub fn node_value(str: &mut Printer, node: Option<&Val>, context: DeparseNodeContext) {
-    let Some(val) = node else {
-        str.keyword("null");
-        return;
-    };
-
-    match val {
-        Val::Ival(_) | Val::Fval(_) => node_numeric_only(str, val),
-        Val::Boolval(val) => str.word(if val.boolval { "true" } else { "false" }),
-        Val::Sval(val) => match context {
-            DeparseNodeContext::Identifier => str.ident(val.sval.clone()),
-            DeparseNodeContext::Constant => deparse_string_literal(str, &val.sval),
-            _ => str.word(val.sval.clone()),
-        },
-        Val::Bsval(val) => match val.bsval.chars().next().unwrap() {
-            'x' => {
-                str.word("x");
-                deparse_string_literal(str, &val.bsval[1..])
-            }
-            'b' => {
-                str.word("b");
-                deparse_string_literal(str, &val.bsval[1..])
-            }
-            _ => unreachable!(),
-        },
-    }
-}
-
-fn node_numeric_only(str: &mut Printer, val: &Val) {
+pub fn node_numeric_only(str: &mut Printer, val: &Val) {
     match val {
         Val::Ival(val) => str.word(format!("{}", val.ival)),
         Val::Fval(val) => str.word(val.fval.clone()),
@@ -295,11 +265,9 @@ fn node_rel_options(str: &mut Printer, list: &[Node]) {
 
 fn node_def_arg(str: &mut Printer, node: &Node, _is_operator_def_arg: bool) {
     match node.node.as_ref().unwrap() {
-        NodeEnum::Integer(ref val) => {
-            node_value(str, Some(&Val::Ival(val.clone())), DeparseNodeContext::None)
-        }
+        NodeEnum::Integer(ref val) => Option::<Val>::print(&Some(Val::Ival(val.clone())), str),
         _ => todo!(),
-    }
+    };
 }
 
 fn node_table_element(str: &mut Printer, node: &Node) {
