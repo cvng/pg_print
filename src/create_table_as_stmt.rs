@@ -18,7 +18,7 @@ use pg_query::protobuf::WithClause;
 use pg_query::Node;
 use pg_query::NodeEnum;
 
-pub fn node_create_table_as_stmt(str: &mut Printer, node: &CreateTableAsStmt) {
+pub fn node_create_table_as_stmt(str: &mut Printer, node: &CreateTableAsStmt) -> Option<()> {
     str.keyword("create ");
 
     node_opt_temp(
@@ -59,6 +59,8 @@ pub fn node_create_table_as_stmt(str: &mut Printer, node: &CreateTableAsStmt) {
     if node.into.is_some() && node.into.as_ref().unwrap().skip_data {
         str.word("with no data ");
     }
+
+    Some(())
 }
 
 fn node_into_clause(str: &mut Printer, node: &IntoClause) {

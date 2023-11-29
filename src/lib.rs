@@ -2,7 +2,7 @@ mod create_stmt;
 mod create_table_as_stmt;
 mod define_stmt;
 mod fmt;
-mod node_enum;
+mod node;
 mod object_type;
 mod parse_result;
 mod raw_stmt;

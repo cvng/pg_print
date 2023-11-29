@@ -100,7 +100,11 @@ pub fn is_op(val: Option<String>) -> bool {
     })
 }
 
-pub fn node_create_stmt(str: &mut Printer, node: &CreateStmt, is_foreign_table: bool) {
+pub fn node_create_stmt(
+    str: &mut Printer,
+    node: &CreateStmt,
+    is_foreign_table: bool,
+) -> Option<()> {
     str.cbox(INDENT);
     str.keyword("create ");
 
@@ -179,6 +183,8 @@ pub fn node_create_stmt(str: &mut Printer, node: &CreateStmt, is_foreign_table: 
     }
 
     str.hardbreak();
+
+    Some(())
 }
 
 pub fn node_on_commit_action(str: &mut Printer, node: &OnCommitAction) {

@@ -3,11 +3,12 @@
 use crate::create_stmt;
 use crate::create_table_as_stmt::node_create_table_as_stmt;
 use crate::fmt;
+use pg_query::Node;
 use pg_query::NodeEnum;
 
-impl fmt::Print for NodeEnum {
+impl fmt::Print for Node {
     fn print(&self, p: &mut fmt::Printer) -> fmt::Option {
-        match self {
+        match self.node.as_ref()? {
             NodeEnum::Alias(_) => todo!(),
             NodeEnum::RangeVar(_) => todo!(),
             NodeEnum::TableFunc(_) => todo!(),
@@ -79,7 +80,7 @@ impl fmt::Print for NodeEnum {
             NodeEnum::ClusterStmt(_) => todo!(),
             NodeEnum::CopyStmt(_) => todo!(),
             NodeEnum::CreateStmt(node) => create_stmt::node_create_stmt(p, node, false),
-            NodeEnum::DefineStmt(node) => node.print(p)?,
+            NodeEnum::DefineStmt(node) => node.print(p),
             NodeEnum::DropStmt(_) => todo!(),
             NodeEnum::TruncateStmt(_) => todo!(),
             NodeEnum::CommentStmt(_) => todo!(),
@@ -247,7 +248,5 @@ impl fmt::Print for NodeEnum {
             NodeEnum::OidList(_) => todo!(),
             NodeEnum::AConst(_) => todo!(),
         }
-
-        Some(())
     }
 }
