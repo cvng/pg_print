@@ -1,12 +1,14 @@
-#![allow(unused)]
-
-mod algorithm;
 mod create_stmt;
 mod create_table_as_stmt;
 mod define_stmt;
-mod node;
+mod fmt;
+mod node_enum;
+mod object_type;
+mod parse_result;
+mod raw_stmt;
 
-use crate::algorithm::Printer;
+use crate::fmt::Printer;
+use fmt::Print;
 use pg_query::protobuf;
 use pg_query::Result;
 
@@ -17,6 +19,6 @@ const MIN_SPACE: isize = 60;
 /// Converts a parsed tree back into a pretty-printed string.
 pub fn unparse(protobuf: &protobuf::ParseResult) -> Result<String> {
     let mut p = Printer::new();
-    p.tree(protobuf);
+    protobuf.print(&mut p);
     Ok(p.eof())
 }

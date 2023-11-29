@@ -77,6 +77,7 @@ struct BufEntry {
     size: isize,
 }
 
+#[allow(dead_code)]
 impl Printer {
     pub fn new() -> Self {
         Printer {

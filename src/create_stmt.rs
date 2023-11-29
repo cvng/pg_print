@@ -1,4 +1,4 @@
-use crate::algorithm::Printer;
+use crate::fmt::Printer;
 use crate::INDENT;
 use pg_query::protobuf::a_const::Val;
 use pg_query::protobuf::AConst;
@@ -11,19 +11,14 @@ use pg_query::protobuf::ColumnRef;
 use pg_query::protobuf::ConstrType;
 use pg_query::protobuf::Constraint;
 use pg_query::protobuf::CreateStmt;
-use pg_query::protobuf::DefElem;
-use pg_query::protobuf::DefineStmt;
 use pg_query::protobuf::Integer;
-use pg_query::protobuf::ObjectType;
 use pg_query::protobuf::OnCommitAction;
 use pg_query::protobuf::ParamRef;
 use pg_query::protobuf::PartitionBoundSpec;
 use pg_query::protobuf::RangeVar;
-use pg_query::protobuf::RawStmt;
 use pg_query::protobuf::TypeName;
 use pg_query::Node;
 use pg_query::NodeEnum;
-use std::ops::Deref;
 
 const MONTH: i32 = 1;
 const YEAR: i32 = 2;
@@ -45,6 +40,7 @@ const PARTITION_STRATEGY_RANGE: char = 'r';
 
 const ESCAPE_STRING_SYNTAX: char = 'E';
 
+#[allow(dead_code)]
 pub enum DeparseNodeContext {
     None,
     // Parent node type (and sometimes field).
@@ -195,7 +191,7 @@ pub fn node_on_commit_action(str: &mut Printer, node: &OnCommitAction) {
     }
 }
 
-fn node_opt_inherit(str: &mut Printer, list: &[Node]) {
+fn node_opt_inherit(_str: &mut Printer, list: &[Node]) {
     if !list.is_empty() {
         todo!("{:?}", list)
     }
@@ -248,7 +244,7 @@ pub fn node_opt_temp(str: &mut Printer, persistence: &str) {
     }
 }
 
-pub fn node_range_var(str: &mut Printer, node: &RangeVar, context: DeparseNodeContext) {
+pub fn node_range_var(str: &mut Printer, node: &RangeVar, _context: DeparseNodeContext) {
     str.ident(node.relname.clone());
 }
 
@@ -283,7 +279,7 @@ fn node_column_def(str: &mut Printer, node: &ColumnDef) {
         }
     }
 
-    if (node.coll_clause.is_some()) {
+    if node.coll_clause.is_some() {
         node_collate_clause(str, node.coll_clause.as_ref().unwrap());
     }
 }
@@ -489,7 +485,7 @@ fn node_any_operator(str: &mut Printer, list: &[Node]) {
     }
 }
 
-fn node_param_ref(str: &mut Printer, node: &ParamRef) {
+fn node_param_ref(_str: &mut Printer, _node: &ParamRef) {
     todo!()
 }
 
@@ -503,7 +499,7 @@ pub fn node_column_ref(str: &mut Printer, node: &ColumnRef) {
     node_opt_indirection(str, &node.fields, 1);
 }
 
-fn node_a_star(str: &mut Printer, node: &AStar) {
+fn node_a_star(str: &mut Printer, _node: &AStar) {
     str.word("*");
 }
 
@@ -511,8 +507,8 @@ fn node_col_label(str: &mut Printer, node: &str) {
     str.ident(node.to_owned());
 }
 
-fn node_opt_indirection(str: &mut Printer, list: &[Node], offset: usize) {
-    for (i, item) in list.iter().enumerate().skip(offset) {}
+fn node_opt_indirection(_str: &mut Printer, _list: &[Node], _offset: usize) {
+    // for (i, item) in list.iter().enumerate().skip(offset) {}
 }
 
 fn node_signed_iconst(str: &mut Printer, node: &Node) {
@@ -581,7 +577,7 @@ pub fn node_expr(str: &mut Printer, node: Option<&Node>) {
     }
 }
 
-fn node_create_generic_options(str: &mut Printer, list: &[Node]) {
+fn node_create_generic_options(_str: &mut Printer, _list: &[Node]) {
     todo!()
 }
 
@@ -664,7 +660,7 @@ fn node_rel_options(str: &mut Printer, list: &[Node]) {
     str.word(")");
 }
 
-fn node_def_arg(str: &mut Printer, node: &Node, is_operator_def_arg: bool) {
+fn node_def_arg(str: &mut Printer, node: &Node, _is_operator_def_arg: bool) {
     match node.node.as_ref().unwrap() {
         NodeEnum::Integer(ref val) => {
             node_value(str, Some(&Val::Ival(val.clone())), DeparseNodeContext::None)
@@ -673,7 +669,7 @@ fn node_def_arg(str: &mut Printer, node: &Node, is_operator_def_arg: bool) {
     }
 }
 
-fn node_collate_clause(str: &mut Printer, node: &CollateClause) {
+fn node_collate_clause(_str: &mut Printer, _node: &CollateClause) {
     todo!()
 }
 
@@ -687,13 +683,15 @@ fn node_table_element(str: &mut Printer, node: &Node) {
     }
 }
 
-pub fn node_any_name(str: &mut Printer, list: &[Node]) {
+pub fn node_any_name(str: &mut Printer, list: &[Node]) -> Option<()> {
     for (i, part) in list.iter().enumerate() {
         if i > 0 {
             str.word(".");
         }
         str.ident(str_val(part).unwrap());
     }
+
+    Some(())
 }
 
 fn str_val(node: &Node) -> Option<String> {

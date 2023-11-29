@@ -2,10 +2,10 @@ use super::printer;
 use super::printer::BeginToken;
 use super::printer::BreakToken;
 use super::printer::Breaks;
-use crate::algorithm;
-use crate::algorithm::Printer;
+use crate::fmt::Printer;
 use std::borrow::Cow;
 
+#[allow(dead_code)]
 impl Printer {
     pub fn ibox(&mut self, indent: isize) {
         self.scan_begin(BeginToken {
