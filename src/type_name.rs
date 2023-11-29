@@ -69,7 +69,7 @@ impl fmt::Print for TypeName {
                         skip_typmods = true;
                     }
                 }
-                _ => {
+                None => {
                     p.word("pg_catalog.");
                     p.word(name);
                 }
