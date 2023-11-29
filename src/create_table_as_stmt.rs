@@ -1,17 +1,25 @@
 use crate::algorithm::Printer;
 use crate::create_stmt::node_column_list;
+use crate::create_stmt::node_column_ref;
+use crate::create_stmt::node_expr;
 use crate::create_stmt::node_expr_list;
 use crate::create_stmt::node_on_commit_action;
 use crate::create_stmt::node_opt_temp;
 use crate::create_stmt::node_opt_with;
 use crate::create_stmt::node_range_var;
 use crate::create_stmt::DeparseNodeContext;
+use pg_query::protobuf::ColumnRef;
 use pg_query::protobuf::CreateTableAsStmt;
 use pg_query::protobuf::ExecuteStmt;
 use pg_query::protobuf::IntoClause;
 use pg_query::protobuf::ObjectType;
 use pg_query::protobuf::OnCommitAction;
+use pg_query::protobuf::ResTarget;
 use pg_query::protobuf::SelectStmt;
+use pg_query::protobuf::SetOperation;
+use pg_query::protobuf::TargetEntry;
+use pg_query::protobuf::WithClause;
+use pg_query::Node;
 use pg_query::NodeEnum;
 
 pub fn node_create_table_as_stmt(str: &mut Printer, node: &CreateTableAsStmt) {
@@ -95,4 +103,107 @@ fn node_execute_stmt(str: &mut Printer, node: &ExecuteStmt) {
     }
 }
 
-fn node_select_stmt(str: &mut Printer, node: &SelectStmt) {}
+fn node_select_stmt(str: &mut Printer, node: &SelectStmt) {
+    if let Some(with_clause) = &node.with_clause {
+        node_with_clause(str, with_clause);
+        str.word(" ");
+    }
+
+    match &node.op() {
+        SetOperation::SetopNone => {
+            if !node.values_lists.is_empty() {
+                str.word("values ");
+
+                for (i, list) in node.values_lists.iter().enumerate() {
+                    str.word("(");
+                    node_expr_list(str, &[list.clone()]);
+                    str.word(")");
+                    str.comma(i >= node.values_lists.len() - 1);
+                }
+
+                str.word(" ");
+            }
+
+            str.word("select ");
+
+            if !node.target_list.is_empty() {
+                if !node.distinct_clause.is_empty() {
+                    str.word("distinct ");
+
+                    str.word("on (");
+                    node_expr_list(str, &node.distinct_clause);
+                    str.word(") ");
+                }
+
+                node_target_list(str, &node.target_list);
+                str.word(" ");
+            }
+
+            node_from_clause(str, &node.from_clause);
+            node_where_clause(str, node.where_clause.as_deref());
+        }
+        _ => todo!("{:?}", node.op()),
+    }
+}
+
+fn node_from_clause(str: &mut Printer, list: &[Node]) {
+    if !list.is_empty() {
+        str.word("from ");
+        node_from_list(str, list);
+        str.word(" ");
+    }
+}
+
+fn node_from_list(str: &mut Printer, list: &[Node]) {
+    for (i, item) in list.iter().enumerate() {
+        node_table_ref(str, item);
+        str.comma(i >= list.len() - 1);
+    }
+}
+
+fn node_table_ref(str: &mut Printer, node: &Node) {
+    match node.node.as_ref().unwrap() {
+        NodeEnum::RangeVar(node) => node_range_var(str, node, DeparseNodeContext::None),
+        _ => todo!("{:?}", node),
+    }
+}
+
+fn node_where_clause(str: &mut Printer, node: Option<&Node>) {
+    if let Some(node) = node {
+        str.word("where ");
+        node_expr(str, Some(node));
+        str.word(" ");
+    }
+}
+
+fn node_with_clause(str: &mut Printer, node: &WithClause) {
+    str.word("with ");
+
+    if node.recursive {
+        str.word("recursive ");
+    }
+
+    todo!("{:?}", &node);
+}
+
+fn node_target_list(str: &mut Printer, list: &[Node]) {
+    for (i, entry) in list.iter().enumerate() {
+        if let NodeEnum::ResTarget(node) = entry.node.as_ref().unwrap() {
+            if node.val.is_none() {
+            } else if let NodeEnum::ColumnRef(node) =
+                node.val.as_ref().unwrap().node.as_ref().unwrap()
+            {
+                node_column_ref(str, node);
+            } else {
+                node_expr(str, node.val.as_deref());
+            }
+
+            if !node.name.is_empty() {
+                str.word(" as ");
+                str.ident(node.name.clone());
+            }
+
+            str.comma(i >= list.len() - 1);
+        }
+    }
+}

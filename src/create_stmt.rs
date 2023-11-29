@@ -2,8 +2,12 @@ use crate::algorithm::Printer;
 use crate::INDENT;
 use pg_query::protobuf::a_const::Val;
 use pg_query::protobuf::AConst;
+use pg_query::protobuf::AExpr;
+use pg_query::protobuf::AExprKind;
+use pg_query::protobuf::AStar;
 use pg_query::protobuf::CollateClause;
 use pg_query::protobuf::ColumnDef;
+use pg_query::protobuf::ColumnRef;
 use pg_query::protobuf::ConstrType;
 use pg_query::protobuf::Constraint;
 use pg_query::protobuf::CreateStmt;
@@ -12,6 +16,7 @@ use pg_query::protobuf::DefineStmt;
 use pg_query::protobuf::Integer;
 use pg_query::protobuf::ObjectType;
 use pg_query::protobuf::OnCommitAction;
+use pg_query::protobuf::ParamRef;
 use pg_query::protobuf::PartitionBoundSpec;
 use pg_query::protobuf::RangeVar;
 use pg_query::protobuf::RawStmt;
@@ -331,8 +336,8 @@ fn node_type_name(str: &mut Printer, node: &TypeName) {
         for (i, typmod) in node.typmods.iter().enumerate() {
             match typmod.node.as_ref().unwrap() {
                 NodeEnum::AConst(node) => node_a_const(str, node),
-                NodeEnum::ParamRef(node) => node_param_ref(str, typmod),
-                NodeEnum::ColumnRef(node) => node_column_ref(str, typmod),
+                NodeEnum::ParamRef(node) => node_param_ref(str, node),
+                NodeEnum::ColumnRef(node) => node_column_ref(str, node),
                 _ => unreachable!(),
             }
             str.comma(i >= node.typmods.len() - 1);
@@ -381,12 +386,111 @@ fn node_a_const(str: &mut Printer, node: &AConst) {
     node_value(str, node.val.as_ref(), DeparseNodeContext::Constant);
 }
 
-fn node_param_ref(str: &mut Printer, node: &Node) {
+fn node_a_expr(str: &mut Printer, node: &AExpr, context: DeparseNodeContext) {
+    let need_lexpr_parens = false;
+    let need_rexpr_parens = false;
+
+    match node.kind() {
+        AExprKind::Undefined => todo!(),
+        AExprKind::AexprOp => {
+            let need_outer_parens = matches!(context, DeparseNodeContext::AExpr);
+
+            if need_outer_parens {
+                str.word("(");
+            }
+
+            if node.lexpr.is_some() {
+                if need_lexpr_parens {
+                    str.word("(");
+                }
+
+                node_expr(str, node.lexpr.as_deref());
+
+                if need_lexpr_parens {
+                    str.word(")");
+                }
+
+                str.nbsp();
+            }
+
+            node_qual_op(str, &node.name);
+
+            if node.rexpr.is_some() {
+                str.nbsp();
+
+                if need_rexpr_parens {
+                    str.word("(");
+                }
+
+                node_expr(str, node.rexpr.as_deref());
+
+                if need_rexpr_parens {
+                    str.word(")");
+                }
+            }
+        }
+        AExprKind::AexprOpAny => todo!(),
+        AExprKind::AexprOpAll => todo!(),
+        AExprKind::AexprDistinct => todo!(),
+        AExprKind::AexprNotDistinct => todo!(),
+        AExprKind::AexprNullif => todo!(),
+        AExprKind::AexprIn => todo!(),
+        AExprKind::AexprLike => todo!(),
+        AExprKind::AexprIlike => todo!(),
+        AExprKind::AexprSimilar => todo!(),
+        AExprKind::AexprBetween => todo!(),
+        AExprKind::AexprNotBetween => todo!(),
+        AExprKind::AexprBetweenSym => todo!(),
+        AExprKind::AexprNotBetweenSym => todo!(),
+    }
+}
+
+fn node_qual_op(str: &mut Printer, list: &[Node]) {
+    if list.len() == 1 && is_op(str_val(list.first().unwrap())) {
+        str.word(str_val(list.first().unwrap()).unwrap());
+    } else {
+        str.word("operator(");
+        node_any_operator(str, list);
+        str.word(")");
+    }
+}
+
+fn node_any_operator(str: &mut Printer, list: &[Node]) {
+    match list.len() {
+        2 => {
+            str.ident(str_val(list.first().unwrap()).unwrap());
+            str.word(".");
+            str.word(str_val(list.last().unwrap()).unwrap());
+        }
+        1 => str.ident(str_val(list.last().unwrap()).unwrap()),
+        _ => unreachable!(),
+    }
+}
+
+fn node_param_ref(str: &mut Printer, node: &ParamRef) {
     todo!()
 }
 
-fn node_column_ref(str: &mut Printer, node: &Node) {
-    todo!()
+pub fn node_column_ref(str: &mut Printer, node: &ColumnRef) {
+    if let NodeEnum::AStar(node) = node.fields.first().unwrap().node.as_ref().unwrap() {
+        node_a_star(str, node);
+    } else if let NodeEnum::String(node) = node.fields.first().unwrap().node.as_ref().unwrap() {
+        node_col_label(str, &node.sval);
+    }
+
+    node_opt_indirection(str, &node.fields, 1);
+}
+
+fn node_a_star(str: &mut Printer, node: &AStar) {
+    str.word("*");
+}
+
+fn node_col_label(str: &mut Printer, node: &str) {
+    str.ident(node.to_owned());
+}
+
+fn node_opt_indirection(str: &mut Printer, list: &[Node], offset: usize) {
+    for (i, item) in list.iter().enumerate().skip(offset) {}
 }
 
 fn node_signed_iconst(str: &mut Printer, node: &Node) {
@@ -442,13 +546,14 @@ fn node_interval_typmods(str: &mut Printer, node: &TypeName) {
     }
 }
 
-fn node_expr(str: &mut Printer, node: Option<&Node>) {
+pub fn node_expr(str: &mut Printer, node: Option<&Node>) {
     let Some(node) = node else {
         return;
     };
 
     match node.node.as_ref().unwrap() {
         NodeEnum::AConst(node) => node_a_const(str, node),
+        NodeEnum::AExpr(node) => node_a_expr(str, node, DeparseNodeContext::None),
         node => todo!("{:?}", node),
     }
 }
