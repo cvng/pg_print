@@ -1,12 +1,24 @@
 // Adapted from https://github.com/dtolnay/prettyplease/blob/0.2.15/src/algorithm.rs.
 
-use super::ring::RingBuffer;
-use crate::MARGIN;
-use crate::MIN_SPACE;
+#![allow(dead_code)]
+
 use std::borrow::Cow;
 use std::cmp;
 use std::collections::VecDeque;
 use std::iter;
+use std::ops::Index;
+use std::ops::IndexMut;
+use std::option;
+
+const MARGIN: isize = 89;
+const MIN_SPACE: isize = 60;
+const SIZE_INFINITY: isize = 0xffff;
+
+pub type Option = option::Option<()>;
+
+pub trait Print {
+    fn print(&self, p: &mut Printer) -> Option;
+}
 
 #[derive(Clone, Copy, PartialEq)]
 pub enum Breaks {
@@ -18,9 +30,9 @@ pub enum Breaks {
 pub struct BreakToken {
     pub offset: isize,
     pub blank_space: usize,
-    pub pre_break: Option<char>,
-    pub post_break: Option<char>,
-    pub no_break: Option<char>,
+    pub pre_break: option::Option<char>,
+    pub post_break: option::Option<char>,
+    pub no_break: option::Option<char>,
     pub if_nonempty: bool,
     pub never_break: bool,
 }
@@ -32,7 +44,7 @@ pub struct BeginToken {
 }
 
 #[derive(Clone)]
-pub enum Token {
+enum Token {
     String(Cow<'static, str>),
     Break(BreakToken),
     Begin(BeginToken),
@@ -44,8 +56,6 @@ enum PrintFrame {
     Fits(Breaks),
     Broken(usize, Breaks),
 }
-
-pub const SIZE_INFINITY: isize = 0xffff;
 
 pub struct Printer {
     out: String,
@@ -372,5 +382,195 @@ impl Printer {
         self.out
             .extend(iter::repeat(' ').take(self.pending_indentation));
         self.pending_indentation = 0;
+    }
+}
+
+impl Printer {
+    pub fn ibox(&mut self, indent: isize) {
+        self.scan_begin(BeginToken {
+            offset: indent,
+            breaks: Breaks::Inconsistent,
+        });
+    }
+
+    pub fn cbox(&mut self, indent: isize) {
+        self.scan_begin(BeginToken {
+            offset: indent,
+            breaks: Breaks::Consistent,
+        });
+    }
+
+    pub fn end(&mut self) {
+        self.scan_end();
+    }
+
+    pub fn word<S: Into<Cow<'static, str>>>(&mut self, wrd: S) {
+        let s = wrd.into();
+        self.scan_string(s);
+    }
+
+    pub fn keyword<S: Into<Cow<'static, str>>>(&mut self, wrd: S) {
+        self.word(wrd.into().to_ascii_uppercase());
+    }
+
+    pub fn ident<S: Into<Cow<'static, str>>>(&mut self, wrd: S) {
+        self.word(wrd);
+    }
+
+    fn spaces(&mut self, n: usize) {
+        self.scan_break(BreakToken {
+            blank_space: n,
+            ..BreakToken::default()
+        });
+    }
+
+    pub fn zerobreak(&mut self) {
+        self.spaces(0);
+    }
+
+    pub fn space(&mut self) {
+        self.spaces(1);
+    }
+
+    pub fn nbsp(&mut self) {
+        self.word(" ");
+    }
+
+    pub fn hardbreak(&mut self) {
+        self.spaces(SIZE_INFINITY as usize);
+    }
+
+    pub fn space_if_nonempty(&mut self) {
+        self.scan_break(BreakToken {
+            blank_space: 1,
+            if_nonempty: true,
+            ..BreakToken::default()
+        });
+    }
+
+    pub fn hardbreak_if_nonempty(&mut self) {
+        self.scan_break(BreakToken {
+            blank_space: SIZE_INFINITY as usize,
+            if_nonempty: true,
+            ..BreakToken::default()
+        });
+    }
+
+    pub fn trailing_comma(&mut self, is_last: bool) {
+        if is_last {
+            self.scan_break(BreakToken {
+                pre_break: Some(','),
+                ..BreakToken::default()
+            });
+        } else {
+            self.word(",");
+            self.space();
+        }
+    }
+
+    pub fn trailing_comma_or_space(&mut self, is_last: bool) {
+        if is_last {
+            self.scan_break(BreakToken {
+                blank_space: 1,
+                pre_break: Some(','),
+                ..BreakToken::default()
+            });
+        } else {
+            self.word(",");
+            self.space();
+        }
+    }
+
+    pub fn comma(&mut self, is_last: bool) {
+        if !is_last {
+            self.word(",");
+            self.space();
+        }
+    }
+
+    pub fn neverbreak(&mut self) {
+        self.scan_break(BreakToken {
+            never_break: true,
+            ..BreakToken::default()
+        });
+    }
+}
+
+struct RingBuffer<T> {
+    data: VecDeque<T>,
+    // Abstract index of data[0] in infinitely sized queue
+    offset: usize,
+}
+
+impl<T> RingBuffer<T> {
+    fn new() -> Self {
+        RingBuffer {
+            data: VecDeque::new(),
+            offset: 0,
+        }
+    }
+
+    fn is_empty(&self) -> bool {
+        self.data.is_empty()
+    }
+
+    fn len(&self) -> usize {
+        self.data.len()
+    }
+
+    fn push(&mut self, value: T) -> usize {
+        let index = self.offset + self.data.len();
+        self.data.push_back(value);
+        index
+    }
+
+    fn clear(&mut self) {
+        self.data.clear();
+    }
+
+    fn index_of_first(&self) -> usize {
+        self.offset
+    }
+
+    fn first(&self) -> &T {
+        &self.data[0]
+    }
+
+    fn first_mut(&mut self) -> &mut T {
+        &mut self.data[0]
+    }
+
+    fn pop_first(&mut self) -> T {
+        self.offset += 1;
+        self.data.pop_front().unwrap()
+    }
+
+    fn last(&self) -> &T {
+        self.data.back().unwrap()
+    }
+
+    fn last_mut(&mut self) -> &mut T {
+        self.data.back_mut().unwrap()
+    }
+
+    fn second_last(&self) -> &T {
+        &self.data[self.data.len() - 2]
+    }
+
+    fn pop_last(&mut self) {
+        self.data.pop_back().unwrap();
+    }
+}
+
+impl<T> Index<usize> for RingBuffer<T> {
+    type Output = T;
+    fn index(&self, index: usize) -> &Self::Output {
+        &self.data[index.checked_sub(self.offset).unwrap()]
+    }
+}
+
+impl<T> IndexMut<usize> for RingBuffer<T> {
+    fn index_mut(&mut self, index: usize) -> &mut Self::Output {
+        &mut self.data[index.checked_sub(self.offset).unwrap()]
     }
 }

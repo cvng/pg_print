@@ -1,4 +1,3 @@
-use crate::algorithm::Printer;
 use crate::create_stmt::node_column_list;
 use crate::create_stmt::node_column_ref;
 use crate::create_stmt::node_expr;
@@ -8,21 +7,18 @@ use crate::create_stmt::node_opt_temp;
 use crate::create_stmt::node_opt_with;
 use crate::create_stmt::node_range_var;
 use crate::create_stmt::DeparseNodeContext;
-use pg_query::protobuf::ColumnRef;
+use crate::fmt::Printer;
 use pg_query::protobuf::CreateTableAsStmt;
 use pg_query::protobuf::ExecuteStmt;
 use pg_query::protobuf::IntoClause;
 use pg_query::protobuf::ObjectType;
-use pg_query::protobuf::OnCommitAction;
-use pg_query::protobuf::ResTarget;
 use pg_query::protobuf::SelectStmt;
 use pg_query::protobuf::SetOperation;
-use pg_query::protobuf::TargetEntry;
 use pg_query::protobuf::WithClause;
 use pg_query::Node;
 use pg_query::NodeEnum;
 
-pub fn node_create_table_as_stmt(str: &mut Printer, node: &CreateTableAsStmt) {
+pub fn node_create_table_as_stmt(str: &mut Printer, node: &CreateTableAsStmt) -> Option<()> {
     str.keyword("create ");
 
     node_opt_temp(
@@ -63,6 +59,8 @@ pub fn node_create_table_as_stmt(str: &mut Printer, node: &CreateTableAsStmt) {
     if node.into.is_some() && node.into.as_ref().unwrap().skip_data {
         str.word("with no data ");
     }
+
+    Some(())
 }
 
 fn node_into_clause(str: &mut Printer, node: &IntoClause) {

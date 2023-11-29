@@ -1,33 +1,14 @@
 // Adapted from https://github.com/pganalyze/libpg_query/blob/15-latest/src/postgres_deparse.c.
 
-use crate::algorithm::Printer;
 use crate::create_stmt;
 use crate::create_table_as_stmt::node_create_table_as_stmt;
-use crate::define_stmt;
-use crate::INDENT;
-use pg_query::protobuf::a_const::Val;
-use pg_query::protobuf::AConst;
-use pg_query::protobuf::CollateClause;
-use pg_query::protobuf::ColumnDef;
-use pg_query::protobuf::ConstrType;
-use pg_query::protobuf::Constraint;
-use pg_query::protobuf::CreateStmt;
-use pg_query::protobuf::DefElem;
-use pg_query::protobuf::DefineStmt;
-use pg_query::protobuf::Integer;
-use pg_query::protobuf::ObjectType;
-use pg_query::protobuf::OnCommitAction;
-use pg_query::protobuf::PartitionBoundSpec;
-use pg_query::protobuf::RangeVar;
-use pg_query::protobuf::RawStmt;
-use pg_query::protobuf::TypeName;
+use crate::fmt;
 use pg_query::Node;
 use pg_query::NodeEnum;
-use std::ops::Deref;
 
-impl Printer {
-    pub fn stmt(&mut self, stmt: &RawStmt) {
-        match stmt.stmt.as_ref().unwrap().node.as_ref().unwrap() {
+impl fmt::Print for Node {
+    fn print(&self, p: &mut fmt::Printer) -> fmt::Option {
+        match self.node.as_ref()? {
             NodeEnum::Alias(_) => todo!(),
             NodeEnum::RangeVar(_) => todo!(),
             NodeEnum::TableFunc(_) => todo!(),
@@ -98,8 +79,8 @@ impl Printer {
             NodeEnum::ClosePortalStmt(_) => todo!(),
             NodeEnum::ClusterStmt(_) => todo!(),
             NodeEnum::CopyStmt(_) => todo!(),
-            NodeEnum::CreateStmt(node) => create_stmt::node_create_stmt(self, node, false),
-            NodeEnum::DefineStmt(node) => define_stmt::node_define_stmt(self, node),
+            NodeEnum::CreateStmt(node) => create_stmt::node_create_stmt(p, node, false),
+            NodeEnum::DefineStmt(node) => node.print(p),
             NodeEnum::DropStmt(_) => todo!(),
             NodeEnum::TruncateStmt(_) => todo!(),
             NodeEnum::CommentStmt(_) => todo!(),
@@ -121,7 +102,7 @@ impl Printer {
             NodeEnum::DropdbStmt(_) => todo!(),
             NodeEnum::VacuumStmt(_) => todo!(),
             NodeEnum::ExplainStmt(_) => todo!(),
-            NodeEnum::CreateTableAsStmt(node) => node_create_table_as_stmt(self, node),
+            NodeEnum::CreateTableAsStmt(node) => node_create_table_as_stmt(p, node),
             NodeEnum::CreateSeqStmt(_) => todo!(),
             NodeEnum::AlterSeqStmt(_) => todo!(),
             NodeEnum::VariableSetStmt(_) => todo!(),
