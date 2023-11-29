@@ -1,7 +1,7 @@
 use crate::fmt;
 use pg_query::protobuf::ColumnDef;
-use pg_query::NodeEnum;
 use pg_query::Node;
+use pg_query::NodeEnum;
 
 impl fmt::Print for ColumnDef {
     fn print(&self, p: &mut fmt::Printer) -> fmt::Option {
@@ -43,6 +43,6 @@ impl fmt::Print for ColumnDef {
     }
 }
 
-pub fn print_create_generic_options(_str: &mut fmt::Printer, _list: &[Node]) {
+pub fn print_create_generic_options(_p: &mut fmt::Printer, _list: &[Node]) {
     todo!()
 }

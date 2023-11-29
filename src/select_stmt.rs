@@ -53,44 +53,44 @@ impl fmt::Print for SelectStmt {
     }
 }
 
-fn from_clause(str: &mut fmt::Printer, list: &[Node]) {
+fn from_clause(p: &mut fmt::Printer, list: &[Node]) {
     if !list.is_empty() {
-        str.keyword("from ");
+        p.keyword("from ");
 
         for (i, item) in list.iter().enumerate() {
-            item.print(str);
-            str.comma(i >= list.len() - 1);
+            item.print(p);
+            p.comma(i >= list.len() - 1);
         }
-        str.word(" ");
+        p.word(" ");
     }
 }
 
-fn where_clause(str: &mut fmt::Printer, node: Option<&Node>) {
+fn where_clause(p: &mut fmt::Printer, node: Option<&Node>) {
     if let Some(node) = node {
-        str.keyword("where ");
-        node.print(str);
-        str.word(" ");
+        p.keyword("where ");
+        node.print(p);
+        p.word(" ");
     }
 }
 
-fn target_list(str: &mut fmt::Printer, list: &[Node]) {
+fn target_list(p: &mut fmt::Printer, list: &[Node]) {
     for (i, entry) in list.iter().enumerate() {
         if let NodeEnum::ResTarget(node) = entry.node.as_ref().unwrap() {
             if node.val.is_none() {
             } else if let NodeEnum::ColumnRef(node) =
                 node.val.as_ref().unwrap().node.as_ref().unwrap()
             {
-                node.print(str);
+                node.print(p);
             } else {
-                node.val.as_deref().unwrap().print(str);
+                node.val.as_deref().unwrap().print(p);
             }
 
             if !node.name.is_empty() {
-                str.word(" as ");
-                str.ident(node.name.clone());
+                p.word(" as ");
+                p.ident(node.name.clone());
             }
 
-            str.comma(i >= list.len() - 1);
+            p.comma(i >= list.len() - 1);
         }
     }
 }

@@ -17,10 +17,10 @@ impl fmt::Print for ColumnRef {
     }
 }
 
-fn print_col_label(str: &mut fmt::Printer, node: &str) {
-    str.ident(node.to_owned());
+fn print_col_label(p: &mut fmt::Printer, node: &str) {
+    p.ident(node.to_owned());
 }
 
-fn print_opt_indirection(_str: &mut fmt::Printer, _list: &[Node], _offset: usize) {
+fn print_opt_indirection(_p: &mut fmt::Printer, _list: &[Node], _offset: usize) {
     // for (i, item) in list.iter().enumerate().skip(offset) {}
 }

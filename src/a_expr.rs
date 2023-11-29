@@ -68,24 +68,24 @@ impl fmt::Print for AExpr {
     }
 }
 
-fn print_qual_op(str: &mut fmt::Printer, list: &[Node]) {
+fn print_qual_op(p: &mut fmt::Printer, list: &[Node]) {
     if list.len() == 1 && is_op(str_val(list.first().unwrap())) {
-        str.word(str_val(list.first().unwrap()).unwrap());
+        p.word(str_val(list.first().unwrap()).unwrap());
     } else {
-        str.word("operator(");
-        print_any_operator(str, list);
-        str.word(")");
+        p.word("operator(");
+        print_any_operator(p, list);
+        p.word(")");
     }
 }
 
-fn print_any_operator(str: &mut fmt::Printer, list: &[Node]) {
+fn print_any_operator(p: &mut fmt::Printer, list: &[Node]) {
     match list.len() {
         2 => {
-            str.ident(str_val(list.first().unwrap()).unwrap());
-            str.word(".");
-            str.word(str_val(list.last().unwrap()).unwrap());
+            p.ident(str_val(list.first().unwrap()).unwrap());
+            p.word(".");
+            p.word(str_val(list.last().unwrap()).unwrap());
         }
-        1 => str.ident(str_val(list.last().unwrap()).unwrap()),
+        1 => p.ident(str_val(list.last().unwrap()).unwrap()),
         _ => unreachable!(),
     }
 }

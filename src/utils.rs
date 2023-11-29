@@ -90,42 +90,42 @@ pub fn print_column_list(p: &mut fmt::Printer, list: &[Node]) {
     }
 }
 
-pub fn print_opt_with(str: &mut fmt::Printer, list: &[Node]) {
+pub fn print_opt_with(p: &mut fmt::Printer, list: &[Node]) {
     if !list.is_empty() {
-        str.keyword(" with ");
-        node_rel_options(str, list);
-        str.nbsp();
+        p.keyword(" with ");
+        node_rel_options(p, list);
+        p.nbsp();
     }
 }
 
-fn node_rel_options(str: &mut fmt::Printer, list: &[Node]) {
-    str.word("(");
+fn node_rel_options(p: &mut fmt::Printer, list: &[Node]) {
+    p.word("(");
 
     for (i, option) in list.iter().enumerate() {
         match option.node.as_ref().unwrap() {
             NodeEnum::DefElem(node) => {
                 if !node.defnamespace.is_empty() {
-                    str.ident(node.defnamespace.clone());
-                    str.word(".");
+                    p.ident(node.defnamespace.clone());
+                    p.word(".");
                 }
-                str.ident(node.defname.clone());
+                p.ident(node.defname.clone());
                 if let Some(arg) = &node.arg {
-                    str.word(" = ");
-                    print_def_arg(str, arg, false);
+                    p.word(" = ");
+                    print_def_arg(p, arg, false);
                 }
             }
             _ => unreachable!(),
         }
 
-        str.comma(i >= list.len() - 1);
+        p.comma(i >= list.len() - 1);
     }
 
-    str.word(")");
+    p.word(")");
 }
 
-fn print_def_arg(str: &mut fmt::Printer, node: &Node, _is_operator_def_arg: bool) {
+fn print_def_arg(p: &mut fmt::Printer, node: &Node, _is_operator_def_arg: bool) {
     match node.node.as_ref().unwrap() {
-        NodeEnum::Integer(ref val) => Option::<Val>::print(&Some(Val::Ival(val.clone())), str),
+        NodeEnum::Integer(ref val) => Option::<Val>::print(&Some(Val::Ival(val.clone())), p),
         _ => todo!(),
     };
 }

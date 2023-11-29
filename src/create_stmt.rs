@@ -87,16 +87,16 @@ impl fmt::Print for CreateStmt {
     }
 }
 
-fn print_opt_inherit(_str: &mut fmt::Printer, list: &[Node]) {
+fn print_opt_inherit(_p: &mut fmt::Printer, list: &[Node]) {
     if !list.is_empty() {
         todo!("{:?}", list)
     }
 }
 
-fn print_table_element(str: &mut fmt::Printer, node: &Node) {
+fn print_table_element(p: &mut fmt::Printer, node: &Node) {
     match node.node.as_ref().unwrap() {
-        NodeEnum::ColumnDef(node) => node.print(str),
-        NodeEnum::Constraint(node) => node.print(str),
+        NodeEnum::ColumnDef(node) => node.print(p),
+        NodeEnum::Constraint(node) => node.print(p),
         NodeEnum::IndexElem(_) => todo!(),
         NodeEnum::DefElem(_) => todo!(),
         _ => unreachable!(),

@@ -102,7 +102,7 @@ impl fmt::Print for TypeName {
 }
 
 // See https://github.com/pganalyze/libpg_query/blob/15-latest/src/postgres_deparse.c#L3774.
-fn print_interval_typmods(str: &mut fmt::Printer, node: &TypeName) {
+fn print_interval_typmods(p: &mut fmt::Printer, node: &TypeName) {
     let interval_fields = node
         .typmods
         .first()
@@ -115,19 +115,19 @@ fn print_interval_typmods(str: &mut fmt::Printer, node: &TypeName) {
         .unwrap();
 
     match interval_fields {
-        x if x == 1 << YEAR => str.word(" year"),
-        x if x == 1 << MONTH => str.word(" month"),
-        x if x == 1 << DAY => str.word(" day"),
-        x if x == 1 << HOUR => str.word(" hour"),
-        x if x == 1 << MINUTE => str.word(" minute"),
-        x if x == 1 << SECOND => str.word(" second"),
-        x if x == 1 << YEAR | 1 << MONTH => str.word(" year to month"),
-        x if x == 1 << DAY | 1 << HOUR => str.word(" day to hour"),
-        x if x == 1 << DAY | 1 << HOUR | 1 << MINUTE => str.word(" day to minute"),
-        x if x == 1 << DAY | 1 << HOUR | 1 << MINUTE | 1 << SECOND => str.word(" day to second"),
-        x if x == 1 << HOUR | 1 << MINUTE => str.word(" hour to minute"),
-        x if x == 1 << HOUR | 1 << MINUTE | 1 << SECOND => str.word(" hour to second"),
-        x if x == 1 << MINUTE | 1 << SECOND => str.word(" minute to second"),
+        x if x == 1 << YEAR => p.word(" year"),
+        x if x == 1 << MONTH => p.word(" month"),
+        x if x == 1 << DAY => p.word(" day"),
+        x if x == 1 << HOUR => p.word(" hour"),
+        x if x == 1 << MINUTE => p.word(" minute"),
+        x if x == 1 << SECOND => p.word(" second"),
+        x if x == 1 << YEAR | 1 << MONTH => p.word(" year to month"),
+        x if x == 1 << DAY | 1 << HOUR => p.word(" day to hour"),
+        x if x == 1 << DAY | 1 << HOUR | 1 << MINUTE => p.word(" day to minute"),
+        x if x == 1 << DAY | 1 << HOUR | 1 << MINUTE | 1 << SECOND => p.word(" day to second"),
+        x if x == 1 << HOUR | 1 << MINUTE => p.word(" hour to minute"),
+        x if x == 1 << HOUR | 1 << MINUTE | 1 << SECOND => p.word(" hour to second"),
+        x if x == 1 << MINUTE | 1 << SECOND => p.word(" minute to second"),
         INTERVAL_FULL_RANGE => {}
         _ => unreachable!(),
     };
@@ -145,22 +145,22 @@ fn print_interval_typmods(str: &mut fmt::Printer, node: &TypeName) {
             .unwrap();
 
         if precision != INTERVAL_FULL_PRECISION {
-            str.word(format!(" ({})", precision));
+            p.word(format!(" ({})", precision));
         }
     }
 }
 
-pub fn print_any_name(str: &mut fmt::Printer, list: &[Node]) -> fmt::Option {
+pub fn print_any_name(p: &mut fmt::Printer, list: &[Node]) -> fmt::Option {
     for (i, part) in list.iter().enumerate() {
         if i > 0 {
-            str.word(".");
+            p.word(".");
         }
-        str.ident(str_val(part).unwrap());
+        p.ident(str_val(part).unwrap());
     }
 
     Some(())
 }
 
-fn print_signed_iconst(str: &mut fmt::Printer, node: &Node) {
-    str.word(format!("{}", int_val(node).unwrap()));
+fn print_signed_iconst(p: &mut fmt::Printer, node: &Node) {
+    p.word(format!("{}", int_val(node).unwrap()));
 }
