@@ -12,9 +12,7 @@ use fmt::Print;
 use pg_query::protobuf;
 use pg_query::Result;
 
-const MARGIN: isize = 89;
 const INDENT: isize = 4;
-const MIN_SPACE: isize = 60;
 
 /// Converts a parsed tree back into a pretty-printed string.
 pub fn unparse(protobuf: &protobuf::ParseResult) -> Result<String> {
