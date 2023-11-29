@@ -14,6 +14,7 @@ mod fmt;
 mod integer;
 mod interval_fields;
 mod into_clause;
+mod name;
 mod node;
 mod object_type;
 mod on_commit_action;

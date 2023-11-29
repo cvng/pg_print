@@ -2,6 +2,7 @@ use crate::fmt;
 use crate::fmt::Print;
 use crate::interval_fields::IntervalFields;
 use crate::interval_fields::INTERVAL_FULL_PRECISION;
+use crate::name::Name;
 use crate::utils::a_const_int_val;
 use crate::utils::int_val;
 use crate::utils::print_any_name;
@@ -22,18 +23,18 @@ impl fmt::Print for TypeName {
         if self.names.len() == 2 && str_val(self.names.first().unwrap()).unwrap() == "pg_catalog" {
             let name = str_val(self.names.last().unwrap()).unwrap();
 
-            match name.as_str() {
-                "bpchar" => p.word("char"),
-                "varchar" => p.word("varchar"),
-                "numeric" => p.word("numeric"),
-                "bool" => p.word("boolean"),
-                "int2" => p.word("smallint"),
-                "int4" => p.word("int"),
-                "int8" => p.word("bigint"),
-                "real" | "float4" => p.word("real"),
-                "float8" => p.word("double precision"),
-                "time" => p.word("time"),
-                "timetz" => {
+            match name.clone().try_into().ok() {
+                Some(Name::Bpchar) => p.word("char"),
+                Some(Name::Varchar) => p.word("varchar"),
+                Some(Name::Numeric) => p.word("numeric"),
+                Some(Name::Bool) => p.word("boolean"),
+                Some(Name::Int2) => p.word("smallint"),
+                Some(Name::Int4) => p.word("int"),
+                Some(Name::Int8) => p.word("bigint"),
+                Some(Name::Real) => p.word("real"),
+                Some(Name::Float8) => p.word("double precision"),
+                Some(Name::Time) => p.word("time"),
+                Some(Name::Timetz) => {
                     p.word("time ");
                     if !self.typmods.is_empty() {
                         p.word("(");
@@ -46,8 +47,8 @@ impl fmt::Print for TypeName {
                     p.word("with time zone");
                     skip_typmods = true;
                 }
-                "timestamp" => p.word("timestamp"),
-                "timestamptz" => {
+                Some(Name::Timestamp) => p.word("timestamp"),
+                Some(Name::Timestamptz) => {
                     p.word("timestamp ");
                     if !self.typmods.is_empty() {
                         p.word("(");
@@ -60,7 +61,7 @@ impl fmt::Print for TypeName {
                     p.word("with time zone");
                     skip_typmods = true;
                 }
-                "interval" => {
+                Some(Name::Interval) => {
                     p.word("interval");
 
                     if !self.typmods.is_empty() {
