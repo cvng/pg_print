@@ -20,6 +20,7 @@ mod on_commit_action;
 mod param_ref;
 mod parse_result;
 mod partition_bound_spec;
+mod partition_strategy;
 mod range_var;
 mod raw_stmt;
 mod rel_persistence;

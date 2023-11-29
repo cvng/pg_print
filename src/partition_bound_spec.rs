@@ -1,10 +1,7 @@
 use crate::fmt;
+use crate::partition_strategy::PartitionStrategy;
 use crate::utils::print_expr_list;
 use pg_query::protobuf::PartitionBoundSpec;
-
-const PARTITION_STRATEGY_HASH: char = 'h';
-const PARTITION_STRATEGY_LIST: char = 'l';
-const PARTITION_STRATEGY_RANGE: char = 'r';
 
 impl fmt::Print for PartitionBoundSpec {
     fn print(&self, p: &mut fmt::Printer) -> fmt::Option {
@@ -15,26 +12,25 @@ impl fmt::Print for PartitionBoundSpec {
 
         p.keyword(" for values ");
 
-        match self.strategy.chars().next().unwrap() {
-            PARTITION_STRATEGY_HASH => {
+        match self.strategy.clone().try_into().unwrap() {
+            PartitionStrategy::Hash => {
                 p.keyword(format!(
                     "with (modulus {}, remainder {})",
                     self.modulus, self.remainder
                 ));
             }
-            PARTITION_STRATEGY_LIST => {
+            PartitionStrategy::List => {
                 p.keyword("in (");
                 print_expr_list(p, &self.listdatums);
                 p.word(")");
             }
-            PARTITION_STRATEGY_RANGE => {
+            PartitionStrategy::Range => {
                 p.keyword("from (");
                 print_expr_list(p, &self.lowerdatums);
                 p.keyword(") to (");
                 print_expr_list(p, &self.upperdatums);
                 p.word(")");
             }
-            _ => unreachable!(),
         };
 
         Some(())
