@@ -3,7 +3,6 @@ use crate::fmt::Print;
 use crate::fmt::Printer;
 use crate::rel_persistence::RelPersistence;
 use crate::utils::int_val;
-use crate::utils::is_op;
 use crate::utils::str_val;
 use crate::INDENT;
 use pg_query::protobuf::a_const::Val;
@@ -97,28 +96,6 @@ fn node_opt_inherit(_str: &mut Printer, list: &[Node]) {
     }
 }
 
-pub fn node_qual_op(str: &mut Printer, list: &[Node]) {
-    if list.len() == 1 && is_op(str_val(list.first().unwrap())) {
-        str.word(str_val(list.first().unwrap()).unwrap());
-    } else {
-        str.word("operator(");
-        node_any_operator(str, list);
-        str.word(")");
-    }
-}
-
-fn node_any_operator(str: &mut Printer, list: &[Node]) {
-    match list.len() {
-        2 => {
-            str.ident(str_val(list.first().unwrap()).unwrap());
-            str.word(".");
-            str.word(str_val(list.last().unwrap()).unwrap());
-        }
-        1 => str.ident(str_val(list.last().unwrap()).unwrap()),
-        _ => unreachable!(),
-    }
-}
-
 pub fn node_col_label(str: &mut Printer, node: &str) {
     str.ident(node.to_owned());
 }
@@ -191,15 +168,4 @@ fn node_table_element(str: &mut Printer, node: &Node) {
         NodeEnum::DefElem(_) => todo!(),
         _ => unreachable!(),
     };
-}
-
-pub fn node_any_name(str: &mut Printer, list: &[Node]) -> fmt::Option {
-    for (i, part) in list.iter().enumerate() {
-        if i > 0 {
-            str.word(".");
-        }
-        str.ident(str_val(part).unwrap());
-    }
-
-    Some(())
 }

@@ -1,4 +1,3 @@
-use crate::create_stmt::node_any_name;
 use crate::create_stmt::node_signed_iconst;
 use crate::fmt;
 use crate::utils::a_const_int_val;
@@ -72,7 +71,7 @@ impl fmt::Print for TypeName {
                     p.word("interval");
 
                     if !self.typmods.is_empty() {
-                        node_interval_typmods(p, self);
+                        print_interval_typmods(p, self);
                         skip_typmods = true;
                     }
                 }
@@ -82,7 +81,7 @@ impl fmt::Print for TypeName {
                 }
             }
         } else {
-            node_any_name(p, &self.names);
+            print_any_name(p, &self.names);
         }
 
         if !self.typmods.is_empty() && !skip_typmods {
@@ -103,8 +102,19 @@ impl fmt::Print for TypeName {
     }
 }
 
+pub fn print_any_name(str: &mut fmt::Printer, list: &[Node]) -> fmt::Option {
+    for (i, part) in list.iter().enumerate() {
+        if i > 0 {
+            str.word(".");
+        }
+        str.ident(str_val(part).unwrap());
+    }
+
+    Some(())
+}
+
 // See https://github.com/pganalyze/libpg_query/blob/15-latest/src/postgres_deparse.c#L3774.
-fn node_interval_typmods(str: &mut fmt::Printer, node: &TypeName) {
+fn print_interval_typmods(str: &mut fmt::Printer, node: &TypeName) {
     let interval_fields = node
         .typmods
         .first()

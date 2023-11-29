@@ -1,8 +1,10 @@
-use crate::create_stmt::node_qual_op;
 use crate::fmt;
 use crate::fmt::DeparseNodeContext;
+use crate::utils::is_op;
+use crate::utils::str_val;
 use pg_query::protobuf::AExpr;
 use pg_query::protobuf::AExprKind;
+use pg_query::Node;
 
 impl fmt::Print for AExpr {
     fn print_in_context(&self, p: &mut fmt::Printer, ctx: &fmt::Context) -> fmt::Option {
@@ -32,7 +34,7 @@ impl fmt::Print for AExpr {
                     p.nbsp();
                 }
 
-                node_qual_op(p, &self.name);
+                print_qual_op(p, &self.name);
 
                 if self.rexpr.is_some() {
                     p.nbsp();
@@ -64,5 +66,27 @@ impl fmt::Print for AExpr {
             AExprKind::AexprBetweenSym => todo!(),
             AExprKind::AexprNotBetweenSym => todo!(),
         }
+    }
+}
+
+fn print_qual_op(str: &mut fmt::Printer, list: &[Node]) {
+    if list.len() == 1 && is_op(str_val(list.first().unwrap())) {
+        str.word(str_val(list.first().unwrap()).unwrap());
+    } else {
+        str.word("operator(");
+        print_any_operator(str, list);
+        str.word(")");
+    }
+}
+
+fn print_any_operator(str: &mut fmt::Printer, list: &[Node]) {
+    match list.len() {
+        2 => {
+            str.ident(str_val(list.first().unwrap()).unwrap());
+            str.word(".");
+            str.word(str_val(list.last().unwrap()).unwrap());
+        }
+        1 => str.ident(str_val(list.last().unwrap()).unwrap()),
+        _ => unreachable!(),
     }
 }
