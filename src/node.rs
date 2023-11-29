@@ -177,8 +177,8 @@ impl fmt::Print for Node {
             NodeEnum::AlterCollationStmt(_) => todo!(),
             NodeEnum::CallStmt(_) => todo!(),
             NodeEnum::AlterStatsStmt(_) => todo!(),
-            NodeEnum::AExpr(_) => todo!(),
-            NodeEnum::ColumnRef(_) => todo!(),
+            NodeEnum::AExpr(node) => node.print(p),
+            NodeEnum::ColumnRef(node) => node.print(p),
             NodeEnum::ParamRef(_) => todo!(),
             NodeEnum::FuncCall(_) => todo!(),
             NodeEnum::AStar(_) => todo!(),
@@ -244,7 +244,7 @@ impl fmt::Print for Node {
             NodeEnum::List(_) => todo!(),
             NodeEnum::IntList(_) => todo!(),
             NodeEnum::OidList(_) => todo!(),
-            NodeEnum::AConst(_) => todo!(),
+            NodeEnum::AConst(node) => node.print(p),
         }
     }
 }

@@ -1,5 +1,4 @@
 use crate::create_stmt::node_create_generic_options;
-use crate::create_stmt::node_expr;
 use crate::fmt;
 use pg_query::protobuf::ColumnDef;
 use pg_query::NodeEnum;
@@ -18,7 +17,7 @@ impl fmt::Print for ColumnDef {
         if self.raw_default.is_some() {
             p.nbsp();
             p.word("using ");
-            node_expr(p, self.raw_default.as_deref());
+            self.raw_default.as_deref()?.print(p)?;
         }
 
         if !self.fdwoptions.is_empty() {

@@ -1,4 +1,3 @@
-use crate::create_stmt::node_expr;
 use crate::create_stmt::node_qual_op;
 use crate::fmt;
 use crate::fmt::Context;
@@ -7,7 +6,7 @@ use pg_query::protobuf::AExpr;
 use pg_query::protobuf::AExprKind;
 
 impl fmt::Print for AExpr {
-    fn print_with_context(&self, p: &mut fmt::Printer, ctx: &Context) -> fmt::Option {
+    fn print_in_context(&self, p: &mut fmt::Printer, ctx: &Context) -> fmt::Option {
         let need_lexpr_parens = false;
         let need_rexpr_parens = false;
 
@@ -25,7 +24,7 @@ impl fmt::Print for AExpr {
                         p.word("(");
                     }
 
-                    node_expr(p, self.lexpr.as_deref());
+                    self.lexpr.as_deref()?.print(p)?;
 
                     if need_lexpr_parens {
                         p.word(")");
@@ -43,7 +42,7 @@ impl fmt::Print for AExpr {
                         p.word("(");
                     }
 
-                    node_expr(p, self.rexpr.as_deref());
+                    self.rexpr.as_deref()?.print(p)?;
 
                     if need_rexpr_parens {
                         p.word(")");

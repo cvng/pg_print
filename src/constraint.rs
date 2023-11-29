@@ -1,5 +1,4 @@
 use crate::create_stmt::node_column_list;
-use crate::create_stmt::node_expr;
 use crate::create_stmt::node_opt_with;
 use crate::fmt;
 use pg_query::protobuf::ConstrType;
@@ -16,7 +15,7 @@ impl fmt::Print for Constraint {
         match self.contype() {
             ConstrType::ConstrDefault => {
                 p.keyword("default ");
-                node_expr(p, self.raw_expr.as_deref());
+                self.raw_expr.as_deref()?.print(p)?;
             }
             ConstrType::ConstrPrimary => p.keyword("primary key"),
             ConstrType::ConstrUnique => p.keyword("unique"),

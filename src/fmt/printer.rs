@@ -19,10 +19,10 @@ pub type Option = option::Option<()>;
 
 pub trait Print {
     fn print(&self, p: &mut Printer) -> Option {
-        self.print_with_context(p, &Context::default())
+        self.print_in_context(p, &Context::default())
     }
 
-    fn print_with_context(&self, _p: &mut Printer, _ctx: &Context) -> Option {
+    fn print_in_context(&self, _p: &mut Printer, _ctx: &Context) -> Option {
         Some(())
     }
 }

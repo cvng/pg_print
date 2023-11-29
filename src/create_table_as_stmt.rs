@@ -1,4 +1,3 @@
-use crate::create_stmt::node_expr;
 use crate::create_stmt::node_opt_temp;
 use crate::create_stmt::node_range_var;
 use crate::fmt;
@@ -77,7 +76,7 @@ fn node_table_ref(str: &mut Printer, node: &Node) {
 pub fn node_where_clause(str: &mut Printer, node: Option<&Node>) {
     if let Some(node) = node {
         str.keyword("where ");
-        node_expr(str, Some(node));
+        node.print(str);
         str.word(" ");
     }
 }
@@ -91,7 +90,7 @@ pub fn node_target_list(str: &mut Printer, list: &[Node]) {
             {
                 node.print(str);
             } else {
-                node_expr(str, node.val.as_deref());
+                node.val.as_deref().unwrap().print(str);
             }
 
             if !node.name.is_empty() {

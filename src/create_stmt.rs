@@ -32,7 +32,7 @@ const RELPERSISTENCE_UNLOGGED: char = 'u';
 const RELPERSISTENCE_PERMANENT: char = 'p';
 
 impl fmt::Print for CreateStmt {
-    fn print_with_context(&self, p: &mut Printer, ctx: &Context) -> fmt::Option {
+    fn print_in_context(&self, p: &mut Printer, ctx: &Context) -> fmt::Option {
         p.cbox(INDENT);
         p.keyword("create ");
 
@@ -120,7 +120,7 @@ fn node_opt_inherit(_str: &mut Printer, list: &[Node]) {
 
 pub fn node_expr_list(str: &mut Printer, list: &[Node]) {
     for (i, expr) in list.iter().enumerate() {
-        node_expr(str, Some(expr));
+        expr.print(str);
         str.comma(i >= list.len() - 1);
     }
 }
@@ -255,21 +255,6 @@ pub fn node_interval_typmods(str: &mut Printer, node: &TypeName) {
             str.word(format!(" ({})", precision));
         }
     }
-}
-
-pub fn node_expr(str: &mut Printer, node: Option<&Node>) -> fmt::Option {
-    let Some(node) = node else {
-        return None;
-    };
-
-    match node.node.as_ref().unwrap() {
-        NodeEnum::AConst(node) => node.print(str),
-        NodeEnum::AExpr(node) => node.print(str),
-        NodeEnum::ColumnRef(node) => node.print(str),
-        node => todo!("{:?}", node),
-    };
-
-    Some(())
 }
 
 pub fn node_create_generic_options(_str: &mut Printer, _list: &[Node]) {
