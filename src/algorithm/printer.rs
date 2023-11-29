@@ -1,6 +1,6 @@
 // Adapted from https://github.com/dtolnay/prettyplease/blob/0.2.15/src/algorithm.rs.
 
-use crate::ring::RingBuffer;
+use super::ring::RingBuffer;
 use crate::MARGIN;
 use crate::MIN_SPACE;
 use std::borrow::Cow;
