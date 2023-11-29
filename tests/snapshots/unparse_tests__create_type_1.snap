@@ -1,0 +1,6 @@
+---
+source: tests/unparse_tests.rs
+description: "tests/sql/ddl/create_type.sql:1"
+expression: prettified
+---
+CREATE TYPE foo

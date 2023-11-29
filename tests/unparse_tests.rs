@@ -1,5 +1,7 @@
 // Adapted from https://github.com/lelit/pglast/blob/v5/tests/test_printers_prettification.py.
 
+use insta::assert_snapshot;
+use insta::with_settings;
 use pg_deparser::unparse;
 use pg_query::parse;
 
@@ -40,30 +42,27 @@ fn test_unparse_statements() {
         .filter_map(Result::ok)
         .filter(|path| PASSES.contains(&path.to_str().unwrap()))
     {
-        let mut lineno = 1;
-
-        for case in std::fs::read_to_string(&src)
+        for (mut lineno, case) in std::fs::read_to_string(&src)
             .unwrap()
-            .split("\n\n")
-            .map(|case| case.trim())
+            .split('\n')
+            .filter(|line| !line.is_empty())
+            .enumerate()
         {
-            let parts = case.split("\n=\n").collect::<Vec<_>>();
-            let original = parts[0].trim();
-            let parts = parts[1].split("\n:\n").collect::<Vec<_>>();
-            let mut expected = parts[0].trim().replace("\\n\\\n", "\n").replace("\\s", " ");
+            lineno += 1;
 
-            if expected.ends_with('\\') {
-                expected = expected[0..expected.len() - 1].to_owned() + "\n"
-            }
-
-            let prettified = unparse(&parse(original).unwrap().protobuf)
+            let prettified = unparse(&parse(case).unwrap().protobuf)
                 .unwrap()
                 .trim_end()
                 .to_string();
 
-            assert_eq!(expected, prettified, "{}:{}:", src.display(), lineno);
-
-            lineno += case.matches('\n').count() + 2;
+            with_settings!({
+                description => format!("{}:{}", src.display(), lineno),
+            }, {
+                assert_snapshot!(
+                    format!("{}_{}", src.file_stem().unwrap().to_string_lossy(), lineno),
+                    prettified
+                );
+            });
         }
     }
 }

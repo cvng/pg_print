@@ -1,3 +1,1 @@
 CREATE TYPE foo
-=
-CREATE TYPE foo
