@@ -1,6 +1,4 @@
-use crate::create_stmt::node_range_var;
 use crate::fmt;
-use crate::fmt::DeparseNodeContext;
 use crate::fmt::Print;
 use crate::fmt::Printer;
 use crate::rel_persistence::RelPersistence;
@@ -69,9 +67,9 @@ fn node_from_list(str: &mut Printer, list: &[Node]) {
 
 fn node_table_ref(str: &mut Printer, node: &Node) {
     match node.node.as_ref().unwrap() {
-        NodeEnum::RangeVar(node) => node_range_var(str, node, DeparseNodeContext::None),
+        NodeEnum::RangeVar(node) => node.print(str),
         _ => todo!("{:?}", node),
-    }
+    };
 }
 
 pub fn node_where_clause(str: &mut Printer, node: Option<&Node>) {

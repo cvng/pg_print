@@ -1,13 +1,11 @@
 use crate::create_stmt::node_column_list;
 use crate::create_stmt::node_opt_with;
-use crate::create_stmt::node_range_var;
 use crate::fmt;
-use crate::fmt::DeparseNodeContext;
 use pg_query::protobuf::IntoClause;
 
 impl fmt::Print for IntoClause {
     fn print(&self, p: &mut fmt::Printer) -> fmt::Option {
-        node_range_var(p, self.rel.as_ref().unwrap(), DeparseNodeContext::None);
+        self.rel.as_ref()?.print(p)?;
 
         if !self.col_names.is_empty() {
             p.word(" (");

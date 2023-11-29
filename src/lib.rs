@@ -24,6 +24,7 @@ mod utils;
 mod with_clause;
 mod rel_persistence;
 mod val;
+mod range_var;
 
 use fmt::Print;
 use fmt::Printer;
