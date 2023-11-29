@@ -1,5 +1,4 @@
 use crate::fmt;
-use crate::fmt::Print;
 use crate::rel_persistence::RelPersistence;
 use crate::utils::print_opt_with;
 use crate::INDENT;
@@ -52,7 +51,7 @@ impl fmt::Print for CreateStmt {
             p.word("(");
             p.hardbreak_if_nonempty();
             for (i, elt) in self.table_elts.iter().enumerate() {
-                print_table_element(p, elt);
+                elt.print(p);
                 if i < self.table_elts.len() - 1 {
                     p.word(",");
                 }
@@ -91,14 +90,4 @@ fn print_opt_inherit(_p: &mut fmt::Printer, list: &[Node]) {
     if !list.is_empty() {
         todo!("{:?}", list)
     }
-}
-
-fn print_table_element(p: &mut fmt::Printer, node: &Node) {
-    match node.node.as_ref().unwrap() {
-        NodeEnum::ColumnDef(node) => node.print(p),
-        NodeEnum::Constraint(node) => node.print(p),
-        NodeEnum::IndexElem(_) => todo!(),
-        NodeEnum::DefElem(_) => todo!(),
-        _ => unreachable!(),
-    };
 }

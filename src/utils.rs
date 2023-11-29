@@ -81,24 +81,28 @@ pub fn print_expr_list(p: &mut fmt::Printer, list: &[Node]) -> fmt::Option {
     Some(())
 }
 
-pub fn print_column_list(p: &mut fmt::Printer, list: &[Node]) {
+pub fn print_column_list(p: &mut fmt::Printer, list: &[Node]) -> fmt::Option {
     for (i, column) in list.iter().enumerate() {
         p.ident(str_val(column).unwrap());
         if i < list.len() - 1 {
             p.word(", ");
         }
     }
+
+    Some(())
 }
 
-pub fn print_opt_with(p: &mut fmt::Printer, list: &[Node]) {
+pub fn print_opt_with(p: &mut fmt::Printer, list: &[Node]) -> fmt::Option {
     if !list.is_empty() {
         p.keyword(" with ");
-        node_rel_options(p, list);
+        print_rel_options(p, list);
         p.nbsp();
     }
+
+    Some(())
 }
 
-fn node_rel_options(p: &mut fmt::Printer, list: &[Node]) {
+fn print_rel_options(p: &mut fmt::Printer, list: &[Node]) -> fmt::Option {
     p.word("(");
 
     for (i, option) in list.iter().enumerate() {
@@ -121,13 +125,17 @@ fn node_rel_options(p: &mut fmt::Printer, list: &[Node]) {
     }
 
     p.word(")");
+
+    Some(())
 }
 
-fn print_def_arg(p: &mut fmt::Printer, node: &Node, _is_operator_def_arg: bool) {
+fn print_def_arg(p: &mut fmt::Printer, node: &Node, _is_operator_def_arg: bool) -> fmt::Option {
     match node.node.as_ref().unwrap() {
         NodeEnum::Integer(ref val) => Option::<Val>::print(&Some(Val::Ival(val.clone())), p),
         _ => todo!(),
     };
+
+    Some(())
 }
 
 pub fn print_any_name(p: &mut fmt::Printer, list: &[Node]) -> fmt::Option {

@@ -1,7 +1,6 @@
 use crate::fmt;
 use pg_query::protobuf::ColumnDef;
 use pg_query::Node;
-use pg_query::NodeEnum;
 
 impl fmt::Print for ColumnDef {
     fn print(&self, p: &mut fmt::Printer) -> fmt::Option {
@@ -26,13 +25,8 @@ impl fmt::Print for ColumnDef {
         }
 
         for constraint in self.constraints.iter() {
-            match constraint.node.as_ref().unwrap() {
-                NodeEnum::Constraint(constraint) => {
-                    p.nbsp();
-                    constraint.print(p)?;
-                }
-                _ => unreachable!(),
-            }
+            p.nbsp();
+            constraint.print(p)?;
         }
 
         if self.coll_clause.is_some() {

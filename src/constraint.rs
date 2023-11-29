@@ -31,7 +31,7 @@ impl fmt::Print for Constraint {
 
         match self.contype() {
             ConstrType::ConstrPrimary | ConstrType::ConstrUnique | ConstrType::ConstrExclusion => {
-                print_opt_with(p, &self.options)
+                print_opt_with(p, &self.options)?
             }
             _ => {}
         }

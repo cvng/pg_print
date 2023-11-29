@@ -21,6 +21,7 @@ mod partition_bound_spec;
 mod range_var;
 mod raw_stmt;
 mod rel_persistence;
+mod res_target;
 mod select_stmt;
 mod type_name;
 mod utils;

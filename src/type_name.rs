@@ -80,12 +80,7 @@ impl fmt::Print for TypeName {
         if !self.typmods.is_empty() && !skip_typmods {
             p.word("(");
             for (i, typmod) in self.typmods.iter().enumerate() {
-                match typmod.node.as_ref().unwrap() {
-                    NodeEnum::AConst(node) => node.print(p)?,
-                    NodeEnum::ParamRef(node) => node.print(p)?,
-                    NodeEnum::ColumnRef(node) => node.print(p)?,
-                    _ => unreachable!(),
-                }
+                typmod.print(p);
                 p.comma(i >= self.typmods.len() - 1);
             }
             p.word(")");

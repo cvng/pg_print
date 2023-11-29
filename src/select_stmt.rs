@@ -4,7 +4,6 @@ use crate::utils::print_expr_list;
 use pg_query::protobuf::SelectStmt;
 use pg_query::protobuf::SetOperation;
 use pg_query::Node;
-use pg_query::NodeEnum;
 
 impl fmt::Print for SelectStmt {
     fn print(&self, p: &mut fmt::Printer) -> fmt::Option {
@@ -39,7 +38,7 @@ impl fmt::Print for SelectStmt {
                         p.word(") ");
                     }
 
-                    target_list(p, &self.target_list);
+                    print_expr_list(p, &self.target_list);
                     p.word(" ");
                 }
 
@@ -70,27 +69,5 @@ fn where_clause(p: &mut fmt::Printer, node: Option<&Node>) {
         p.keyword("where ");
         node.print(p);
         p.word(" ");
-    }
-}
-
-fn target_list(p: &mut fmt::Printer, list: &[Node]) {
-    for (i, entry) in list.iter().enumerate() {
-        if let NodeEnum::ResTarget(node) = entry.node.as_ref().unwrap() {
-            if node.val.is_none() {
-            } else if let NodeEnum::ColumnRef(node) =
-                node.val.as_ref().unwrap().node.as_ref().unwrap()
-            {
-                node.print(p);
-            } else {
-                node.val.as_deref().unwrap().print(p);
-            }
-
-            if !node.name.is_empty() {
-                p.word(" as ");
-                p.ident(node.name.clone());
-            }
-
-            p.comma(i >= list.len() - 1);
-        }
     }
 }
