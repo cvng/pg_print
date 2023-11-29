@@ -1,7 +1,8 @@
+use super::printer;
+use super::printer::BeginToken;
+use super::printer::BreakToken;
+use super::printer::Breaks;
 use crate::algorithm;
-use crate::algorithm::BeginToken;
-use crate::algorithm::BreakToken;
-use crate::algorithm::Breaks;
 use crate::algorithm::Printer;
 use std::borrow::Cow;
 
@@ -57,7 +58,7 @@ impl Printer {
     }
 
     pub fn hardbreak(&mut self) {
-        self.spaces(algorithm::SIZE_INFINITY as usize);
+        self.spaces(printer::SIZE_INFINITY as usize);
     }
 
     pub fn space_if_nonempty(&mut self) {
@@ -70,7 +71,7 @@ impl Printer {
 
     pub fn hardbreak_if_nonempty(&mut self) {
         self.scan_break(BreakToken {
-            blank_space: algorithm::SIZE_INFINITY as usize,
+            blank_space: printer::SIZE_INFINITY as usize,
             if_nonempty: true,
             ..BreakToken::default()
         });
