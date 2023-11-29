@@ -1,4 +1,5 @@
 use crate::fmt;
+use crate::fmt::Context;
 use crate::fmt::Printer;
 use crate::INDENT;
 use pg_query::protobuf::a_const::Val;
@@ -61,7 +62,7 @@ pub enum DeparseNodeContext {
 }
 
 // See https://github.com/pganalyze/libpg_query/blob/15-latest/src/postgres_deparse.c#L53.
-fn deparse_string_literal(str: &mut Printer, val: &str) {
+pub fn deparse_string_literal(str: &mut Printer, val: &str) {
     if val.contains('\\') {
         str.word(ESCAPE_STRING_SYNTAX.to_string());
     }
@@ -101,91 +102,85 @@ pub fn is_op(val: Option<String>) -> bool {
     })
 }
 
-pub fn node_create_stmt(
-    str: &mut Printer,
-    node: &CreateStmt,
-    is_foreign_table: bool,
-) -> Option<()> {
-    str.cbox(INDENT);
-    str.keyword("create ");
+impl fmt::Print for CreateStmt {
+    fn print_with_context(&self, p: &mut Printer, ctx: &Context) -> fmt::Option {
+        p.cbox(INDENT);
+        p.keyword("create ");
 
-    if is_foreign_table {
-        str.keyword("foreign ");
-    }
-
-    node_opt_temp(str, &node.relation.as_ref().unwrap().relpersistence);
-
-    str.keyword("table ");
-
-    if node.if_not_exists {
-        str.keyword("if not exists ");
-    }
-
-    node_range_var(
-        str,
-        node.relation.as_ref().unwrap(),
-        DeparseNodeContext::None,
-    );
-    str.nbsp();
-
-    if let Some(of_typename) = &node.of_typename {
-        str.keyword("of ");
-        node_type_name(str, of_typename);
-        str.space();
-    }
-
-    if node.partbound.is_some() {
-        str.keyword("partition of ");
-        node_range_var(
-            str,
-            node.inh_relations
-                .first()
-                .and_then(|node| match node.node.as_ref().unwrap() {
-                    NodeEnum::RangeVar(node) => Some(node),
-                    _ => None,
-                })
-                .unwrap(),
-            DeparseNodeContext::None,
-        );
-        str.word(" ");
-    }
-
-    if !node.table_elts.is_empty() {
-        str.word("(");
-        str.hardbreak_if_nonempty();
-        for (i, elt) in node.table_elts.iter().enumerate() {
-            node_table_element(str, elt);
-            if i < node.table_elts.len() - 1 {
-                str.word(",");
-            }
-            str.hardbreak();
+        if ctx.is_foreign_table {
+            p.keyword("foreign ");
         }
-        str.offset(-INDENT);
-        str.end();
-        str.word(")");
-    } else if node.partbound.is_none() && node.of_typename.is_none() {
-        str.word("()");
-    };
 
-    if let Some(partbound) = &node.partbound {
-        node_partition_bound_spec(str, partbound);
-        str.word(" ");
-    } else {
-        node_opt_inherit(str, &node.inh_relations);
+        node_opt_temp(p, &self.relation.as_ref().unwrap().relpersistence);
+
+        p.keyword("table ");
+
+        if self.if_not_exists {
+            p.keyword("if not exists ");
+        }
+
+        node_range_var(p, self.relation.as_ref().unwrap(), DeparseNodeContext::None);
+        p.nbsp();
+
+        if let Some(of_typename) = &self.of_typename {
+            p.keyword("of ");
+            node_type_name(p, of_typename);
+            p.space();
+        }
+
+        if self.partbound.is_some() {
+            p.keyword("partition of ");
+            node_range_var(
+                p,
+                self.inh_relations
+                    .first()
+                    .and_then(|node| match node.node.as_ref().unwrap() {
+                        NodeEnum::RangeVar(node) => Some(node),
+                        _ => None,
+                    })
+                    .unwrap(),
+                DeparseNodeContext::None,
+            );
+            p.word(" ");
+        }
+
+        if !self.table_elts.is_empty() {
+            p.word("(");
+            p.hardbreak_if_nonempty();
+            for (i, elt) in self.table_elts.iter().enumerate() {
+                node_table_element(p, elt);
+                if i < self.table_elts.len() - 1 {
+                    p.word(",");
+                }
+                p.hardbreak();
+            }
+            p.offset(-INDENT);
+            p.end();
+            p.word(")");
+        } else if self.partbound.is_none() && self.of_typename.is_none() {
+            p.word("()");
+        };
+
+        if let Some(partbound) = &self.partbound {
+            node_partition_bound_spec(p, partbound);
+            p.word(" ");
+        } else {
+            node_opt_inherit(p, &self.inh_relations);
+        }
+
+        node_opt_with(p, &self.options);
+
+        node_on_commit_action(p, &self.oncommit());
+
+        if !self.tablespacename.is_empty() {
+            p.keyword("tablespace ");
+            p.ident(self.tablespacename.clone());
+        }
+
+        p.hardbreak();
+
+        Some(())
     }
-
-    node_opt_with(str, &node.options);
-
-    node_on_commit_action(str, &node.oncommit());
-
-    if !node.tablespacename.is_empty() {
-        str.keyword("tablespace ");
-        str.ident(node.tablespacename.clone());
-    }
-
-    str.hardbreak();
-
-    Some(())
 }
 
 pub fn node_on_commit_action(str: &mut Printer, node: &OnCommitAction) {

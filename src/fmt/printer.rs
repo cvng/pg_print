@@ -17,7 +17,18 @@ const SIZE_INFINITY: isize = 0xffff;
 pub type Option = option::Option<()>;
 
 pub trait Print {
-    fn print(&self, p: &mut Printer) -> Option;
+    fn print(&self, p: &mut Printer) -> Option {
+        self.print_with_context(p, &Context::default())
+    }
+
+    fn print_with_context(&self, _p: &mut Printer, _ctx: &Context) -> Option {
+        Some(())
+    }
+}
+
+#[derive(Clone, Copy, Default)]
+pub struct Context {
+    pub is_foreign_table: bool, // serde_json?
 }
 
 #[derive(Clone, Copy, PartialEq)]

@@ -1,6 +1,5 @@
 // Adapted from https://github.com/pganalyze/libpg_query/blob/15-latest/src/postgres_deparse.c.
 
-use crate::create_stmt;
 use crate::fmt;
 use pg_query::Node;
 use pg_query::NodeEnum;
@@ -78,7 +77,7 @@ impl fmt::Print for Node {
             NodeEnum::ClosePortalStmt(_) => todo!(),
             NodeEnum::ClusterStmt(_) => todo!(),
             NodeEnum::CopyStmt(_) => todo!(),
-            NodeEnum::CreateStmt(node) => create_stmt::node_create_stmt(p, node, false),
+            NodeEnum::CreateStmt(node) => node.print(p),
             NodeEnum::DefineStmt(node) => node.print(p),
             NodeEnum::DropStmt(_) => todo!(),
             NodeEnum::TruncateStmt(_) => todo!(),
