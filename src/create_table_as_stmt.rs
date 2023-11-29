@@ -1,9 +1,9 @@
-use crate::create_stmt::node_opt_temp;
 use crate::create_stmt::node_range_var;
 use crate::fmt;
 use crate::fmt::DeparseNodeContext;
 use crate::fmt::Print;
 use crate::fmt::Printer;
+use crate::rel_persistence::RelPersistence;
 use pg_query::protobuf::CreateTableAsStmt;
 use pg_query::Node;
 use pg_query::NodeEnum;
@@ -12,17 +12,18 @@ impl fmt::Print for CreateTableAsStmt {
     fn print(&self, p: &mut fmt::Printer) -> fmt::Option {
         p.keyword("create ");
 
-        node_opt_temp(
-            p,
-            &self
-                .into
+        RelPersistence::try_from(
+            self.into
                 .as_ref()
                 .unwrap()
                 .rel
                 .as_ref()
                 .unwrap()
-                .relpersistence,
-        );
+                .relpersistence
+                .as_ref(),
+        )
+        .ok()?
+        .print(p)?;
 
         self.objtype().print(p)?;
 

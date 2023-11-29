@@ -22,6 +22,7 @@ mod select_stmt;
 mod type_name;
 mod utils;
 mod with_clause;
+mod rel_persistence;
 
 use fmt::Print;
 use fmt::Printer;

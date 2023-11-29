@@ -16,6 +16,7 @@ use pg_query::protobuf::RangeVar;
 use pg_query::protobuf::TypeName;
 use pg_query::Node;
 use pg_query::NodeEnum;
+use crate::rel_persistence::RelPersistence;
 
 const MONTH: i32 = 1;
 const YEAR: i32 = 2;
@@ -27,10 +28,6 @@ const SECOND: i32 = 12;
 const INTERVAL_FULL_RANGE: i32 = 0x7FFF;
 const INTERVAL_FULL_PRECISION: i32 = 0xFFFF;
 
-const RELPERSISTENCE_TEMP: char = 't';
-const RELPERSISTENCE_UNLOGGED: char = 'u';
-const RELPERSISTENCE_PERMANENT: char = 'p';
-
 impl fmt::Print for CreateStmt {
     fn print_in_context(&self, p: &mut Printer, ctx: &Context) -> fmt::Option {
         p.cbox(INDENT);
@@ -40,7 +37,9 @@ impl fmt::Print for CreateStmt {
             p.keyword("foreign ");
         }
 
-        node_opt_temp(p, &self.relation.as_ref().unwrap().relpersistence);
+        RelPersistence::try_from(self.relation.as_ref().unwrap().relpersistence.as_ref())
+            .ok()?
+            .print(p)?;
 
         p.keyword("table ");
 
@@ -122,15 +121,6 @@ pub fn node_expr_list(str: &mut Printer, list: &[Node]) {
     for (i, expr) in list.iter().enumerate() {
         expr.print(str);
         str.comma(i >= list.len() - 1);
-    }
-}
-
-pub fn node_opt_temp(str: &mut Printer, persistence: &str) {
-    match persistence.chars().next().unwrap() {
-        RELPERSISTENCE_TEMP => str.keyword("temporary "),
-        RELPERSISTENCE_UNLOGGED => str.keyword("unlogged "),
-        RELPERSISTENCE_PERMANENT => {}
-        _ => unreachable!(),
     }
 }
 
