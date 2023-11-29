@@ -56,9 +56,5 @@ CREATE TABLE measurement_y2016m07 PARTITION OF measurement (
 CREATE TEMP TABLE films_recent (title, director) ON COMMIT DELETE ROWS AS
   SELECT title, director FROM films WHERE date_prod >= '2002-01-01'
 =
-CREATE TEMPORARY TABLE films_recent (title, director)
-  ON COMMIT DELETE ROWS
-  AS SELECT title
-          , director
-     FROM films
-     WHERE date_prod >= '2002-01-01'
+CREATE TEMPORARY TABLE films_recent (title, director) ON COMMIT DELETE ROWS AS SELECT title,
+director FROM films WHERE date_prod >= '2002-01-01'

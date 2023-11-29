@@ -50,7 +50,7 @@ pub fn node_create_table_as_stmt(str: &mut Printer, node: &CreateTableAsStmt) {
     node_into_clause(str, node.into.as_ref().unwrap());
     str.word(" ");
 
-    str.word("as ");
+    str.keyword("as ");
 
     match node.query.as_ref().unwrap().node.as_ref().unwrap() {
         NodeEnum::ExecuteStmt(node) => node_execute_stmt(str, node),
@@ -60,7 +60,7 @@ pub fn node_create_table_as_stmt(str: &mut Printer, node: &CreateTableAsStmt) {
 
     str.word(" ");
 
-    if (node.into.is_some()) {
+    if node.into.is_some() && node.into.as_ref().unwrap().skip_data {
         str.word("with no data ");
     }
 }
@@ -69,11 +69,10 @@ fn node_into_clause(str: &mut Printer, node: &IntoClause) {
     node_range_var(str, node.rel.as_ref().unwrap(), DeparseNodeContext::None);
 
     if !node.col_names.is_empty() {
-        str.word("(");
+        str.word(" (");
         node_column_list(str, &node.col_names);
         str.word(")");
     }
-    str.word(" ");
 
     if !node.access_method.is_empty() {
         str.word("using ");
@@ -124,7 +123,7 @@ fn node_select_stmt(str: &mut Printer, node: &SelectStmt) {
                 str.word(" ");
             }
 
-            str.word("select ");
+            str.keyword("select ");
 
             if !node.target_list.is_empty() {
                 if !node.distinct_clause.is_empty() {
@@ -148,7 +147,7 @@ fn node_select_stmt(str: &mut Printer, node: &SelectStmt) {
 
 fn node_from_clause(str: &mut Printer, list: &[Node]) {
     if !list.is_empty() {
-        str.word("from ");
+        str.keyword("from ");
         node_from_list(str, list);
         str.word(" ");
     }
@@ -170,7 +169,7 @@ fn node_table_ref(str: &mut Printer, node: &Node) {
 
 fn node_where_clause(str: &mut Printer, node: Option<&Node>) {
     if let Some(node) = node {
-        str.word("where ");
+        str.keyword("where ");
         node_expr(str, Some(node));
         str.word(" ");
     }
