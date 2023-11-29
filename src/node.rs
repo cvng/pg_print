@@ -1,7 +1,5 @@
 // Adapted from https://github.com/pganalyze/libpg_query/blob/15-latest/src/postgres_deparse.c.
 
-use crate::create_stmt;
-use crate::create_table_as_stmt::node_create_table_as_stmt;
 use crate::fmt;
 use pg_query::Node;
 use pg_query::NodeEnum;
@@ -10,7 +8,7 @@ impl fmt::Print for Node {
     fn print(&self, p: &mut fmt::Printer) -> fmt::Option {
         match self.node.as_ref()? {
             NodeEnum::Alias(_) => todo!(),
-            NodeEnum::RangeVar(_) => todo!(),
+            NodeEnum::RangeVar(node) => node.print(p),
             NodeEnum::TableFunc(_) => todo!(),
             NodeEnum::Var(_) => todo!(),
             NodeEnum::Param(_) => todo!(),
@@ -66,7 +64,7 @@ impl fmt::Print for Node {
             NodeEnum::DeleteStmt(_) => todo!(),
             NodeEnum::UpdateStmt(_) => todo!(),
             NodeEnum::MergeStmt(_) => todo!(),
-            NodeEnum::SelectStmt(_) => todo!(),
+            NodeEnum::SelectStmt(node) => node.print(p),
             NodeEnum::ReturnStmt(_) => todo!(),
             NodeEnum::PlassignStmt(_) => todo!(),
             NodeEnum::AlterTableStmt(_) => todo!(),
@@ -79,7 +77,7 @@ impl fmt::Print for Node {
             NodeEnum::ClosePortalStmt(_) => todo!(),
             NodeEnum::ClusterStmt(_) => todo!(),
             NodeEnum::CopyStmt(_) => todo!(),
-            NodeEnum::CreateStmt(node) => create_stmt::node_create_stmt(p, node, false),
+            NodeEnum::CreateStmt(node) => node.print(p),
             NodeEnum::DefineStmt(node) => node.print(p),
             NodeEnum::DropStmt(_) => todo!(),
             NodeEnum::TruncateStmt(_) => todo!(),
@@ -102,7 +100,7 @@ impl fmt::Print for Node {
             NodeEnum::DropdbStmt(_) => todo!(),
             NodeEnum::VacuumStmt(_) => todo!(),
             NodeEnum::ExplainStmt(_) => todo!(),
-            NodeEnum::CreateTableAsStmt(node) => node_create_table_as_stmt(p, node),
+            NodeEnum::CreateTableAsStmt(node) => node.print(p),
             NodeEnum::CreateSeqStmt(_) => todo!(),
             NodeEnum::AlterSeqStmt(_) => todo!(),
             NodeEnum::VariableSetStmt(_) => todo!(),
@@ -128,7 +126,7 @@ impl fmt::Print for Node {
             NodeEnum::CreateOpFamilyStmt(_) => todo!(),
             NodeEnum::AlterOpFamilyStmt(_) => todo!(),
             NodeEnum::PrepareStmt(_) => todo!(),
-            NodeEnum::ExecuteStmt(_) => todo!(),
+            NodeEnum::ExecuteStmt(node) => node.print(p),
             NodeEnum::DeallocateStmt(_) => todo!(),
             NodeEnum::DeclareCursorStmt(_) => todo!(),
             NodeEnum::CreateTableSpaceStmt(_) => todo!(),
@@ -179,15 +177,15 @@ impl fmt::Print for Node {
             NodeEnum::AlterCollationStmt(_) => todo!(),
             NodeEnum::CallStmt(_) => todo!(),
             NodeEnum::AlterStatsStmt(_) => todo!(),
-            NodeEnum::AExpr(_) => todo!(),
-            NodeEnum::ColumnRef(_) => todo!(),
+            NodeEnum::AExpr(node) => node.print(p),
+            NodeEnum::ColumnRef(node) => node.print(p),
             NodeEnum::ParamRef(_) => todo!(),
             NodeEnum::FuncCall(_) => todo!(),
             NodeEnum::AStar(_) => todo!(),
             NodeEnum::AIndices(_) => todo!(),
             NodeEnum::AIndirection(_) => todo!(),
             NodeEnum::AArrayExpr(_) => todo!(),
-            NodeEnum::ResTarget(_) => todo!(),
+            NodeEnum::ResTarget(node) => node.print(p),
             NodeEnum::MultiAssignRef(_) => todo!(),
             NodeEnum::TypeCast(_) => todo!(),
             NodeEnum::CollateClause(_) => todo!(),
@@ -199,11 +197,11 @@ impl fmt::Print for Node {
             NodeEnum::RangeTableFunc(_) => todo!(),
             NodeEnum::RangeTableFuncCol(_) => todo!(),
             NodeEnum::TypeName(_) => todo!(),
-            NodeEnum::ColumnDef(_) => todo!(),
+            NodeEnum::ColumnDef(node) => node.print(p),
             NodeEnum::IndexElem(_) => todo!(),
             NodeEnum::StatsElem(_) => todo!(),
-            NodeEnum::Constraint(_) => todo!(),
-            NodeEnum::DefElem(_) => todo!(),
+            NodeEnum::Constraint(node) => node.print(p),
+            NodeEnum::DefElem(node) => node.print(p),
             NodeEnum::RangeTblEntry(_) => todo!(),
             NodeEnum::RangeTblFunction(_) => todo!(),
             NodeEnum::TableSampleClause(_) => todo!(),
@@ -238,7 +236,7 @@ impl fmt::Print for Node {
             NodeEnum::PublicationTable(_) => todo!(),
             NodeEnum::InlineCodeBlock(_) => todo!(),
             NodeEnum::CallContext(_) => todo!(),
-            NodeEnum::Integer(_) => todo!(),
+            NodeEnum::Integer(node) => node.print(p),
             NodeEnum::Float(_) => todo!(),
             NodeEnum::Boolean(_) => todo!(),
             NodeEnum::String(_) => todo!(),
@@ -246,7 +244,7 @@ impl fmt::Print for Node {
             NodeEnum::List(_) => todo!(),
             NodeEnum::IntList(_) => todo!(),
             NodeEnum::OidList(_) => todo!(),
-            NodeEnum::AConst(_) => todo!(),
+            NodeEnum::AConst(node) => node.print(p),
         }
     }
 }

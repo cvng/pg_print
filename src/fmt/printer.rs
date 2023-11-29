@@ -14,12 +14,6 @@ const MARGIN: isize = 89;
 const MIN_SPACE: isize = 60;
 const SIZE_INFINITY: isize = 0xffff;
 
-pub type Option = option::Option<()>;
-
-pub trait Print {
-    fn print(&self, p: &mut Printer) -> Option;
-}
-
 #[derive(Clone, Copy, PartialEq)]
 pub enum Breaks {
     Consistent,
