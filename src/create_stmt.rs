@@ -1,3 +1,4 @@
+use crate::fmt;
 use crate::fmt::Printer;
 use crate::INDENT;
 use pg_query::protobuf::a_const::Val;
@@ -689,7 +690,7 @@ fn node_table_element(str: &mut Printer, node: &Node) {
     }
 }
 
-pub fn node_any_name(str: &mut Printer, list: &[Node]) -> Option<()> {
+pub fn node_any_name(str: &mut Printer, list: &[Node]) -> fmt::Option {
     for (i, part) in list.iter().enumerate() {
         if i > 0 {
             str.word(".");

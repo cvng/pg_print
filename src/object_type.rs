@@ -12,7 +12,9 @@ impl fmt::Print for ObjectType {
             ObjectType::ObjectTstemplate => p.keyword("text search template "),
             ObjectType::ObjectTsconfiguration => p.keyword("text search configuration "),
             ObjectType::ObjectCollation => p.keyword("collation "),
-            _ => return None,
+            ObjectType::ObjectTable => p.keyword("table "),
+            ObjectType::ObjectMatview => p.keyword("materialized view "),
+            _ => unimplemented!("{:?}", self),
         }
 
         Some(())
