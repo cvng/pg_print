@@ -2,7 +2,6 @@
 
 #![allow(dead_code)]
 
-use super::context::Context;
 use std::borrow::Cow;
 use std::cmp;
 use std::collections::VecDeque;
@@ -14,18 +13,6 @@ use std::option;
 const MARGIN: isize = 89;
 const MIN_SPACE: isize = 60;
 const SIZE_INFINITY: isize = 0xffff;
-
-pub type Option = option::Option<()>;
-
-pub trait Print {
-    fn print(&self, p: &mut Printer) -> Option {
-        self.print_in_context(p, &Context::default())
-    }
-
-    fn print_in_context(&self, _p: &mut Printer, _ctx: &Context) -> Option {
-        Some(())
-    }
-}
 
 #[derive(Clone, Copy, PartialEq)]
 pub enum Breaks {

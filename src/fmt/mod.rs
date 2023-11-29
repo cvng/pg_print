@@ -1,7 +1,7 @@
-mod context;
+mod print;
 mod printer;
 
-pub use context::Context;
-pub use printer::Option;
-pub use printer::Print;
+pub use print::Context;
+pub use print::Option;
+pub use print::Print;
 pub use printer::Printer;
