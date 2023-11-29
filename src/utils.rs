@@ -1,3 +1,5 @@
+use crate::fmt;
+use crate::fmt::Print;
 use crate::fmt::Printer;
 use pg_query::protobuf::a_const::Val;
 use pg_query::protobuf::AConst;
@@ -69,4 +71,13 @@ pub fn a_const_int_val(node: &Node) -> Option<i32> {
         }) => Some(val.ival),
         _ => None,
     }
+}
+
+pub fn expr_list(p: &mut Printer, list: &[Node]) -> fmt::Option {
+    for (i, node) in list.iter().enumerate() {
+        node.print(p);
+        p.comma(i >= list.len() - 1);
+    }
+
+    Some(())
 }

@@ -1,10 +1,10 @@
-use crate::create_stmt::node_expr_list;
-use crate::create_table_as_stmt::node_from_clause;
-use crate::create_table_as_stmt::node_target_list;
-use crate::create_table_as_stmt::node_where_clause;
 use crate::fmt;
+use crate::fmt::Print;
 use pg_query::protobuf::SelectStmt;
 use pg_query::protobuf::SetOperation;
+use pg_query::Node;
+use pg_query::NodeEnum;
+use crate::utils::expr_list;
 
 impl fmt::Print for SelectStmt {
     fn print(&self, p: &mut fmt::Printer) -> fmt::Option {
@@ -20,7 +20,7 @@ impl fmt::Print for SelectStmt {
 
                     for (i, list) in self.values_lists.iter().enumerate() {
                         p.word("(");
-                        node_expr_list(p, &[list.clone()]);
+                        expr_list(p, &[list.clone()]);
                         p.word(")");
                         p.comma(i >= self.values_lists.len() - 1);
                     }
@@ -35,20 +35,62 @@ impl fmt::Print for SelectStmt {
                         p.word("distinct ");
 
                         p.word("on (");
-                        node_expr_list(p, &self.distinct_clause);
+                        expr_list(p, &self.distinct_clause);
                         p.word(") ");
                     }
 
-                    node_target_list(p, &self.target_list);
+                    target_list(p, &self.target_list);
                     p.word(" ");
                 }
 
-                node_from_clause(p, &self.from_clause);
-                node_where_clause(p, self.where_clause.as_deref());
+                from_clause(p, &self.from_clause);
+                where_clause(p, self.where_clause.as_deref());
             }
             _ => todo!("{:?}", self.op()),
         };
 
         Some(())
+    }
+}
+
+fn from_clause(str: &mut fmt::Printer, list: &[Node]) {
+    if !list.is_empty() {
+        str.keyword("from ");
+
+        for (i, item) in list.iter().enumerate() {
+            item.print(str);
+            str.comma(i >= list.len() - 1);
+        }
+        str.word(" ");
+    }
+}
+
+fn where_clause(str: &mut fmt::Printer, node: Option<&Node>) {
+    if let Some(node) = node {
+        str.keyword("where ");
+        node.print(str);
+        str.word(" ");
+    }
+}
+
+fn target_list(str: &mut fmt::Printer, list: &[Node]) {
+    for (i, entry) in list.iter().enumerate() {
+        if let NodeEnum::ResTarget(node) = entry.node.as_ref().unwrap() {
+            if node.val.is_none() {
+            } else if let NodeEnum::ColumnRef(node) =
+                node.val.as_ref().unwrap().node.as_ref().unwrap()
+            {
+                node.print(str);
+            } else {
+                node.val.as_deref().unwrap().print(str);
+            }
+
+            if !node.name.is_empty() {
+                str.word(" as ");
+                str.ident(node.name.clone());
+            }
+
+            str.comma(i >= list.len() - 1);
+        }
     }
 }

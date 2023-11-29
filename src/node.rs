@@ -8,7 +8,7 @@ impl fmt::Print for Node {
     fn print(&self, p: &mut fmt::Printer) -> fmt::Option {
         match self.node.as_ref()? {
             NodeEnum::Alias(_) => todo!(),
-            NodeEnum::RangeVar(_) => todo!(),
+            NodeEnum::RangeVar(node) => node.print(p),
             NodeEnum::TableFunc(_) => todo!(),
             NodeEnum::Var(_) => todo!(),
             NodeEnum::Param(_) => todo!(),

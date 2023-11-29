@@ -110,13 +110,6 @@ fn node_opt_inherit(_str: &mut Printer, list: &[Node]) {
     }
 }
 
-pub fn node_expr_list(str: &mut Printer, list: &[Node]) {
-    for (i, expr) in list.iter().enumerate() {
-        expr.print(str);
-        str.comma(i >= list.len() - 1);
-    }
-}
-
 pub fn node_numeric_only(str: &mut Printer, val: &Val) {
     match val {
         Val::Ival(val) => str.word(format!("{}", val.ival)),

@@ -1,6 +1,6 @@
-use crate::create_stmt::node_expr_list;
 use crate::fmt;
 use pg_query::protobuf::ExecuteStmt;
+use crate::utils::expr_list;
 
 impl fmt::Print for ExecuteStmt {
     fn print(&self, p: &mut fmt::Printer) -> fmt::Option {
@@ -9,7 +9,7 @@ impl fmt::Print for ExecuteStmt {
 
         if !self.params.is_empty() {
             p.word("(");
-            node_expr_list(p, &self.params);
+            expr_list(p, &self.params);
             p.word(")");
         }
 

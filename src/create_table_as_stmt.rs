@@ -1,9 +1,6 @@
 use crate::fmt;
-use crate::fmt::Print;
-use crate::fmt::Printer;
 use crate::rel_persistence::RelPersistence;
 use pg_query::protobuf::CreateTableAsStmt;
-use pg_query::Node;
 use pg_query::NodeEnum;
 
 impl fmt::Print for CreateTableAsStmt {
@@ -47,57 +44,5 @@ impl fmt::Print for CreateTableAsStmt {
         }
 
         Some(())
-    }
-}
-
-pub fn node_from_clause(str: &mut Printer, list: &[Node]) {
-    if !list.is_empty() {
-        str.keyword("from ");
-        node_from_list(str, list);
-        str.word(" ");
-    }
-}
-
-fn node_from_list(str: &mut Printer, list: &[Node]) {
-    for (i, item) in list.iter().enumerate() {
-        node_table_ref(str, item);
-        str.comma(i >= list.len() - 1);
-    }
-}
-
-fn node_table_ref(str: &mut Printer, node: &Node) {
-    match node.node.as_ref().unwrap() {
-        NodeEnum::RangeVar(node) => node.print(str),
-        _ => todo!("{:?}", node),
-    };
-}
-
-pub fn node_where_clause(str: &mut Printer, node: Option<&Node>) {
-    if let Some(node) = node {
-        str.keyword("where ");
-        node.print(str);
-        str.word(" ");
-    }
-}
-
-pub fn node_target_list(str: &mut Printer, list: &[Node]) {
-    for (i, entry) in list.iter().enumerate() {
-        if let NodeEnum::ResTarget(node) = entry.node.as_ref().unwrap() {
-            if node.val.is_none() {
-            } else if let NodeEnum::ColumnRef(node) =
-                node.val.as_ref().unwrap().node.as_ref().unwrap()
-            {
-                node.print(str);
-            } else {
-                node.val.as_deref().unwrap().print(str);
-            }
-
-            if !node.name.is_empty() {
-                str.word(" as ");
-                str.ident(node.name.clone());
-            }
-
-            str.comma(i >= list.len() - 1);
-        }
     }
 }
