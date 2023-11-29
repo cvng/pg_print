@@ -1,7 +1,7 @@
 #![allow(dead_code)]
 
 #[derive(Default)]
-pub enum DeparseNodeContext {
+pub enum Context {
     #[default]
     None,
     // Parent node type (and sometimes field).
@@ -18,10 +18,6 @@ pub enum DeparseNodeContext {
     // Identifier vs constant context.
     Identifier,
     Constant,
-}
-
-#[derive(Default)]
-pub struct Context {
-    pub context: DeparseNodeContext,
-    pub is_foreign_table: bool,
+    // Other.
+    ForeignTable,
 }

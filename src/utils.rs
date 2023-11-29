@@ -1,6 +1,5 @@
 use crate::fmt;
 use crate::fmt::Print;
-use crate::fmt::Printer;
 use pg_query::protobuf::a_const::Val;
 use pg_query::protobuf::AConst;
 use pg_query::Node;
@@ -9,7 +8,7 @@ use pg_query::NodeEnum;
 const ESCAPE_STRING_SYNTAX: char = 'E';
 
 // See https://github.com/pganalyze/libpg_query/blob/15-latest/src/postgres_deparse.c#L53.
-pub fn deparse_string_literal(p: &mut Printer, val: &str) {
+pub fn deparse_string_literal(p: &mut fmt::Printer, val: &str) {
     if val.contains('\\') {
         p.word(ESCAPE_STRING_SYNTAX.to_string());
     }
@@ -73,7 +72,7 @@ pub fn a_const_int_val(node: &Node) -> Option<i32> {
     }
 }
 
-pub fn expr_list(p: &mut Printer, list: &[Node]) -> fmt::Option {
+pub fn expr_list(p: &mut fmt::Printer, list: &[Node]) -> fmt::Option {
     for (i, node) in list.iter().enumerate() {
         node.print(p);
         p.comma(i >= list.len() - 1);

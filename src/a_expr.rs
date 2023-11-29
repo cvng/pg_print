@@ -1,5 +1,4 @@
 use crate::fmt;
-use crate::fmt::DeparseNodeContext;
 use crate::utils::is_op;
 use crate::utils::str_val;
 use pg_query::protobuf::AExpr;
@@ -14,7 +13,7 @@ impl fmt::Print for AExpr {
         match self.kind() {
             AExprKind::Undefined => todo!(),
             AExprKind::AexprOp => {
-                let need_outer_parens = matches!(ctx.context, DeparseNodeContext::AExpr);
+                let need_outer_parens = matches!(ctx, fmt::Context::AExpr);
 
                 if need_outer_parens {
                     p.word("(");

@@ -1,6 +1,5 @@
 use crate::fmt;
 use crate::fmt::Print;
-use crate::fmt::Printer;
 use crate::rel_persistence::RelPersistence;
 use crate::utils::int_val;
 use crate::utils::str_val;
@@ -11,11 +10,11 @@ use pg_query::Node;
 use pg_query::NodeEnum;
 
 impl fmt::Print for CreateStmt {
-    fn print_in_context(&self, p: &mut Printer, ctx: &fmt::Context) -> fmt::Option {
+    fn print_in_context(&self, p: &mut fmt::Printer, ctx: &fmt::Context) -> fmt::Option {
         p.cbox(INDENT);
         p.keyword("create ");
 
-        if ctx.is_foreign_table {
+        if matches!(ctx, fmt::Context::ForeignTable) {
             p.keyword("foreign ");
         }
 
@@ -90,28 +89,28 @@ impl fmt::Print for CreateStmt {
     }
 }
 
-fn node_opt_inherit(_str: &mut Printer, list: &[Node]) {
+fn node_opt_inherit(_str: &mut fmt::Printer, list: &[Node]) {
     if !list.is_empty() {
         todo!("{:?}", list)
     }
 }
 
-pub fn node_col_label(str: &mut Printer, node: &str) {
+pub fn node_col_label(str: &mut fmt::Printer, node: &str) {
     str.ident(node.to_owned());
 }
 
-pub fn node_opt_indirection(_str: &mut Printer, _list: &[Node], _offset: usize) {
+pub fn node_opt_indirection(_str: &mut fmt::Printer, _list: &[Node], _offset: usize) {
     // for (i, item) in list.iter().enumerate().skip(offset) {}
 }
 
-pub fn node_signed_iconst(str: &mut Printer, node: &Node) {
+pub fn node_signed_iconst(str: &mut fmt::Printer, node: &Node) {
     str.word(format!("{}", int_val(node).unwrap()));
 }
-pub fn node_create_generic_options(_str: &mut Printer, _list: &[Node]) {
+pub fn node_create_generic_options(_str: &mut fmt::Printer, _list: &[Node]) {
     todo!()
 }
 
-pub fn node_column_list(str: &mut Printer, list: &[Node]) {
+pub fn node_column_list(str: &mut fmt::Printer, list: &[Node]) {
     for (i, column) in list.iter().enumerate() {
         str.ident(str_val(column).unwrap());
         if i < list.len() - 1 {
@@ -120,7 +119,7 @@ pub fn node_column_list(str: &mut Printer, list: &[Node]) {
     }
 }
 
-pub fn node_opt_with(str: &mut Printer, list: &[Node]) {
+pub fn node_opt_with(str: &mut fmt::Printer, list: &[Node]) {
     if !list.is_empty() {
         str.keyword(" with ");
         node_rel_options(str, list);
@@ -128,7 +127,7 @@ pub fn node_opt_with(str: &mut Printer, list: &[Node]) {
     }
 }
 
-fn node_rel_options(str: &mut Printer, list: &[Node]) {
+fn node_rel_options(str: &mut fmt::Printer, list: &[Node]) {
     str.word("(");
 
     for (i, option) in list.iter().enumerate() {
@@ -153,14 +152,14 @@ fn node_rel_options(str: &mut Printer, list: &[Node]) {
     str.word(")");
 }
 
-fn node_def_arg(str: &mut Printer, node: &Node, _is_operator_def_arg: bool) {
+fn node_def_arg(str: &mut fmt::Printer, node: &Node, _is_operator_def_arg: bool) {
     match node.node.as_ref().unwrap() {
         NodeEnum::Integer(ref val) => Option::<Val>::print(&Some(Val::Ival(val.clone())), str),
         _ => todo!(),
     };
 }
 
-fn node_table_element(str: &mut Printer, node: &Node) {
+fn node_table_element(str: &mut fmt::Printer, node: &Node) {
     match node.node.as_ref().unwrap() {
         NodeEnum::ColumnDef(node) => node.print(str),
         NodeEnum::Constraint(node) => node.print(str),
