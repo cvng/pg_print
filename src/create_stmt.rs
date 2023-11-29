@@ -82,6 +82,28 @@ fn deparse_string_literal(str: &mut Printer, val: &str) {
     str.word('\''.to_string());
 }
 
+pub fn is_op(val: Option<String>) -> bool {
+    val.unwrap().chars().all(|cp| {
+        cp == '~'
+            || cp == '!'
+            || cp == '@'
+            || cp == '#'
+            || cp == '^'
+            || cp == '&'
+            || cp == '|'
+            || cp == '`'
+            || cp == '?'
+            || cp == '+'
+            || cp == '-'
+            || cp == '*'
+            || cp == '/'
+            || cp == '%'
+            || cp == '<'
+            || cp == '>'
+            || cp == '='
+    })
+}
+
 pub fn node_create_stmt(str: &mut Printer, node: &CreateStmt, is_foreign_table: bool) {
     str.cbox(INDENT);
     str.keyword("create ");
@@ -554,6 +576,7 @@ pub fn node_expr(str: &mut Printer, node: Option<&Node>) {
     match node.node.as_ref().unwrap() {
         NodeEnum::AConst(node) => node_a_const(str, node),
         NodeEnum::AExpr(node) => node_a_expr(str, node, DeparseNodeContext::None),
+        NodeEnum::ColumnRef(node) => node_column_ref(str, node),
         node => todo!("{:?}", node),
     }
 }
