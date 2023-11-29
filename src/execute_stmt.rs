@@ -1,6 +1,6 @@
 use crate::fmt;
-use pg_query::protobuf::ExecuteStmt;
 use crate::utils::expr_list;
+use pg_query::protobuf::ExecuteStmt;
 
 impl fmt::Print for ExecuteStmt {
     fn print(&self, p: &mut fmt::Printer) -> fmt::Option {

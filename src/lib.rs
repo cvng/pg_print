@@ -17,14 +17,14 @@ mod on_commit_action;
 mod param_ref;
 mod parse_result;
 mod partition_bound_spec;
+mod range_var;
 mod raw_stmt;
+mod rel_persistence;
 mod select_stmt;
 mod type_name;
 mod utils;
-mod with_clause;
-mod rel_persistence;
 mod val;
-mod range_var;
+mod with_clause;
 
 use fmt::Print;
 use fmt::Printer;

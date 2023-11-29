@@ -1,10 +1,10 @@
 use crate::fmt;
 use crate::fmt::Print;
+use crate::utils::expr_list;
 use pg_query::protobuf::SelectStmt;
 use pg_query::protobuf::SetOperation;
 use pg_query::Node;
 use pg_query::NodeEnum;
-use crate::utils::expr_list;
 
 impl fmt::Print for SelectStmt {
     fn print(&self, p: &mut fmt::Printer) -> fmt::Option {
