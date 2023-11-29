@@ -27,10 +27,12 @@ pub enum Context {
 }
 
 pub trait Print {
+    #[inline]
     fn print(&self, p: &mut super::Printer) -> Option {
         self.print_in_context(p, &Context::default())
     }
 
+    #[inline]
     fn print_in_context(&self, _p: &mut super::Printer, _ctx: &Context) -> Option {
         Some(())
     }
