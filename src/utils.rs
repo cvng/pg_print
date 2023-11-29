@@ -129,3 +129,14 @@ fn print_def_arg(p: &mut fmt::Printer, node: &Node, _is_operator_def_arg: bool) 
         _ => todo!(),
     };
 }
+
+pub fn print_any_name(p: &mut fmt::Printer, list: &[Node]) -> fmt::Option {
+    for (i, part) in list.iter().enumerate() {
+        if i > 0 {
+            p.word(".");
+        }
+        p.ident(str_val(part).unwrap());
+    }
+
+    Some(())
+}

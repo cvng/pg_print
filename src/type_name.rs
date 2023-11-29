@@ -1,21 +1,15 @@
 use crate::fmt;
+use crate::fmt::Print;
+use crate::interval_fields::IntervalFields;
+use crate::interval_fields::INTERVAL_FULL_PRECISION;
 use crate::utils::a_const_int_val;
 use crate::utils::int_val;
+use crate::utils::print_any_name;
 use crate::utils::str_val;
 use pg_query::protobuf::Integer;
 use pg_query::protobuf::TypeName;
 use pg_query::Node;
 use pg_query::NodeEnum;
-
-const MONTH: i32 = 1;
-const YEAR: i32 = 2;
-const DAY: i32 = 3;
-const HOUR: i32 = 10;
-const MINUTE: i32 = 11;
-const SECOND: i32 = 12;
-
-const INTERVAL_FULL_RANGE: i32 = 0x7FFF;
-const INTERVAL_FULL_PRECISION: i32 = 0xFFFF;
 
 impl fmt::Print for TypeName {
     fn print(&self, p: &mut fmt::Printer) -> fmt::Option {
@@ -101,7 +95,6 @@ impl fmt::Print for TypeName {
     }
 }
 
-// See https://github.com/pganalyze/libpg_query/blob/15-latest/src/postgres_deparse.c#L3774.
 fn print_interval_typmods(p: &mut fmt::Printer, node: &TypeName) {
     let interval_fields = node
         .typmods
@@ -114,23 +107,7 @@ fn print_interval_typmods(p: &mut fmt::Printer, node: &TypeName) {
         .unwrap()
         .unwrap();
 
-    match interval_fields {
-        x if x == 1 << YEAR => p.word(" year"),
-        x if x == 1 << MONTH => p.word(" month"),
-        x if x == 1 << DAY => p.word(" day"),
-        x if x == 1 << HOUR => p.word(" hour"),
-        x if x == 1 << MINUTE => p.word(" minute"),
-        x if x == 1 << SECOND => p.word(" second"),
-        x if x == 1 << YEAR | 1 << MONTH => p.word(" year to month"),
-        x if x == 1 << DAY | 1 << HOUR => p.word(" day to hour"),
-        x if x == 1 << DAY | 1 << HOUR | 1 << MINUTE => p.word(" day to minute"),
-        x if x == 1 << DAY | 1 << HOUR | 1 << MINUTE | 1 << SECOND => p.word(" day to second"),
-        x if x == 1 << HOUR | 1 << MINUTE => p.word(" hour to minute"),
-        x if x == 1 << HOUR | 1 << MINUTE | 1 << SECOND => p.word(" hour to second"),
-        x if x == 1 << MINUTE | 1 << SECOND => p.word(" minute to second"),
-        INTERVAL_FULL_RANGE => {}
-        _ => unreachable!(),
-    };
+    IntervalFields::try_from(interval_fields).unwrap().print(p);
 
     if node.typmods.len() == 2 {
         let precision = node
@@ -148,17 +125,6 @@ fn print_interval_typmods(p: &mut fmt::Printer, node: &TypeName) {
             p.word(format!(" ({})", precision));
         }
     }
-}
-
-pub fn print_any_name(p: &mut fmt::Printer, list: &[Node]) -> fmt::Option {
-    for (i, part) in list.iter().enumerate() {
-        if i > 0 {
-            p.word(".");
-        }
-        p.ident(str_val(part).unwrap());
-    }
-
-    Some(())
 }
 
 fn print_signed_iconst(p: &mut fmt::Printer, node: &Node) {

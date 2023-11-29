@@ -1,5 +1,5 @@
 use crate::fmt;
-use crate::type_name::print_any_name;
+use crate::utils::print_any_name;
 use pg_query::protobuf::DefineStmt;
 use pg_query::protobuf::ObjectType;
 use pg_query::NodeEnum;

@@ -10,6 +10,7 @@ mod create_table_as_stmt;
 mod define_stmt;
 mod execute_stmt;
 mod fmt;
+mod interval_fields;
 mod into_clause;
 mod node;
 mod object_type;
