@@ -73,8 +73,8 @@ pub fn a_const_int_val(node: &Node) -> Option<i32> {
 }
 
 pub fn print_expr_list(p: &mut fmt::Printer, list: &[Node]) -> fmt::Option {
-    for (i, node) in list.iter().enumerate() {
-        node.print(p);
+    for (i, expr) in list.iter().enumerate() {
+        expr.print(p);
         p.comma(i >= list.len() - 1);
     }
 
@@ -82,8 +82,9 @@ pub fn print_expr_list(p: &mut fmt::Printer, list: &[Node]) -> fmt::Option {
 }
 
 pub fn print_column_list(p: &mut fmt::Printer, list: &[Node]) -> fmt::Option {
-    for (i, column) in list.iter().enumerate() {
-        p.ident(str_val(column).unwrap());
+    for (i, col) in list.iter().enumerate() {
+        p.ident(str_val(col).unwrap());
+
         if i < list.len() - 1 {
             p.word(", ");
         }
@@ -95,45 +96,16 @@ pub fn print_column_list(p: &mut fmt::Printer, list: &[Node]) -> fmt::Option {
 pub fn print_opt_with(p: &mut fmt::Printer, list: &[Node]) -> fmt::Option {
     if !list.is_empty() {
         p.keyword(" with ");
-        print_rel_options(p, list);
-        p.nbsp();
-    }
+        p.word("(");
 
-    Some(())
-}
-
-fn print_rel_options(p: &mut fmt::Printer, list: &[Node]) -> fmt::Option {
-    p.word("(");
-
-    for (i, option) in list.iter().enumerate() {
-        match option.node.as_ref().unwrap() {
-            NodeEnum::DefElem(node) => {
-                if !node.defnamespace.is_empty() {
-                    p.ident(node.defnamespace.clone());
-                    p.word(".");
-                }
-                p.ident(node.defname.clone());
-                if let Some(arg) = &node.arg {
-                    p.word(" = ");
-                    print_def_arg(p, arg, false);
-                }
-            }
-            _ => unreachable!(),
+        for (i, option) in list.iter().enumerate() {
+            option.print(p);
+            p.comma(i >= list.len() - 1);
         }
 
-        p.comma(i >= list.len() - 1);
+        p.word(")");
+        p.nbsp();
     }
-
-    p.word(")");
-
-    Some(())
-}
-
-fn print_def_arg(p: &mut fmt::Printer, node: &Node, _is_operator_def_arg: bool) -> fmt::Option {
-    match node.node.as_ref().unwrap() {
-        NodeEnum::Integer(ref val) => Option::<Val>::print(&Some(Val::Ival(val.clone())), p),
-        _ => todo!(),
-    };
 
     Some(())
 }
@@ -143,6 +115,7 @@ pub fn print_any_name(p: &mut fmt::Printer, list: &[Node]) -> fmt::Option {
         if i > 0 {
             p.word(".");
         }
+
         p.ident(str_val(part).unwrap());
     }
 

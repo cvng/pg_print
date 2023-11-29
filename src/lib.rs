@@ -27,6 +27,8 @@ mod type_name;
 mod utils;
 mod val;
 mod with_clause;
+mod def_elem;
+mod integer;
 
 use fmt::Print;
 use fmt::Printer;
