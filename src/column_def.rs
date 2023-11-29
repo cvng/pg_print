@@ -1,7 +1,7 @@
-use crate::create_stmt::node_create_generic_options;
 use crate::fmt;
 use pg_query::protobuf::ColumnDef;
 use pg_query::NodeEnum;
+use pg_query::Node;
 
 impl fmt::Print for ColumnDef {
     fn print(&self, p: &mut fmt::Printer) -> fmt::Option {
@@ -22,7 +22,7 @@ impl fmt::Print for ColumnDef {
 
         if !self.fdwoptions.is_empty() {
             p.nbsp();
-            node_create_generic_options(p, &self.fdwoptions);
+            print_create_generic_options(p, &self.fdwoptions);
         }
 
         for constraint in self.constraints.iter() {
@@ -41,4 +41,8 @@ impl fmt::Print for ColumnDef {
 
         Some(())
     }
+}
+
+pub fn print_create_generic_options(_str: &mut fmt::Printer, _list: &[Node]) {
+    todo!()
 }

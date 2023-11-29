@@ -1,6 +1,6 @@
 use crate::fmt;
 use crate::fmt::Print;
-use crate::utils::expr_list;
+use crate::utils::print_expr_list;
 use pg_query::protobuf::SelectStmt;
 use pg_query::protobuf::SetOperation;
 use pg_query::Node;
@@ -20,7 +20,7 @@ impl fmt::Print for SelectStmt {
 
                     for (i, list) in self.values_lists.iter().enumerate() {
                         p.word("(");
-                        expr_list(p, &[list.clone()]);
+                        print_expr_list(p, &[list.clone()]);
                         p.word(")");
                         p.comma(i >= self.values_lists.len() - 1);
                     }
@@ -35,7 +35,7 @@ impl fmt::Print for SelectStmt {
                         p.word("distinct ");
 
                         p.word("on (");
-                        expr_list(p, &self.distinct_clause);
+                        print_expr_list(p, &self.distinct_clause);
                         p.word(") ");
                     }
 

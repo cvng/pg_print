@@ -1,7 +1,6 @@
-use crate::create_stmt::node_col_label;
-use crate::create_stmt::node_opt_indirection;
 use crate::fmt;
 use pg_query::protobuf::ColumnRef;
+use pg_query::Node;
 use pg_query::NodeEnum;
 
 impl fmt::Print for ColumnRef {
@@ -9,11 +8,19 @@ impl fmt::Print for ColumnRef {
         if let NodeEnum::AStar(node) = self.fields.first().unwrap().node.as_ref().unwrap() {
             node.print(p)?;
         } else if let NodeEnum::String(node) = self.fields.first().unwrap().node.as_ref().unwrap() {
-            node_col_label(p, &node.sval);
+            print_col_label(p, &node.sval);
         }
 
-        node_opt_indirection(p, &self.fields, 1);
+        print_opt_indirection(p, &self.fields, 1);
 
         Some(())
     }
+}
+
+fn print_col_label(str: &mut fmt::Printer, node: &str) {
+    str.ident(node.to_owned());
+}
+
+fn print_opt_indirection(_str: &mut fmt::Printer, _list: &[Node], _offset: usize) {
+    // for (i, item) in list.iter().enumerate().skip(offset) {}
 }

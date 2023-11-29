@@ -72,11 +72,60 @@ pub fn a_const_int_val(node: &Node) -> Option<i32> {
     }
 }
 
-pub fn expr_list(p: &mut fmt::Printer, list: &[Node]) -> fmt::Option {
+pub fn print_expr_list(p: &mut fmt::Printer, list: &[Node]) -> fmt::Option {
     for (i, node) in list.iter().enumerate() {
         node.print(p);
         p.comma(i >= list.len() - 1);
     }
 
     Some(())
+}
+
+pub fn print_column_list(p: &mut fmt::Printer, list: &[Node]) {
+    for (i, column) in list.iter().enumerate() {
+        p.ident(str_val(column).unwrap());
+        if i < list.len() - 1 {
+            p.word(", ");
+        }
+    }
+}
+
+pub fn print_opt_with(str: &mut fmt::Printer, list: &[Node]) {
+    if !list.is_empty() {
+        str.keyword(" with ");
+        node_rel_options(str, list);
+        str.nbsp();
+    }
+}
+
+fn node_rel_options(str: &mut fmt::Printer, list: &[Node]) {
+    str.word("(");
+
+    for (i, option) in list.iter().enumerate() {
+        match option.node.as_ref().unwrap() {
+            NodeEnum::DefElem(node) => {
+                if !node.defnamespace.is_empty() {
+                    str.ident(node.defnamespace.clone());
+                    str.word(".");
+                }
+                str.ident(node.defname.clone());
+                if let Some(arg) = &node.arg {
+                    str.word(" = ");
+                    print_def_arg(str, arg, false);
+                }
+            }
+            _ => unreachable!(),
+        }
+
+        str.comma(i >= list.len() - 1);
+    }
+
+    str.word(")");
+}
+
+fn print_def_arg(str: &mut fmt::Printer, node: &Node, _is_operator_def_arg: bool) {
+    match node.node.as_ref().unwrap() {
+        NodeEnum::Integer(ref val) => Option::<Val>::print(&Some(Val::Ival(val.clone())), str),
+        _ => todo!(),
+    };
 }

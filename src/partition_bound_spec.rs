@@ -1,5 +1,5 @@
 use crate::fmt;
-use crate::utils::expr_list;
+use crate::utils::print_expr_list;
 use pg_query::protobuf::PartitionBoundSpec;
 
 const PARTITION_STRATEGY_HASH: char = 'h';
@@ -24,14 +24,14 @@ impl fmt::Print for PartitionBoundSpec {
             }
             PARTITION_STRATEGY_LIST => {
                 p.keyword("in (");
-                expr_list(p, &self.listdatums);
+                print_expr_list(p, &self.listdatums);
                 p.word(")");
             }
             PARTITION_STRATEGY_RANGE => {
                 p.keyword("from (");
-                expr_list(p, &self.lowerdatums);
+                print_expr_list(p, &self.lowerdatums);
                 p.keyword(") to (");
-                expr_list(p, &self.upperdatums);
+                print_expr_list(p, &self.upperdatums);
                 p.word(")");
             }
             _ => unreachable!(),

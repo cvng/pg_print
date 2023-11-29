@@ -1,6 +1,6 @@
-use crate::create_stmt::node_column_list;
-use crate::create_stmt::node_opt_with;
 use crate::fmt;
+use crate::utils::print_column_list;
+use crate::utils::print_opt_with;
 use pg_query::protobuf::IntoClause;
 
 impl fmt::Print for IntoClause {
@@ -9,7 +9,7 @@ impl fmt::Print for IntoClause {
 
         if !self.col_names.is_empty() {
             p.word(" (");
-            node_column_list(p, &self.col_names);
+            print_column_list(p, &self.col_names);
             p.word(")");
         }
 
@@ -19,7 +19,7 @@ impl fmt::Print for IntoClause {
             p.word(" ");
         }
 
-        node_opt_with(p, &self.options);
+        print_opt_with(p, &self.options);
 
         self.on_commit().print(p)?;
 

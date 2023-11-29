@@ -1,6 +1,6 @@
-use crate::create_stmt::node_column_list;
-use crate::create_stmt::node_opt_with;
 use crate::fmt;
+use crate::utils::print_column_list;
+use crate::utils::print_opt_with;
 use pg_query::protobuf::ConstrType;
 use pg_query::protobuf::Constraint;
 
@@ -25,13 +25,13 @@ impl fmt::Print for Constraint {
         if !self.keys.is_empty() {
             p.nbsp();
             p.word("(");
-            node_column_list(p, &self.keys);
+            print_column_list(p, &self.keys);
             p.word(")");
         }
 
         match self.contype() {
             ConstrType::ConstrPrimary | ConstrType::ConstrUnique | ConstrType::ConstrExclusion => {
-                node_opt_with(p, &self.options)
+                print_opt_with(p, &self.options)
             }
             _ => {}
         }

@@ -1,4 +1,3 @@
-use crate::create_stmt::node_signed_iconst;
 use crate::fmt;
 use crate::utils::a_const_int_val;
 use crate::utils::int_val;
@@ -45,7 +44,7 @@ impl fmt::Print for TypeName {
                     if !self.typmods.is_empty() {
                         p.word("(");
                         for (i, typmod) in self.typmods.iter().enumerate() {
-                            node_signed_iconst(p, typmod);
+                            print_signed_iconst(p, typmod);
                             p.comma(i >= self.typmods.len() - 1);
                         }
                         p.word(") ");
@@ -59,7 +58,7 @@ impl fmt::Print for TypeName {
                     if !self.typmods.is_empty() {
                         p.word("(");
                         for (i, typmod) in self.typmods.iter().enumerate() {
-                            node_signed_iconst(p, typmod);
+                            print_signed_iconst(p, typmod);
                             p.comma(i >= self.typmods.len() - 1);
                         }
                         p.word(") ");
@@ -100,17 +99,6 @@ impl fmt::Print for TypeName {
 
         Some(())
     }
-}
-
-pub fn print_any_name(str: &mut fmt::Printer, list: &[Node]) -> fmt::Option {
-    for (i, part) in list.iter().enumerate() {
-        if i > 0 {
-            str.word(".");
-        }
-        str.ident(str_val(part).unwrap());
-    }
-
-    Some(())
 }
 
 // See https://github.com/pganalyze/libpg_query/blob/15-latest/src/postgres_deparse.c#L3774.
@@ -160,4 +148,19 @@ fn print_interval_typmods(str: &mut fmt::Printer, node: &TypeName) {
             str.word(format!(" ({})", precision));
         }
     }
+}
+
+pub fn print_any_name(str: &mut fmt::Printer, list: &[Node]) -> fmt::Option {
+    for (i, part) in list.iter().enumerate() {
+        if i > 0 {
+            str.word(".");
+        }
+        str.ident(str_val(part).unwrap());
+    }
+
+    Some(())
+}
+
+fn print_signed_iconst(str: &mut fmt::Printer, node: &Node) {
+    str.word(format!("{}", int_val(node).unwrap()));
 }
