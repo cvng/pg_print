@@ -1,9 +1,8 @@
 use crate::create_stmt::node_column_list;
-use crate::create_stmt::node_on_commit_action;
 use crate::create_stmt::node_opt_with;
 use crate::create_stmt::node_range_var;
-use crate::create_stmt::DeparseNodeContext;
 use crate::fmt;
+use crate::fmt::DeparseNodeContext;
 use pg_query::protobuf::IntoClause;
 
 impl fmt::Print for IntoClause {
@@ -24,7 +23,7 @@ impl fmt::Print for IntoClause {
 
         node_opt_with(p, &self.options);
 
-        node_on_commit_action(p, &self.on_commit());
+        self.on_commit().print(p)?;
 
         if !self.table_space_name.is_empty() {
             p.word("tablespace ");

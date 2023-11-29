@@ -1,9 +1,9 @@
-use crate::create_stmt::node_column_ref;
 use crate::create_stmt::node_expr;
 use crate::create_stmt::node_opt_temp;
 use crate::create_stmt::node_range_var;
-use crate::create_stmt::DeparseNodeContext;
 use crate::fmt;
+use crate::fmt::DeparseNodeContext;
+use crate::fmt::Print;
 use crate::fmt::Printer;
 use pg_query::protobuf::CreateTableAsStmt;
 use pg_query::Node;
@@ -25,7 +25,7 @@ impl fmt::Print for CreateTableAsStmt {
                 .relpersistence,
         );
 
-        self.objtype().print(p);
+        self.objtype().print(p)?;
 
         if self.if_not_exists {
             p.word("if not exists ");
@@ -60,14 +60,14 @@ pub fn node_from_clause(str: &mut Printer, list: &[Node]) {
     }
 }
 
-pub fn node_from_list(str: &mut Printer, list: &[Node]) {
+fn node_from_list(str: &mut Printer, list: &[Node]) {
     for (i, item) in list.iter().enumerate() {
         node_table_ref(str, item);
         str.comma(i >= list.len() - 1);
     }
 }
 
-pub fn node_table_ref(str: &mut Printer, node: &Node) {
+fn node_table_ref(str: &mut Printer, node: &Node) {
     match node.node.as_ref().unwrap() {
         NodeEnum::RangeVar(node) => node_range_var(str, node, DeparseNodeContext::None),
         _ => todo!("{:?}", node),
@@ -89,7 +89,7 @@ pub fn node_target_list(str: &mut Printer, list: &[Node]) {
             } else if let NodeEnum::ColumnRef(node) =
                 node.val.as_ref().unwrap().node.as_ref().unwrap()
             {
-                node_column_ref(str, node);
+                node.print(str);
             } else {
                 node_expr(str, node.val.as_deref());
             }

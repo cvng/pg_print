@@ -1,22 +1,17 @@
 use crate::fmt;
 use crate::fmt::Context;
+use crate::fmt::DeparseNodeContext;
+use crate::fmt::Print;
 use crate::fmt::Printer;
+use crate::utils::a_const_int_val;
+use crate::utils::deparse_string_literal;
+use crate::utils::int_val;
+use crate::utils::is_op;
+use crate::utils::str_val;
 use crate::INDENT;
 use pg_query::protobuf::a_const::Val;
-use pg_query::protobuf::AConst;
-use pg_query::protobuf::AExpr;
-use pg_query::protobuf::AExprKind;
-use pg_query::protobuf::AStar;
-use pg_query::protobuf::CollateClause;
-use pg_query::protobuf::ColumnDef;
-use pg_query::protobuf::ColumnRef;
-use pg_query::protobuf::ConstrType;
-use pg_query::protobuf::Constraint;
 use pg_query::protobuf::CreateStmt;
 use pg_query::protobuf::Integer;
-use pg_query::protobuf::OnCommitAction;
-use pg_query::protobuf::ParamRef;
-use pg_query::protobuf::PartitionBoundSpec;
 use pg_query::protobuf::RangeVar;
 use pg_query::protobuf::TypeName;
 use pg_query::Node;
@@ -35,72 +30,6 @@ const INTERVAL_FULL_PRECISION: i32 = 0xFFFF;
 const RELPERSISTENCE_TEMP: char = 't';
 const RELPERSISTENCE_UNLOGGED: char = 'u';
 const RELPERSISTENCE_PERMANENT: char = 'p';
-
-const PARTITION_STRATEGY_HASH: char = 'h';
-const PARTITION_STRATEGY_LIST: char = 'l';
-const PARTITION_STRATEGY_RANGE: char = 'r';
-
-const ESCAPE_STRING_SYNTAX: char = 'E';
-
-#[allow(dead_code)]
-pub enum DeparseNodeContext {
-    None,
-    // Parent node type (and sometimes field).
-    InsertRelation,
-    InsertOnConflict,
-    Update,
-    Returning,
-    AExpr,
-    Xmlattributes,
-    Xmlnamespaces,
-    CreateType,
-    AlterType,
-    SetStatement,
-    // Identifier vs constant context.
-    Identifier,
-    Constant,
-}
-
-// See https://github.com/pganalyze/libpg_query/blob/15-latest/src/postgres_deparse.c#L53.
-pub fn deparse_string_literal(str: &mut Printer, val: &str) {
-    if val.contains('\\') {
-        str.word(ESCAPE_STRING_SYNTAX.to_string());
-    }
-
-    str.word('\''.to_string());
-
-    for c in val.chars() {
-        if c == '\'' || c == '\\' {
-            str.word(c.to_string());
-        }
-
-        str.word(c.to_string());
-    }
-
-    str.word('\''.to_string());
-}
-
-pub fn is_op(val: Option<String>) -> bool {
-    val.unwrap().chars().all(|cp| {
-        cp == '~'
-            || cp == '!'
-            || cp == '@'
-            || cp == '#'
-            || cp == '^'
-            || cp == '&'
-            || cp == '|'
-            || cp == '`'
-            || cp == '?'
-            || cp == '+'
-            || cp == '-'
-            || cp == '*'
-            || cp == '/'
-            || cp == '%'
-            || cp == '<'
-            || cp == '>'
-            || cp == '='
-    })
-}
 
 impl fmt::Print for CreateStmt {
     fn print_with_context(&self, p: &mut Printer, ctx: &Context) -> fmt::Option {
@@ -124,7 +53,7 @@ impl fmt::Print for CreateStmt {
 
         if let Some(of_typename) = &self.of_typename {
             p.keyword("of ");
-            node_type_name(p, of_typename);
+            of_typename.print(p)?;
             p.space();
         }
 
@@ -162,7 +91,7 @@ impl fmt::Print for CreateStmt {
         };
 
         if let Some(partbound) = &self.partbound {
-            node_partition_bound_spec(p, partbound);
+            partbound.print(p)?;
             p.word(" ");
         } else {
             node_opt_inherit(p, &self.inh_relations);
@@ -170,7 +99,7 @@ impl fmt::Print for CreateStmt {
 
         node_opt_with(p, &self.options);
 
-        node_on_commit_action(p, &self.oncommit());
+        self.oncommit().print(p)?;
 
         if !self.tablespacename.is_empty() {
             p.keyword("tablespace ");
@@ -183,50 +112,9 @@ impl fmt::Print for CreateStmt {
     }
 }
 
-pub fn node_on_commit_action(str: &mut Printer, node: &OnCommitAction) {
-    match node {
-        OnCommitAction::Undefined => {}
-        OnCommitAction::OncommitNoop => {}
-        OnCommitAction::OncommitPreserveRows => str.keyword(" on commit preserve rows"),
-        OnCommitAction::OncommitDeleteRows => str.keyword(" on commit delete rows"),
-        OnCommitAction::OncommitDrop => str.keyword(" on commit drop"),
-    }
-}
-
 fn node_opt_inherit(_str: &mut Printer, list: &[Node]) {
     if !list.is_empty() {
         todo!("{:?}", list)
-    }
-}
-
-fn node_partition_bound_spec(str: &mut Printer, node: &PartitionBoundSpec) {
-    if node.is_default {
-        str.keyword("default");
-        return;
-    }
-
-    str.keyword(" for values ");
-
-    match node.strategy.chars().next().unwrap() {
-        PARTITION_STRATEGY_HASH => {
-            str.keyword(format!(
-                "with (modulus {}, remainder {})",
-                node.modulus, node.remainder
-            ));
-        }
-        PARTITION_STRATEGY_LIST => {
-            str.keyword("in (");
-            node_expr_list(str, &node.listdatums);
-            str.word(")");
-        }
-        PARTITION_STRATEGY_RANGE => {
-            str.keyword("from (");
-            node_expr_list(str, &node.lowerdatums);
-            str.keyword(") to (");
-            node_expr_list(str, &node.upperdatums);
-            str.word(")");
-        }
-        _ => unreachable!(),
     }
 }
 
@@ -250,123 +138,7 @@ pub fn node_range_var(str: &mut Printer, node: &RangeVar, _context: DeparseNodeC
     str.ident(node.relname.clone());
 }
 
-fn node_column_def(str: &mut Printer, node: &ColumnDef) {
-    if !node.colname.is_empty() {
-        str.ident(node.colname.clone());
-    }
-
-    if let Some(type_name) = &node.type_name {
-        str.nbsp();
-        node_type_name(str, type_name);
-    }
-
-    if node.raw_default.is_some() {
-        str.nbsp();
-        str.word("using ");
-        node_expr(str, node.raw_default.as_deref());
-    }
-
-    if !node.fdwoptions.is_empty() {
-        str.nbsp();
-        node_create_generic_options(str, &node.fdwoptions);
-    }
-
-    for constraint in node.constraints.iter() {
-        match constraint.node.as_ref().unwrap() {
-            NodeEnum::Constraint(constraint) => {
-                str.nbsp();
-                node_constraint(str, constraint);
-            }
-            _ => unreachable!(),
-        }
-    }
-
-    if node.coll_clause.is_some() {
-        node_collate_clause(str, node.coll_clause.as_ref().unwrap());
-    }
-}
-
-fn node_type_name(str: &mut Printer, node: &TypeName) {
-    let mut skip_typmods = false;
-
-    if node.setof {
-        str.keyword("setof ");
-    }
-
-    if node.names.len() == 2 && str_val(node.names.first().unwrap()).unwrap() == "pg_catalog" {
-        let name = str_val(node.names.last().unwrap()).unwrap();
-
-        match name.as_str() {
-            "bpchar" => str.word("char"),
-            "varchar" => str.word("varchar"),
-            "numeric" => str.word("numeric"),
-            "bool" => str.word("boolean"),
-            "int2" => str.word("smallint"),
-            "int4" => str.word("int"),
-            "int8" => str.word("bigint"),
-            "real" | "float4" => str.word("real"),
-            "float8" => str.word("double precision"),
-            "time" => str.word("time"),
-            "timetz" => {
-                str.word("time ");
-                if !node.typmods.is_empty() {
-                    str.word("(");
-                    for (i, typmod) in node.typmods.iter().enumerate() {
-                        node_signed_iconst(str, typmod);
-                        str.comma(i >= node.typmods.len() - 1);
-                    }
-                    str.word(") ");
-                }
-                str.word("with time zone");
-                skip_typmods = true;
-            }
-            "timestamp" => str.word("timestamp"),
-            "timestamptz" => {
-                str.word("timestamp ");
-                if !node.typmods.is_empty() {
-                    str.word("(");
-                    for (i, typmod) in node.typmods.iter().enumerate() {
-                        node_signed_iconst(str, typmod);
-                        str.comma(i >= node.typmods.len() - 1);
-                    }
-                    str.word(") ");
-                }
-                str.word("with time zone");
-                skip_typmods = true;
-            }
-            "interval" => {
-                str.word("interval");
-
-                if !node.typmods.is_empty() {
-                    node_interval_typmods(str, node);
-                    skip_typmods = true;
-                }
-            }
-            _ => {
-                str.word("pg_catalog.");
-                str.word(name);
-            }
-        }
-    } else {
-        node_any_name(str, &node.names);
-    }
-
-    if !node.typmods.is_empty() && !skip_typmods {
-        str.word("(");
-        for (i, typmod) in node.typmods.iter().enumerate() {
-            match typmod.node.as_ref().unwrap() {
-                NodeEnum::AConst(node) => node_a_const(str, node),
-                NodeEnum::ParamRef(node) => node_param_ref(str, node),
-                NodeEnum::ColumnRef(node) => node_column_ref(str, node),
-                _ => unreachable!(),
-            }
-            str.comma(i >= node.typmods.len() - 1);
-        }
-        str.word(")");
-    }
-}
-
-fn node_value(str: &mut Printer, node: Option<&Val>, context: DeparseNodeContext) {
+pub fn node_value(str: &mut Printer, node: Option<&Val>, context: DeparseNodeContext) {
     let Some(val) = node else {
         str.keyword("null");
         return;
@@ -402,70 +174,7 @@ fn node_numeric_only(str: &mut Printer, val: &Val) {
     }
 }
 
-fn node_a_const(str: &mut Printer, node: &AConst) {
-    node_value(str, node.val.as_ref(), DeparseNodeContext::Constant);
-}
-
-fn node_a_expr(str: &mut Printer, node: &AExpr, context: DeparseNodeContext) {
-    let need_lexpr_parens = false;
-    let need_rexpr_parens = false;
-
-    match node.kind() {
-        AExprKind::Undefined => todo!(),
-        AExprKind::AexprOp => {
-            let need_outer_parens = matches!(context, DeparseNodeContext::AExpr);
-
-            if need_outer_parens {
-                str.word("(");
-            }
-
-            if node.lexpr.is_some() {
-                if need_lexpr_parens {
-                    str.word("(");
-                }
-
-                node_expr(str, node.lexpr.as_deref());
-
-                if need_lexpr_parens {
-                    str.word(")");
-                }
-
-                str.nbsp();
-            }
-
-            node_qual_op(str, &node.name);
-
-            if node.rexpr.is_some() {
-                str.nbsp();
-
-                if need_rexpr_parens {
-                    str.word("(");
-                }
-
-                node_expr(str, node.rexpr.as_deref());
-
-                if need_rexpr_parens {
-                    str.word(")");
-                }
-            }
-        }
-        AExprKind::AexprOpAny => todo!(),
-        AExprKind::AexprOpAll => todo!(),
-        AExprKind::AexprDistinct => todo!(),
-        AExprKind::AexprNotDistinct => todo!(),
-        AExprKind::AexprNullif => todo!(),
-        AExprKind::AexprIn => todo!(),
-        AExprKind::AexprLike => todo!(),
-        AExprKind::AexprIlike => todo!(),
-        AExprKind::AexprSimilar => todo!(),
-        AExprKind::AexprBetween => todo!(),
-        AExprKind::AexprNotBetween => todo!(),
-        AExprKind::AexprBetweenSym => todo!(),
-        AExprKind::AexprNotBetweenSym => todo!(),
-    }
-}
-
-fn node_qual_op(str: &mut Printer, list: &[Node]) {
+pub fn node_qual_op(str: &mut Printer, list: &[Node]) {
     if list.len() == 1 && is_op(str_val(list.first().unwrap())) {
         str.word(str_val(list.first().unwrap()).unwrap());
     } else {
@@ -487,38 +196,20 @@ fn node_any_operator(str: &mut Printer, list: &[Node]) {
     }
 }
 
-fn node_param_ref(_str: &mut Printer, _node: &ParamRef) {
-    todo!()
-}
-
-pub fn node_column_ref(str: &mut Printer, node: &ColumnRef) {
-    if let NodeEnum::AStar(node) = node.fields.first().unwrap().node.as_ref().unwrap() {
-        node_a_star(str, node);
-    } else if let NodeEnum::String(node) = node.fields.first().unwrap().node.as_ref().unwrap() {
-        node_col_label(str, &node.sval);
-    }
-
-    node_opt_indirection(str, &node.fields, 1);
-}
-
-fn node_a_star(str: &mut Printer, _node: &AStar) {
-    str.word("*");
-}
-
-fn node_col_label(str: &mut Printer, node: &str) {
+pub fn node_col_label(str: &mut Printer, node: &str) {
     str.ident(node.to_owned());
 }
 
-fn node_opt_indirection(_str: &mut Printer, _list: &[Node], _offset: usize) {
+pub fn node_opt_indirection(_str: &mut Printer, _list: &[Node], _offset: usize) {
     // for (i, item) in list.iter().enumerate().skip(offset) {}
 }
 
-fn node_signed_iconst(str: &mut Printer, node: &Node) {
+pub fn node_signed_iconst(str: &mut Printer, node: &Node) {
     str.word(format!("{}", int_val(node).unwrap()));
 }
 
 // See https://github.com/pganalyze/libpg_query/blob/15-latest/src/postgres_deparse.c#L3774.
-fn node_interval_typmods(str: &mut Printer, node: &TypeName) {
+pub fn node_interval_typmods(str: &mut Printer, node: &TypeName) {
     let interval_fields = node
         .typmods
         .first()
@@ -566,58 +257,23 @@ fn node_interval_typmods(str: &mut Printer, node: &TypeName) {
     }
 }
 
-pub fn node_expr(str: &mut Printer, node: Option<&Node>) {
+pub fn node_expr(str: &mut Printer, node: Option<&Node>) -> fmt::Option {
     let Some(node) = node else {
-        return;
+        return None;
     };
 
     match node.node.as_ref().unwrap() {
-        NodeEnum::AConst(node) => node_a_const(str, node),
-        NodeEnum::AExpr(node) => node_a_expr(str, node, DeparseNodeContext::None),
-        NodeEnum::ColumnRef(node) => node_column_ref(str, node),
+        NodeEnum::AConst(node) => node.print(str),
+        NodeEnum::AExpr(node) => node.print(str),
+        NodeEnum::ColumnRef(node) => node.print(str),
         node => todo!("{:?}", node),
-    }
+    };
+
+    Some(())
 }
 
-fn node_create_generic_options(_str: &mut Printer, _list: &[Node]) {
+pub fn node_create_generic_options(_str: &mut Printer, _list: &[Node]) {
     todo!()
-}
-
-fn node_constraint(str: &mut Printer, node: &Constraint) {
-    if !node.conname.is_empty() {
-        str.keyword("constraint ");
-        str.ident(node.conname.clone());
-        str.nbsp();
-    }
-
-    match node.contype() {
-        ConstrType::ConstrDefault => {
-            str.keyword("default ");
-            node_expr(str, node.raw_expr.as_deref());
-        }
-        ConstrType::ConstrPrimary => str.keyword("primary key"),
-        ConstrType::ConstrUnique => str.keyword("unique"),
-        _ => todo!("{:?}", node.contype()),
-    }
-
-    if !node.keys.is_empty() {
-        str.nbsp();
-        str.word("(");
-        node_column_list(str, &node.keys);
-        str.word(")");
-    }
-
-    match node.contype() {
-        ConstrType::ConstrPrimary | ConstrType::ConstrUnique | ConstrType::ConstrExclusion => {
-            node_opt_with(str, &node.options)
-        }
-        _ => {}
-    }
-
-    if !node.indexspace.is_empty() {
-        str.keyword("using index tablespace ");
-        str.ident(node.indexspace.clone());
-    }
 }
 
 pub fn node_column_list(str: &mut Printer, list: &[Node]) {
@@ -671,18 +327,14 @@ fn node_def_arg(str: &mut Printer, node: &Node, _is_operator_def_arg: bool) {
     }
 }
 
-fn node_collate_clause(_str: &mut Printer, _node: &CollateClause) {
-    todo!()
-}
-
 fn node_table_element(str: &mut Printer, node: &Node) {
     match node.node.as_ref().unwrap() {
-        NodeEnum::ColumnDef(node) => node_column_def(str, node),
-        NodeEnum::Constraint(node) => node_constraint(str, node),
+        NodeEnum::ColumnDef(node) => node.print(str),
+        NodeEnum::Constraint(node) => node.print(str),
         NodeEnum::IndexElem(_) => todo!(),
         NodeEnum::DefElem(_) => todo!(),
         _ => unreachable!(),
-    }
+    };
 }
 
 pub fn node_any_name(str: &mut Printer, list: &[Node]) -> fmt::Option {
@@ -694,28 +346,4 @@ pub fn node_any_name(str: &mut Printer, list: &[Node]) -> fmt::Option {
     }
 
     Some(())
-}
-
-fn str_val(node: &Node) -> Option<String> {
-    match node.node.as_ref().unwrap() {
-        NodeEnum::String(val) => Some(val.sval.clone()),
-        _ => None,
-    }
-}
-
-fn int_val(node: &Node) -> Option<i32> {
-    match node.node.as_ref().unwrap() {
-        NodeEnum::Integer(val) => Some(val.ival),
-        _ => None,
-    }
-}
-
-fn a_const_int_val(node: &Node) -> Option<i32> {
-    match node.node.as_ref().unwrap() {
-        NodeEnum::AConst(AConst {
-            val: Some(Val::Ival(val)),
-            ..
-        }) => Some(val.ival),
-        _ => None,
-    }
 }

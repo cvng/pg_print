@@ -2,6 +2,7 @@
 
 #![allow(dead_code)]
 
+use super::context::Context;
 use std::borrow::Cow;
 use std::cmp;
 use std::collections::VecDeque;
@@ -24,11 +25,6 @@ pub trait Print {
     fn print_with_context(&self, _p: &mut Printer, _ctx: &Context) -> Option {
         Some(())
     }
-}
-
-#[derive(Clone, Copy, Default)]
-pub struct Context {
-    pub is_foreign_table: bool, // serde_json?
 }
 
 #[derive(Clone, Copy, PartialEq)]
