@@ -1,0 +1,6 @@
+---
+source: tests/unparse_tests.rs
+description: "tests/sql/ddl/create_extension.sql:2"
+expression: prettified
+---
+CREATE EXTENSION Foobar VERSION 1 CASCADE
