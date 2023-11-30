@@ -1,5 +1,6 @@
 use crate::fmt;
 use crate::fmt::Print;
+use crate::rel_persistence::RelPersistence;
 use pg_query::protobuf::a_const::Val;
 use pg_query::protobuf::AConst;
 use pg_query::Node;
@@ -110,6 +111,10 @@ pub fn print_opt_with(p: &mut fmt::Printer, list: &[Node]) -> fmt::Result {
     }
 
     Ok(())
+}
+
+pub fn print_opt_temp(p: &mut fmt::Printer, relpersistence: String) -> fmt::Result {
+    RelPersistence::from(relpersistence).print(p)
 }
 
 pub fn print_any_name(p: &mut fmt::Printer, list: &[Node]) -> fmt::Result {

@@ -1,5 +1,5 @@
 use crate::fmt;
-use crate::rel_persistence::RelPersistence;
+use crate::utils::print_opt_temp;
 use pg_query::protobuf::CreateTableAsStmt;
 use pg_query::protobuf::IntoClause;
 
@@ -7,7 +7,8 @@ impl fmt::Print for CreateTableAsStmt {
     fn print(&self, p: &mut fmt::Printer) -> fmt::Result {
         p.keyword("create ");
 
-        RelPersistence::from(
+        print_opt_temp(
+            p,
             self.into
                 .as_ref()
                 .unwrap()
@@ -16,8 +17,7 @@ impl fmt::Print for CreateTableAsStmt {
                 .unwrap()
                 .relpersistence
                 .clone(),
-        )
-        .print(p)?;
+        )?;
 
         self.objtype().print(p)?;
 
