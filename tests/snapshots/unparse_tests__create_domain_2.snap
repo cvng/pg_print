@@ -1,0 +1,6 @@
+---
+source: tests/unparse_tests.rs
+description: "tests/sql/ddl/create_domain.sql:2"
+expression: prettified
+---
+CREATE DOMAIN Foo AS int CONSTRAINT Non_Negative CHECK (value > 0)

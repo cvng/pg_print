@@ -1,0 +1,6 @@
+---
+source: tests/unparse_tests.rs
+description: "tests/sql/ddl/create_domain.sql:4"
+expression: prettified
+---
+CREATE DOMAIN foo AS varchar(10) COLLATE it_IT DEFAULT 'null'

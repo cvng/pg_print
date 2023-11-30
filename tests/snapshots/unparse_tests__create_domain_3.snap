@@ -1,0 +1,6 @@
+---
+source: tests/unparse_tests.rs
+description: "tests/sql/ddl/create_domain.sql:3"
+expression: prettified
+---
+CREATE DOMAIN foo AS varchar(10) NOT NULL, DEFAULT 'null'
