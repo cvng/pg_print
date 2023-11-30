@@ -20,8 +20,8 @@ impl fmt::Print for DefineStmt {
         }
 
         match self.kind() {
-            ObjectType::ObjectAggregate => todo!(),
-            ObjectType::ObjectOperator => todo!(),
+            ObjectType::ObjectAggregate => todo!("{:?}", self.kind()),
+            ObjectType::ObjectOperator => todo!("{:?}", self.kind()),
             ObjectType::ObjectType
             | ObjectType::ObjectTsparser
             | ObjectType::ObjectTsdictionary
@@ -33,7 +33,7 @@ impl fmt::Print for DefineStmt {
         p.space();
 
         if !self.oldstyle && matches!(self.kind(), ObjectType::ObjectAggregate) {
-            todo!();
+            todo!("{:?}", self.kind());
             // p.space();
         }
 
@@ -45,9 +45,9 @@ impl fmt::Print for DefineStmt {
             ))
         {
             p.keyword("from ");
-            todo!();
+            todo!("{:?}", self.kind());
         } else if !self.definition.is_empty() {
-            todo!()
+            todo!("{:?}", self.kind());
         }
 
         p.end();

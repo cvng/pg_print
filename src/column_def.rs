@@ -21,7 +21,7 @@ impl fmt::Print for ColumnDef {
 
         if !self.fdwoptions.is_empty() {
             p.nbsp();
-            print_create_generic_options(p, &self.fdwoptions);
+            print_create_generic_options(p, &self.fdwoptions)?;
         }
 
         for constraint in self.constraints.iter() {
@@ -37,6 +37,6 @@ impl fmt::Print for ColumnDef {
     }
 }
 
-pub fn print_create_generic_options(_p: &mut fmt::Printer, _list: &[Node]) {
-    todo!()
+pub fn print_create_generic_options(_p: &mut fmt::Printer, list: &[Node]) -> fmt::Result {
+    todo!("{:?}", list)
 }

@@ -11,7 +11,7 @@ impl fmt::Print for AExpr {
         let need_rexpr_parens = false;
 
         match self.kind() {
-            AExprKind::Undefined => todo!(),
+            AExprKind::Undefined => {}
             AExprKind::AexprOp => {
                 let need_outer_parens = matches!(ctx, fmt::Context::AExpr);
 
@@ -48,23 +48,23 @@ impl fmt::Print for AExpr {
                         p.word(")");
                     }
                 }
-
-                Ok(())
             }
-            AExprKind::AexprOpAny => todo!(),
-            AExprKind::AexprOpAll => todo!(),
-            AExprKind::AexprDistinct => todo!(),
-            AExprKind::AexprNotDistinct => todo!(),
-            AExprKind::AexprNullif => todo!(),
-            AExprKind::AexprIn => todo!(),
-            AExprKind::AexprLike => todo!(),
-            AExprKind::AexprIlike => todo!(),
-            AExprKind::AexprSimilar => todo!(),
-            AExprKind::AexprBetween => todo!(),
-            AExprKind::AexprNotBetween => todo!(),
-            AExprKind::AexprBetweenSym => todo!(),
-            AExprKind::AexprNotBetweenSym => todo!(),
+            AExprKind::AexprOpAny => todo!("{:?}", self.kind()),
+            AExprKind::AexprOpAll => todo!("{:?}", self.kind()),
+            AExprKind::AexprDistinct => todo!("{:?}", self.kind()),
+            AExprKind::AexprNotDistinct => todo!("{:?}", self.kind()),
+            AExprKind::AexprNullif => todo!("{:?}", self.kind()),
+            AExprKind::AexprIn => todo!("{:?}", self.kind()),
+            AExprKind::AexprLike => todo!("{:?}", self.kind()),
+            AExprKind::AexprIlike => todo!("{:?}", self.kind()),
+            AExprKind::AexprSimilar => todo!("{:?}", self.kind()),
+            AExprKind::AexprBetween => todo!("{:?}", self.kind()),
+            AExprKind::AexprNotBetween => todo!("{:?}", self.kind()),
+            AExprKind::AexprBetweenSym => todo!("{:?}", self.kind()),
+            AExprKind::AexprNotBetweenSym => todo!("{:?}", self.kind()),
         }
+
+        Ok(())
     }
 }
 

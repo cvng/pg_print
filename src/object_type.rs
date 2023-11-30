@@ -14,7 +14,7 @@ impl fmt::Print for ObjectType {
             ObjectType::ObjectCollation => p.keyword("collation "),
             ObjectType::ObjectTable => p.keyword("table "),
             ObjectType::ObjectMatview => p.keyword("materialized view "),
-            _ => unimplemented!("{:?}", self),
+            _ => todo!("{:?}", self),
         }
 
         Ok(())
