@@ -5,7 +5,7 @@ use pg_query::protobuf::ObjectType;
 use pg_query::NodeEnum;
 
 impl fmt::Print for DefineStmt {
-    fn print(&self, p: &mut fmt::Printer) -> fmt::Option {
+    fn print(&self, p: &mut fmt::Printer) -> fmt::Result {
         p.cbox(0);
         p.keyword("create ");
 
@@ -20,20 +20,20 @@ impl fmt::Print for DefineStmt {
         }
 
         match self.kind() {
-            ObjectType::ObjectAggregate => todo!(),
-            ObjectType::ObjectOperator => todo!(),
+            ObjectType::ObjectAggregate => todo!("{:?}", self.kind()),
+            ObjectType::ObjectOperator => todo!("{:?}", self.kind()),
             ObjectType::ObjectType
             | ObjectType::ObjectTsparser
             | ObjectType::ObjectTsdictionary
             | ObjectType::ObjectTstemplate
             | ObjectType::ObjectTsconfiguration
             | ObjectType::ObjectCollation => print_any_name(p, &self.defnames)?,
-            _ => unreachable!(),
+            _ => return Err(fmt::Error),
         }
         p.space();
 
         if !self.oldstyle && matches!(self.kind(), ObjectType::ObjectAggregate) {
-            todo!();
+            todo!("{:?}", self.kind());
             // p.space();
         }
 
@@ -45,13 +45,13 @@ impl fmt::Print for DefineStmt {
             ))
         {
             p.keyword("from ");
-            todo!();
+            todo!("{:?}", self.kind());
         } else if !self.definition.is_empty() {
-            todo!()
+            todo!("{:?}", self.kind());
         }
 
         p.end();
 
-        Some(())
+        Ok(())
     }
 }

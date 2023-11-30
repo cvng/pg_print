@@ -7,7 +7,7 @@ use pg_query::Node;
 use pg_query::NodeEnum;
 
 impl fmt::Print for CreateStmt {
-    fn print_in_context(&self, p: &mut fmt::Printer, ctx: &fmt::Context) -> fmt::Option {
+    fn print_in_context(&self, p: &mut fmt::Printer, ctx: &fmt::Context) -> fmt::Result {
         p.cbox(INDENT);
         p.keyword("create ");
 
@@ -16,7 +16,7 @@ impl fmt::Print for CreateStmt {
         }
 
         RelPersistence::try_from(self.relation.as_ref().unwrap().relpersistence.clone())
-            .ok()?
+            .unwrap()
             .print(p)?;
 
         p.keyword("table ");
@@ -25,8 +25,10 @@ impl fmt::Print for CreateStmt {
             p.keyword("if not exists ");
         }
 
-        self.relation.as_ref()?.print(p);
-        p.nbsp();
+        if let Some(relation) = &self.relation {
+            relation.print(p)?;
+            p.nbsp();
+        }
 
         if let Some(of_typename) = &self.of_typename {
             p.keyword("of ");
@@ -51,7 +53,7 @@ impl fmt::Print for CreateStmt {
             p.word("(");
             p.hardbreak_if_nonempty();
             for (i, elt) in self.table_elts.iter().enumerate() {
-                elt.print(p);
+                elt.print(p)?;
                 if i < self.table_elts.len() - 1 {
                     p.word(",");
                 }
@@ -71,7 +73,7 @@ impl fmt::Print for CreateStmt {
             print_opt_inherit(p, &self.inh_relations);
         }
 
-        print_opt_with(p, &self.options);
+        print_opt_with(p, &self.options)?;
 
         self.oncommit().print(p)?;
 
@@ -82,7 +84,7 @@ impl fmt::Print for CreateStmt {
 
         p.hardbreak();
 
-        Some(())
+        Ok(())
     }
 }
 

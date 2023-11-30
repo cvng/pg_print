@@ -5,7 +5,7 @@ use pg_query::protobuf::ConstrType;
 use pg_query::protobuf::Constraint;
 
 impl fmt::Print for Constraint {
-    fn print(&self, p: &mut fmt::Printer) -> fmt::Option {
+    fn print(&self, p: &mut fmt::Printer) -> fmt::Result {
         if !self.conname.is_empty() {
             p.keyword("constraint ");
             p.ident(self.conname.clone());
@@ -15,17 +15,23 @@ impl fmt::Print for Constraint {
         match self.contype() {
             ConstrType::ConstrDefault => {
                 p.keyword("default ");
-                self.raw_expr.as_deref()?.print(p)?;
+                if let Some(raw_expr) = &self.raw_expr {
+                    raw_expr.print(p)?;
+                }
             }
-            ConstrType::ConstrPrimary => p.keyword("primary key"),
-            ConstrType::ConstrUnique => p.keyword("unique"),
+            ConstrType::ConstrPrimary => {
+                p.keyword("primary key");
+            }
+            ConstrType::ConstrUnique => {
+                p.keyword("unique");
+            }
             _ => todo!("{:?}", self.contype()),
         }
 
         if !self.keys.is_empty() {
             p.nbsp();
             p.word("(");
-            print_column_list(p, &self.keys);
+            print_column_list(p, &self.keys)?;
             p.word(")");
         }
 
@@ -41,6 +47,6 @@ impl fmt::Print for Constraint {
             p.ident(self.indexspace.clone());
         }
 
-        Some(())
+        Ok(())
     }
 }

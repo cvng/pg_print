@@ -1,8 +1,10 @@
 #![allow(dead_code)]
 
-use std::option;
+use std::result;
 
-pub type Option = option::Option<()>;
+pub type Result = result::Result<(), Error>;
+
+pub struct Error;
 
 #[derive(Default)]
 pub enum Context {
@@ -28,12 +30,12 @@ pub enum Context {
 
 pub trait Print {
     #[inline]
-    fn print(&self, p: &mut super::Printer) -> Option {
+    fn print(&self, p: &mut super::Printer) -> Result {
         self.print_in_context(p, &Context::default())
     }
 
     #[inline]
-    fn print_in_context(&self, _p: &mut super::Printer, _ctx: &Context) -> Option {
-        Some(())
+    fn print_in_context(&self, _p: &mut super::Printer, _ctx: &Context) -> Result {
+        Ok(())
     }
 }

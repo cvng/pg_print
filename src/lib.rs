@@ -44,7 +44,9 @@ const INDENT: isize = 4;
 pub fn unparse(protobuf: &protobuf::ParseResult) -> Result<String> {
     let mut p = Printer::new();
 
-    protobuf.print(&mut p).ok_or(Error::Parse(String::new()))?;
+    protobuf
+        .print(&mut p)
+        .map_err(|_| Error::Parse(String::new()))?;
 
     Ok(p.eof())
 }

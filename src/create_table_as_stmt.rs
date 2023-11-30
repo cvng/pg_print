@@ -1,9 +1,10 @@
 use crate::fmt;
 use crate::rel_persistence::RelPersistence;
 use pg_query::protobuf::CreateTableAsStmt;
+use pg_query::protobuf::IntoClause;
 
 impl fmt::Print for CreateTableAsStmt {
-    fn print(&self, p: &mut fmt::Printer) -> fmt::Option {
+    fn print(&self, p: &mut fmt::Printer) -> fmt::Result {
         p.keyword("create ");
 
         RelPersistence::try_from(
@@ -16,7 +17,7 @@ impl fmt::Print for CreateTableAsStmt {
                 .relpersistence
                 .clone(),
         )
-        .ok()?
+        .unwrap()
         .print(p)?;
 
         self.objtype().print(p)?;
@@ -25,7 +26,7 @@ impl fmt::Print for CreateTableAsStmt {
             p.word("if not exists ");
         }
 
-        self.into.as_ref()?.print(p)?;
+        self.into.as_ref().unwrap().print(p)?;
         p.word(" ");
 
         p.keyword("as ");
@@ -34,10 +35,13 @@ impl fmt::Print for CreateTableAsStmt {
 
         p.word(" ");
 
-        if self.into.is_some() && self.into.as_ref().unwrap().skip_data {
+        if let Some(IntoClause {
+            skip_data: true, ..
+        }) = self.into.as_deref()
+        {
             p.word("with no data ");
         }
 
-        Some(())
+        Ok(())
     }
 }
