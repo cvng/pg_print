@@ -1,0 +1,6 @@
+---
+source: tests/unparse_tests.rs
+description: "tests/sql/ddl/create_trigger.sql:2"
+expression: prettified
+---
+CREATE TRIGGER trig2 INSTEAD OF UPDATE ON table1 FOR EACH ROW EXECUTE FUNCTION trigfunc('param')

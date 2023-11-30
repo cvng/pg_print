@@ -178,3 +178,15 @@ pub fn print_non_reserved_word_or_scont(p: &mut fmt::Printer, val: String) -> fm
 
     Ok(())
 }
+
+pub fn print_func_name(p: &mut fmt::Printer, list: &[Node]) -> fmt::Result {
+    for (i, part) in list.iter().enumerate() {
+        if i > 0 {
+            p.word(".");
+        }
+
+        p.ident(str_val(part).unwrap());
+    }
+
+    Ok(())
+}

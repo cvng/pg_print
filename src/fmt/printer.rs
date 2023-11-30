@@ -407,6 +407,12 @@ impl Printer {
         self.word(wrd.into().to_ascii_uppercase());
     }
 
+    pub fn keyword_if<S: Into<Cow<'static, str>>>(&mut self, wrd: S, cnd: bool) {
+        if cnd {
+            self.keyword(wrd);
+        }
+    }
+
     pub fn ident<S: Into<Cow<'static, str>>>(&mut self, wrd: S) {
         self.word(wrd);
     }

@@ -1,0 +1,6 @@
+---
+source: tests/unparse_tests.rs
+description: "tests/sql/ddl/create_trigger.sql:3"
+expression: prettified
+---
+CREATE TRIGGER trg_celery_periodic_tasks_950_after_update AFTER UPDATE ON periodic_tasks FOR EACH ROW WHEN ((old IS DISTINCT FROM new) OR (old IS DISTINCT FROM new) OR (old IS DISTINCT FROM new) OR (old IS DISTINCT FROM new) OR (old IS DISTINCT FROM new) OR (old IS DISTINCT FROM new) OR (old IS DISTINCT FROM new) OR (old IS DISTINCT FROM new) OR (old IS DISTINCT FROM new) OR (old IS DISTINCT FROM new)) EXECUTE FUNCTION celery.notify_periodic_tasks_changed()

@@ -1,0 +1,6 @@
+---
+source: tests/unparse_tests.rs
+description: "tests/sql/ddl/create_trigger.sql:5"
+expression: prettified
+---
+CREATE TRIGGER trig2 AFTER DELETE OR TRUNCATE ON table2 EXECUTE FUNCTION schema2.func2()
