@@ -3,6 +3,9 @@ use crate::fmt::Print;
 use crate::rel_persistence::RelPersistence;
 use pg_query::protobuf::a_const::Val;
 use pg_query::protobuf::AConst;
+use pg_query::protobuf::DropBehavior;
+use pg_query::protobuf::GrantTargetType;
+use pg_query::protobuf::ObjectType;
 use pg_query::Node;
 use pg_query::NodeEnum;
 
@@ -186,6 +189,74 @@ pub fn print_func_name(p: &mut fmt::Printer, list: &[Node]) -> fmt::Result {
         }
 
         p.ident(str_val(part).unwrap());
+    }
+
+    Ok(())
+}
+
+pub fn privilege_target(
+    p: &mut fmt::Printer,
+    targtype: &GrantTargetType,
+    objtype: &ObjectType,
+    objs: &[Node],
+) -> fmt::Result {
+    match targtype {
+        GrantTargetType::AclTargetObject => match objtype {
+            ObjectType::ObjectTable => objs.print(p)?,
+            ObjectType::ObjectSequence => todo!(),
+            ObjectType::ObjectFdw => todo!(),
+            ObjectType::ObjectForeignServer => todo!(),
+            ObjectType::ObjectFunction => todo!(),
+            ObjectType::ObjectProcedure => todo!(),
+            ObjectType::ObjectRoutine => todo!(),
+            ObjectType::ObjectDatabase => todo!(),
+            ObjectType::ObjectDomain => todo!(),
+            ObjectType::ObjectLanguage => todo!(),
+            ObjectType::ObjectLargeobject => todo!(),
+            ObjectType::ObjectSchema => {
+                p.keyword("schema ");
+                name_list(p, objs)?;
+            }
+            ObjectType::ObjectTablespace => todo!(),
+            ObjectType::ObjectType => todo!(),
+            _ => {}
+        },
+        GrantTargetType::AclTargetAllInSchema => match objtype {
+            ObjectType::ObjectTable => todo!(),
+            ObjectType::ObjectSequence => todo!(),
+            ObjectType::ObjectFunction => todo!(),
+            ObjectType::ObjectProcedure => todo!(),
+            ObjectType::ObjectRoutine => todo!(),
+            _ => {}
+        },
+        GrantTargetType::AclTargetDefaults => match objtype {
+            ObjectType::ObjectTable => todo!(),
+            ObjectType::ObjectFunction => todo!(),
+            ObjectType::ObjectSequence => todo!(),
+            ObjectType::ObjectType => todo!(),
+            ObjectType::ObjectSchema => todo!(),
+            _ => {}
+        },
+        _ => {}
+    }
+
+    Ok(())
+}
+
+pub fn opt_drop_behavior(p: &mut fmt::Printer, node: DropBehavior) -> fmt::Result {
+    match node {
+        DropBehavior::DropRestrict => {}
+        DropBehavior::DropCascade => p.keyword("cascade "),
+        _ => {}
+    };
+
+    Ok(())
+}
+
+pub fn name_list(p: &mut fmt::Printer, list: &[Node]) -> fmt::Result {
+    for (i, name) in list.iter().enumerate() {
+        p.ident(str_val(name).unwrap());
+        p.comma(i >= list.len() - 1);
     }
 
     Ok(())
