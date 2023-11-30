@@ -28,6 +28,29 @@ pub enum IntervalFields {
     FullRange,
 }
 
+impl From<i32> for IntervalFields {
+    // See https://github.com/pganalyze/libpg_query/blob/15-latest/src/postgres_deparse.c#L3774.
+    fn from(value: i32) -> Self {
+        match value {
+            x if x == 1 << YEAR => Self::Year,
+            x if x == 1 << MONTH => Self::Month,
+            x if x == 1 << DAY => Self::Day,
+            x if x == 1 << HOUR => Self::Hour,
+            x if x == 1 << MINUTE => Self::Minute,
+            x if x == 1 << SECOND => Self::Second,
+            x if x == 1 << YEAR | 1 << MONTH => Self::YearToMonth,
+            x if x == 1 << DAY | 1 << HOUR => Self::DayToHour,
+            x if x == 1 << DAY | 1 << HOUR | 1 << MINUTE => Self::DayToMinute,
+            x if x == 1 << DAY | 1 << HOUR | 1 << MINUTE | 1 << SECOND => Self::DayToSecond,
+            x if x == 1 << HOUR | 1 << MINUTE => Self::HourToMinute,
+            x if x == 1 << HOUR | 1 << MINUTE | 1 << SECOND => Self::HourToSecond,
+            x if x == 1 << MINUTE | 1 << SECOND => Self::MinuteToSecond,
+            INTERVAL_FULL_RANGE => Self::FullRange,
+            _ => Self::Undefined,
+        }
+    }
+}
+
 impl fmt::Print for IntervalFields {
     fn print(&self, p: &mut fmt::Printer) -> fmt::Result {
         match self {
@@ -49,30 +72,5 @@ impl fmt::Print for IntervalFields {
         }
 
         Ok(())
-    }
-}
-
-impl TryFrom<i32> for IntervalFields {
-    type Error = ();
-
-    // See https://github.com/pganalyze/libpg_query/blob/15-latest/src/postgres_deparse.c#L3774.
-    fn try_from(value: i32) -> Result<Self, Self::Error> {
-        match value {
-            x if x == 1 << YEAR => Ok(Self::Year),
-            x if x == 1 << MONTH => Ok(Self::Month),
-            x if x == 1 << DAY => Ok(Self::Day),
-            x if x == 1 << HOUR => Ok(Self::Hour),
-            x if x == 1 << MINUTE => Ok(Self::Minute),
-            x if x == 1 << SECOND => Ok(Self::Second),
-            x if x == 1 << YEAR | 1 << MONTH => Ok(Self::YearToMonth),
-            x if x == 1 << DAY | 1 << HOUR => Ok(Self::DayToHour),
-            x if x == 1 << DAY | 1 << HOUR | 1 << MINUTE => Ok(Self::DayToMinute),
-            x if x == 1 << DAY | 1 << HOUR | 1 << MINUTE | 1 << SECOND => Ok(Self::DayToSecond),
-            x if x == 1 << HOUR | 1 << MINUTE => Ok(Self::HourToMinute),
-            x if x == 1 << HOUR | 1 << MINUTE | 1 << SECOND => Ok(Self::HourToSecond),
-            x if x == 1 << MINUTE | 1 << SECOND => Ok(Self::MinuteToSecond),
-            INTERVAL_FULL_RANGE => Ok(Self::FullRange),
-            _ => Ok(Self::Undefined),
-        }
     }
 }

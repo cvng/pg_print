@@ -16,26 +16,24 @@ pub enum Name {
     Interval,
 }
 
-impl TryFrom<String> for Name {
-    type Error = ();
-
-    fn try_from(value: String) -> Result<Self, Self::Error> {
+impl From<String> for Name {
+    fn from(value: String) -> Self {
         match value.as_ref() {
-            "bpchar" => Ok(Self::Bpchar),
-            "varchar" => Ok(Self::Varchar),
-            "numeric" => Ok(Self::Numeric),
-            "bool" => Ok(Self::Bool),
-            "int2" => Ok(Self::Int2),
-            "int4" => Ok(Self::Int4),
-            "int8" => Ok(Self::Int8),
-            "real" | "float4" => Ok(Self::Real),
-            "float8" => Ok(Self::Float8),
-            "time" => Ok(Self::Time),
-            "timetz" => Ok(Self::Timetz),
-            "timestamp" => Ok(Self::Timestamp),
-            "timestamptz" => Ok(Self::Timestamptz),
-            "interval" => Ok(Self::Interval),
-            _ => Ok(Self::Undefined),
+            "bpchar" => Self::Bpchar,
+            "varchar" => Self::Varchar,
+            "numeric" => Self::Numeric,
+            "bool" => Self::Bool,
+            "int2" => Self::Int2,
+            "int4" => Self::Int4,
+            "int8" => Self::Int8,
+            "real" | "float4" => Self::Real,
+            "float8" => Self::Float8,
+            "time" => Self::Time,
+            "timetz" => Self::Timetz,
+            "timestamp" => Self::Timestamp,
+            "timestamptz" => Self::Timestamptz,
+            "interval" => Self::Interval,
+            _ => Self::Undefined,
         }
     }
 }

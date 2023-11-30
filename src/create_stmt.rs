@@ -1,5 +1,5 @@
 use crate::fmt;
-use crate::rel_persistence::RelPersistence;
+use crate::utils::print_opt_temp;
 use crate::utils::print_opt_with;
 use crate::INDENT;
 use pg_query::protobuf::CreateStmt;
@@ -11,13 +11,11 @@ impl fmt::Print for CreateStmt {
         p.cbox(INDENT);
         p.keyword("create ");
 
-        if matches!(ctx, fmt::Context::ForeignTable) {
+        if matches!(ctx, fmt::Context::ForeignRelation) {
             p.keyword("foreign ");
         }
 
-        RelPersistence::try_from(self.relation.as_ref().unwrap().relpersistence.clone())
-            .unwrap()
-            .print(p)?;
+        print_opt_temp(p, self.relation.as_ref().unwrap().relpersistence.clone())?;
 
         p.keyword("table ");
 
@@ -70,7 +68,7 @@ impl fmt::Print for CreateStmt {
             partbound.print(p)?;
             p.word(" ");
         } else {
-            print_opt_inherit(p, &self.inh_relations);
+            print_opt_inherit(p, &self.inh_relations)?;
         }
 
         print_opt_with(p, &self.options)?;
@@ -88,8 +86,10 @@ impl fmt::Print for CreateStmt {
     }
 }
 
-fn print_opt_inherit(_p: &mut fmt::Printer, list: &[Node]) {
+fn print_opt_inherit(_p: &mut fmt::Printer, list: &[Node]) -> fmt::Result {
     if !list.is_empty() {
         todo!("{:?}", list)
     }
+
+    Ok(())
 }

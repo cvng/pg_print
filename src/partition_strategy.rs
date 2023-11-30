@@ -9,15 +9,13 @@ pub enum PartitionStrategy {
     Range,
 }
 
-impl TryFrom<String> for PartitionStrategy {
-    type Error = ();
-
-    fn try_from(value: String) -> Result<Self, Self::Error> {
+impl From<String> for PartitionStrategy {
+    fn from(value: String) -> Self {
         match value.chars().next().unwrap() {
-            PARTITION_STRATEGY_HASH => Ok(Self::Hash),
-            PARTITION_STRATEGY_LIST => Ok(Self::List),
-            PARTITION_STRATEGY_RANGE => Ok(Self::Range),
-            _ => Ok(Self::Undefined),
+            PARTITION_STRATEGY_HASH => Self::Hash,
+            PARTITION_STRATEGY_LIST => Self::List,
+            PARTITION_STRATEGY_RANGE => Self::Range,
+            _ => Self::Undefined,
         }
     }
 }

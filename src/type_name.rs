@@ -23,7 +23,7 @@ impl fmt::Print for TypeName {
         if self.names.len() == 2 && str_val(self.names.first().unwrap()).unwrap() == "pg_catalog" {
             let name = str_val(self.names.last().unwrap()).unwrap();
 
-            match name.clone().try_into().unwrap() {
+            match name.clone().into() {
                 Name::Bpchar => p.word("char"),
                 Name::Varchar => p.word("varchar"),
                 Name::Numeric => p.word("numeric"),
@@ -106,9 +106,7 @@ fn print_interval_typmods(p: &mut fmt::Printer, node: &TypeName) -> fmt::Result 
         .unwrap()
         .unwrap();
 
-    IntervalFields::try_from(interval_fields)
-        .unwrap()
-        .print(p)?;
+    IntervalFields::from(interval_fields).print(p)?;
 
     if node.typmods.len() == 2 {
         let precision = node
