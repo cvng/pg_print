@@ -1,0 +1,6 @@
+---
+source: tests/unparse_tests.rs
+description: "tests/sql/ddl/grant.sql:2"
+expression: prettified
+---
+GRANT update (field1) ON tab1 TO role1

@@ -5,7 +5,7 @@ use insta::with_settings;
 use pg_deparser::unparse;
 use pg_query::parse;
 
-const PASSES: [&str; 7] = [
+const PASSES: [&str; 8] = [
     // "tests/sql/ddl/alter_default_privileges.sql",
     // "tests/sql/ddl/alter_subscription.sql",
     // "tests/sql/ddl/alter_table.sql",
@@ -29,7 +29,7 @@ const PASSES: [&str; 7] = [
     "tests/sql/ddl/create_trigger.sql",
     "tests/sql/ddl/create_type.sql",
     "tests/sql/ddl/create_view.sql",
-    // "tests/sql/ddl/grant.sql",
+    "tests/sql/ddl/grant.sql",
     // "tests/sql/ddl/issue110.sql",
     // "tests/sql/ddl/notify.sql",
     // "tests/sql/ddl/show.sql",

@@ -1,0 +1,6 @@
+---
+source: tests/unparse_tests.rs
+description: "tests/sql/ddl/grant.sql:1"
+expression: prettified
+---
+GRANT ALL ON SCHEMA foo TO role1, role2 WITH GRANT OPTION

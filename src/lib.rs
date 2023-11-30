@@ -1,6 +1,7 @@
 mod a_const;
 mod a_expr;
 mod a_star;
+mod access_priv;
 mod bool_expr;
 mod collate_clause;
 mod column_def;
@@ -16,6 +17,7 @@ mod def_elem;
 mod define_stmt;
 mod execute_stmt;
 mod fmt;
+mod grant_stmt;
 mod index_elem;
 mod index_stmt;
 mod integer;
