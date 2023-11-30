@@ -1,5 +1,4 @@
 use crate::fmt;
-use crate::utils::print_expr_list;
 use pg_query::protobuf::ExecuteStmt;
 
 impl fmt::Print for ExecuteStmt {
@@ -9,7 +8,7 @@ impl fmt::Print for ExecuteStmt {
 
         if !self.params.is_empty() {
             p.word("(");
-            print_expr_list(p, &self.params)?;
+            self.params.print(p)?;
             p.word(")");
         }
 

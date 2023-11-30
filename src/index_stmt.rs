@@ -1,5 +1,4 @@
 use crate::fmt;
-use crate::utils::print_expr_list;
 use crate::utils::print_opt_with;
 use crate::utils::print_where_clause;
 use pg_query::protobuf::IndexStmt;
@@ -36,12 +35,12 @@ impl fmt::Print for IndexStmt {
         }
 
         p.word("(");
-        print_expr_list(p, &self.index_params)?;
+        self.index_params.print(p)?;
         p.word(")");
 
         if !self.index_including_params.is_empty() {
             p.keyword(" include (");
-            print_expr_list(p, &self.index_including_params)?;
+            self.index_including_params.print(p)?;
             p.word(") ");
         }
 
