@@ -6,7 +6,7 @@ use pg_query::protobuf::AExprKind;
 use pg_query::Node;
 
 impl fmt::Print for AExpr {
-    fn print_in_context(&self, p: &mut fmt::Printer, ctx: &fmt::Context) -> fmt::Option {
+    fn print_in_context(&self, p: &mut fmt::Printer, ctx: &fmt::Context) -> fmt::Result {
         let need_lexpr_parens = false;
         let need_rexpr_parens = false;
 
@@ -19,12 +19,12 @@ impl fmt::Print for AExpr {
                     p.word("(");
                 }
 
-                if self.lexpr.is_some() {
+                if let Some(lexpr) = &self.lexpr {
                     if need_lexpr_parens {
                         p.word("(");
                     }
 
-                    self.lexpr.as_deref()?.print(p)?;
+                    lexpr.print(p)?;
 
                     if need_lexpr_parens {
                         p.word(")");
@@ -33,23 +33,23 @@ impl fmt::Print for AExpr {
                     p.nbsp();
                 }
 
-                print_qual_op(p, &self.name);
+                print_qual_op(p, &self.name)?;
 
-                if self.rexpr.is_some() {
+                if let Some(rexpr) = &self.rexpr {
                     p.nbsp();
 
                     if need_rexpr_parens {
                         p.word("(");
                     }
 
-                    self.rexpr.as_deref()?.print(p)?;
+                    rexpr.print(p)?;
 
                     if need_rexpr_parens {
                         p.word(")");
                     }
                 }
 
-                Some(())
+                Ok(())
             }
             AExprKind::AexprOpAny => todo!(),
             AExprKind::AexprOpAll => todo!(),
@@ -68,24 +68,30 @@ impl fmt::Print for AExpr {
     }
 }
 
-fn print_qual_op(p: &mut fmt::Printer, list: &[Node]) {
+fn print_qual_op(p: &mut fmt::Printer, list: &[Node]) -> fmt::Result {
     if list.len() == 1 && is_op(str_val(list.first().unwrap())) {
         p.word(str_val(list.first().unwrap()).unwrap());
     } else {
         p.word("operator(");
-        print_any_operator(p, list);
+        print_any_operator(p, list)?;
         p.word(")");
     }
+
+    Ok(())
 }
 
-fn print_any_operator(p: &mut fmt::Printer, list: &[Node]) {
+fn print_any_operator(p: &mut fmt::Printer, list: &[Node]) -> fmt::Result {
     match list.len() {
         2 => {
             p.ident(str_val(list.first().unwrap()).unwrap());
             p.word(".");
             p.word(str_val(list.last().unwrap()).unwrap());
+            Ok(())
         }
-        1 => p.ident(str_val(list.last().unwrap()).unwrap()),
+        1 => {
+            p.ident(str_val(list.last().unwrap()).unwrap());
+            Ok(())
+        }
         _ => unreachable!(),
     }
 }

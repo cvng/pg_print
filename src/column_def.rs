@@ -3,7 +3,7 @@ use pg_query::protobuf::ColumnDef;
 use pg_query::Node;
 
 impl fmt::Print for ColumnDef {
-    fn print(&self, p: &mut fmt::Printer) -> fmt::Option {
+    fn print(&self, p: &mut fmt::Printer) -> fmt::Result {
         if !self.colname.is_empty() {
             p.ident(self.colname.clone());
         }
@@ -13,10 +13,10 @@ impl fmt::Print for ColumnDef {
             type_name.print(p)?;
         }
 
-        if self.raw_default.is_some() {
+        if let Some(raw_default) = &self.raw_default {
             p.nbsp();
             p.word("using ");
-            self.raw_default.as_deref()?.print(p)?;
+            raw_default.print(p)?;
         }
 
         if !self.fdwoptions.is_empty() {
@@ -29,11 +29,11 @@ impl fmt::Print for ColumnDef {
             constraint.print(p)?;
         }
 
-        if self.coll_clause.is_some() {
-            self.coll_clause.as_ref()?.print(p)?;
+        if let Some(coll_clause) = &self.coll_clause {
+            coll_clause.print(p)?;
         }
 
-        Some(())
+        Ok(())
     }
 }
 

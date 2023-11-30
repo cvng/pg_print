@@ -2,7 +2,7 @@ use crate::fmt;
 use pg_query::protobuf::WithClause;
 
 impl fmt::Print for WithClause {
-    fn print(&self, p: &mut fmt::Printer) -> fmt::Option {
+    fn print(&self, p: &mut fmt::Printer) -> fmt::Result {
         p.word("with ");
 
         if self.recursive {

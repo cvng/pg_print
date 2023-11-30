@@ -5,7 +5,7 @@ use pg_query::protobuf::ObjectType;
 use pg_query::NodeEnum;
 
 impl fmt::Print for DefineStmt {
-    fn print(&self, p: &mut fmt::Printer) -> fmt::Option {
+    fn print(&self, p: &mut fmt::Printer) -> fmt::Result {
         p.cbox(0);
         p.keyword("create ");
 
@@ -52,6 +52,6 @@ impl fmt::Print for DefineStmt {
 
         p.end();
 
-        Some(())
+        Ok(())
     }
 }

@@ -4,12 +4,14 @@ use crate::utils::print_opt_with;
 use pg_query::protobuf::IntoClause;
 
 impl fmt::Print for IntoClause {
-    fn print(&self, p: &mut fmt::Printer) -> fmt::Option {
-        self.rel.as_ref()?.print(p)?;
+    fn print(&self, p: &mut fmt::Printer) -> fmt::Result {
+        if let Some(rel) = &self.rel {
+            rel.print(p)?;
+        }
 
         if !self.col_names.is_empty() {
             p.word(" (");
-            print_column_list(p, &self.col_names);
+            print_column_list(p, &self.col_names)?;
             p.word(")");
         }
 
@@ -19,7 +21,7 @@ impl fmt::Print for IntoClause {
             p.word(" ");
         }
 
-        print_opt_with(p, &self.options);
+        print_opt_with(p, &self.options)?;
 
         self.on_commit().print(p)?;
 
@@ -29,6 +31,6 @@ impl fmt::Print for IntoClause {
             p.word(" ");
         }
 
-        Some(())
+        Ok(())
     }
 }

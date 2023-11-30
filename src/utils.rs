@@ -8,7 +8,7 @@ use pg_query::NodeEnum;
 const ESCAPE_STRING_SYNTAX: char = 'E';
 
 // See https://github.com/pganalyze/libpg_query/blob/15-latest/src/postgres_deparse.c#L53.
-pub fn deparse_string_literal(p: &mut fmt::Printer, val: &str) {
+pub fn deparse_string_literal(p: &mut fmt::Printer, val: &str) -> fmt::Result {
     if val.contains('\\') {
         p.word(ESCAPE_STRING_SYNTAX.to_string());
     }
@@ -24,6 +24,8 @@ pub fn deparse_string_literal(p: &mut fmt::Printer, val: &str) {
     }
 
     p.word('\''.to_string());
+
+    Ok(())
 }
 
 pub fn is_op(val: Option<String>) -> bool {
@@ -72,16 +74,16 @@ pub fn a_const_int_val(node: &Node) -> Option<i32> {
     }
 }
 
-pub fn print_expr_list(p: &mut fmt::Printer, list: &[Node]) -> fmt::Option {
+pub fn print_expr_list(p: &mut fmt::Printer, list: &[Node]) -> fmt::Result {
     for (i, expr) in list.iter().enumerate() {
-        expr.print(p);
+        expr.print(p)?;
         p.comma(i >= list.len() - 1);
     }
 
-    Some(())
+    Ok(())
 }
 
-pub fn print_column_list(p: &mut fmt::Printer, list: &[Node]) -> fmt::Option {
+pub fn print_column_list(p: &mut fmt::Printer, list: &[Node]) -> fmt::Result {
     for (i, col) in list.iter().enumerate() {
         p.ident(str_val(col).unwrap());
 
@@ -90,16 +92,16 @@ pub fn print_column_list(p: &mut fmt::Printer, list: &[Node]) -> fmt::Option {
         }
     }
 
-    Some(())
+    Ok(())
 }
 
-pub fn print_opt_with(p: &mut fmt::Printer, list: &[Node]) -> fmt::Option {
+pub fn print_opt_with(p: &mut fmt::Printer, list: &[Node]) -> fmt::Result {
     if !list.is_empty() {
         p.keyword(" with ");
         p.word("(");
 
         for (i, option) in list.iter().enumerate() {
-            option.print(p);
+            option.print(p)?;
             p.comma(i >= list.len() - 1);
         }
 
@@ -107,10 +109,10 @@ pub fn print_opt_with(p: &mut fmt::Printer, list: &[Node]) -> fmt::Option {
         p.nbsp();
     }
 
-    Some(())
+    Ok(())
 }
 
-pub fn print_any_name(p: &mut fmt::Printer, list: &[Node]) -> fmt::Option {
+pub fn print_any_name(p: &mut fmt::Printer, list: &[Node]) -> fmt::Result {
     for (i, part) in list.iter().enumerate() {
         if i > 0 {
             p.word(".");
@@ -119,5 +121,5 @@ pub fn print_any_name(p: &mut fmt::Printer, list: &[Node]) -> fmt::Option {
         p.ident(str_val(part).unwrap());
     }
 
-    Some(())
+    Ok(())
 }

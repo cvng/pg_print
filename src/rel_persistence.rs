@@ -11,14 +11,12 @@ pub enum RelPersistence {
 }
 
 impl fmt::Print for RelPersistence {
-    fn print(&self, p: &mut fmt::Printer) -> fmt::Option {
+    fn print(&self, p: &mut fmt::Printer) -> fmt::Result {
         match self {
-            Self::Temp => p.keyword("temporary "),
-            Self::Unlogged => p.keyword("unlogged "),
-            Self::Permanent => {}
+            Self::Temp => Ok(p.keyword("temporary ")),
+            Self::Unlogged => Ok(p.keyword("unlogged ")),
+            Self::Permanent => Ok(()),
         }
-
-        Some(())
     }
 }
 

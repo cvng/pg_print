@@ -4,7 +4,7 @@ use pg_query::Node;
 use pg_query::NodeEnum;
 
 impl fmt::Print for ColumnRef {
-    fn print(&self, p: &mut fmt::Printer) -> fmt::Option {
+    fn print(&self, p: &mut fmt::Printer) -> fmt::Result {
         if let NodeEnum::AStar(node) = self.fields.first().unwrap().node.as_ref().unwrap() {
             node.print(p)?;
         } else if let NodeEnum::String(node) = self.fields.first().unwrap().node.as_ref().unwrap() {
@@ -13,7 +13,7 @@ impl fmt::Print for ColumnRef {
 
         print_opt_indirection(p, &self.fields, 1);
 
-        Some(())
+        Ok(())
     }
 }
 

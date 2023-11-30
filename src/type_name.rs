@@ -13,7 +13,7 @@ use pg_query::Node;
 use pg_query::NodeEnum;
 
 impl fmt::Print for TypeName {
-    fn print(&self, p: &mut fmt::Printer) -> fmt::Option {
+    fn print(&self, p: &mut fmt::Printer) -> fmt::Result {
         let mut skip_typmods = false;
 
         if self.setof {
@@ -35,7 +35,9 @@ impl fmt::Print for TypeName {
                 Some(Name::Float8) => p.word("double precision"),
                 Some(Name::Time) => p.word("time"),
                 Some(Name::Timetz) => {
+                    skip_typmods = true;
                     p.word("time ");
+
                     if !self.typmods.is_empty() {
                         p.word("(");
                         for (i, typmod) in self.typmods.iter().enumerate() {
@@ -44,12 +46,14 @@ impl fmt::Print for TypeName {
                         }
                         p.word(") ");
                     }
-                    p.word("with time zone");
-                    skip_typmods = true;
+
+                    p.word("with time zone")
                 }
                 Some(Name::Timestamp) => p.word("timestamp"),
                 Some(Name::Timestamptz) => {
+                    skip_typmods = true;
                     p.word("timestamp ");
+
                     if !self.typmods.is_empty() {
                         p.word("(");
                         for (i, typmod) in self.typmods.iter().enumerate() {
@@ -58,40 +62,39 @@ impl fmt::Print for TypeName {
                         }
                         p.word(") ");
                     }
-                    p.word("with time zone");
-                    skip_typmods = true;
+                    p.word("with time zone")
                 }
                 Some(Name::Interval) => {
                     p.word("interval");
 
                     if !self.typmods.is_empty() {
-                        print_interval_typmods(p, self);
                         skip_typmods = true;
+                        print_interval_typmods(p, self)?;
                     }
                 }
                 None => {
                     p.word("pg_catalog.");
-                    p.word(name);
+                    p.word(name)
                 }
-            }
+            };
         } else {
-            print_any_name(p, &self.names);
+            print_any_name(p, &self.names)?;
         }
 
         if !self.typmods.is_empty() && !skip_typmods {
             p.word("(");
             for (i, typmod) in self.typmods.iter().enumerate() {
-                typmod.print(p);
+                typmod.print(p)?;
                 p.comma(i >= self.typmods.len() - 1);
             }
             p.word(")");
         }
 
-        Some(())
+        Ok(())
     }
 }
 
-fn print_interval_typmods(p: &mut fmt::Printer, node: &TypeName) {
+fn print_interval_typmods(p: &mut fmt::Printer, node: &TypeName) -> fmt::Result {
     let interval_fields = node
         .typmods
         .first()
@@ -103,7 +106,9 @@ fn print_interval_typmods(p: &mut fmt::Printer, node: &TypeName) {
         .unwrap()
         .unwrap();
 
-    IntervalFields::try_from(interval_fields).unwrap().print(p);
+    IntervalFields::try_from(interval_fields)
+        .unwrap()
+        .print(p)?;
 
     if node.typmods.len() == 2 {
         let precision = node
@@ -121,6 +126,8 @@ fn print_interval_typmods(p: &mut fmt::Printer, node: &TypeName) {
             p.word(format!(" ({})", precision));
         }
     }
+
+    Ok(())
 }
 
 fn print_signed_iconst(p: &mut fmt::Printer, node: &Node) {

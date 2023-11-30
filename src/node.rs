@@ -5,8 +5,8 @@ use pg_query::Node;
 use pg_query::NodeEnum;
 
 impl fmt::Print for Node {
-    fn print(&self, p: &mut fmt::Printer) -> fmt::Option {
-        match self.node.as_ref()? {
+    fn print(&self, p: &mut fmt::Printer) -> fmt::Result {
+        match self.node.as_ref().unwrap() {
             NodeEnum::Alias(_) => todo!(),
             NodeEnum::RangeVar(node) => node.print(p),
             NodeEnum::TableFunc(_) => todo!(),

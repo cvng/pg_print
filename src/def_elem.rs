@@ -2,7 +2,7 @@ use crate::fmt;
 use pg_query::protobuf::DefElem;
 
 impl fmt::Print for DefElem {
-    fn print(&self, p: &mut fmt::Printer) -> fmt::Option {
+    fn print(&self, p: &mut fmt::Printer) -> fmt::Result {
         if !self.defnamespace.is_empty() {
             p.ident(self.defnamespace.clone());
             p.word(".");
@@ -15,6 +15,6 @@ impl fmt::Print for DefElem {
             arg.print(p)?;
         }
 
-        Some(())
+        Ok(())
     }
 }

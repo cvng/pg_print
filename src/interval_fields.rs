@@ -28,25 +28,23 @@ pub enum IntervalFields {
 }
 
 impl fmt::Print for IntervalFields {
-    fn print(&self, p: &mut fmt::Printer) -> fmt::Option {
+    fn print(&self, p: &mut fmt::Printer) -> fmt::Result {
         match self {
-            IntervalFields::Year => p.word(" year"),
-            IntervalFields::Month => p.word(" month"),
-            IntervalFields::Day => p.word(" day"),
-            IntervalFields::Hour => p.word(" hour"),
-            IntervalFields::Minute => p.word(" minute"),
-            IntervalFields::Second => p.word(" second"),
-            IntervalFields::YearToMonth => p.word(" year to month"),
-            IntervalFields::DayToHour => p.word(" day to hour"),
-            IntervalFields::DayToMinute => p.word(" day to minute"),
-            IntervalFields::DayToSecond => p.word(" day to second"),
-            IntervalFields::HourToMinute => p.word(" hour to minute"),
-            IntervalFields::HourToSecond => p.word(" hour to second"),
-            IntervalFields::MinuteToSecond => p.word(" minute to second"),
-            IntervalFields::FullRange => {}
-        };
-
-        Some(())
+            IntervalFields::Year => Ok(p.word(" year")),
+            IntervalFields::Month => Ok(p.word(" month")),
+            IntervalFields::Day => Ok(p.word(" day")),
+            IntervalFields::Hour => Ok(p.word(" hour")),
+            IntervalFields::Minute => Ok(p.word(" minute")),
+            IntervalFields::Second => Ok(p.word(" second")),
+            IntervalFields::YearToMonth => Ok(p.word(" year to month")),
+            IntervalFields::DayToHour => Ok(p.word(" day to hour")),
+            IntervalFields::DayToMinute => Ok(p.word(" day to minute")),
+            IntervalFields::DayToSecond => Ok(p.word(" day to second")),
+            IntervalFields::HourToMinute => Ok(p.word(" hour to minute")),
+            IntervalFields::HourToSecond => Ok(p.word(" hour to second")),
+            IntervalFields::MinuteToSecond => Ok(p.word(" minute to second")),
+            IntervalFields::FullRange => Ok(()),
+        }
     }
 }
 
