@@ -1,4 +1,5 @@
 pub enum Name {
+    Undefined,
     Bpchar,
     Varchar,
     Numeric,
@@ -34,7 +35,7 @@ impl TryFrom<String> for Name {
             "timestamp" => Ok(Self::Timestamp),
             "timestamptz" => Ok(Self::Timestamptz),
             "interval" => Ok(Self::Interval),
-            _ => Err(()),
+            _ => Ok(Self::Undefined),
         }
     }
 }

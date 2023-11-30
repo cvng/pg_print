@@ -23,18 +23,18 @@ impl fmt::Print for TypeName {
         if self.names.len() == 2 && str_val(self.names.first().unwrap()).unwrap() == "pg_catalog" {
             let name = str_val(self.names.last().unwrap()).unwrap();
 
-            match name.clone().try_into().ok() {
-                Some(Name::Bpchar) => p.word("char"),
-                Some(Name::Varchar) => p.word("varchar"),
-                Some(Name::Numeric) => p.word("numeric"),
-                Some(Name::Bool) => p.word("boolean"),
-                Some(Name::Int2) => p.word("smallint"),
-                Some(Name::Int4) => p.word("int"),
-                Some(Name::Int8) => p.word("bigint"),
-                Some(Name::Real) => p.word("real"),
-                Some(Name::Float8) => p.word("double precision"),
-                Some(Name::Time) => p.word("time"),
-                Some(Name::Timetz) => {
+            match name.clone().try_into().unwrap() {
+                Name::Bpchar => p.word("char"),
+                Name::Varchar => p.word("varchar"),
+                Name::Numeric => p.word("numeric"),
+                Name::Bool => p.word("boolean"),
+                Name::Int2 => p.word("smallint"),
+                Name::Int4 => p.word("int"),
+                Name::Int8 => p.word("bigint"),
+                Name::Real => p.word("real"),
+                Name::Float8 => p.word("double precision"),
+                Name::Time => p.word("time"),
+                Name::Timetz => {
                     skip_typmods = true;
                     p.word("time ");
 
@@ -49,8 +49,8 @@ impl fmt::Print for TypeName {
 
                     p.word("with time zone")
                 }
-                Some(Name::Timestamp) => p.word("timestamp"),
-                Some(Name::Timestamptz) => {
+                Name::Timestamp => p.word("timestamp"),
+                Name::Timestamptz => {
                     skip_typmods = true;
                     p.word("timestamp ");
 
@@ -64,7 +64,7 @@ impl fmt::Print for TypeName {
                     }
                     p.word("with time zone")
                 }
-                Some(Name::Interval) => {
+                Name::Interval => {
                     p.word("interval");
 
                     if !self.typmods.is_empty() {
@@ -72,7 +72,7 @@ impl fmt::Print for TypeName {
                         print_interval_typmods(p, self)?;
                     }
                 }
-                None => {
+                Name::Undefined => {
                     p.word("pg_catalog.");
                     p.word(name)
                 }

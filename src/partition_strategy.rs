@@ -3,6 +3,7 @@ const PARTITION_STRATEGY_LIST: char = 'l';
 const PARTITION_STRATEGY_RANGE: char = 'r';
 
 pub enum PartitionStrategy {
+    Undefined,
     Hash,
     List,
     Range,
@@ -16,7 +17,7 @@ impl TryFrom<String> for PartitionStrategy {
             PARTITION_STRATEGY_HASH => Ok(Self::Hash),
             PARTITION_STRATEGY_LIST => Ok(Self::List),
             PARTITION_STRATEGY_RANGE => Ok(Self::Range),
-            _ => Err(()),
+            _ => Ok(Self::Undefined),
         }
     }
 }

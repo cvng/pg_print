@@ -5,6 +5,7 @@ const RELPERSISTENCE_UNLOGGED: char = 'u';
 const RELPERSISTENCE_PERMANENT: char = 'p';
 
 pub enum RelPersistence {
+    Undefined,
     Temp,
     Unlogged,
     Permanent,
@@ -16,6 +17,7 @@ impl fmt::Print for RelPersistence {
             Self::Temp => p.keyword("temporary "),
             Self::Unlogged => p.keyword("unlogged "),
             Self::Permanent => {}
+            Self::Undefined => return Err(fmt::Error),
         }
 
         Ok(())
@@ -30,7 +32,7 @@ impl TryFrom<String> for RelPersistence {
             RELPERSISTENCE_TEMP => Ok(Self::Temp),
             RELPERSISTENCE_UNLOGGED => Ok(Self::Unlogged),
             RELPERSISTENCE_PERMANENT => Ok(Self::Permanent),
-            _ => Err(()),
+            _ => Ok(Self::Undefined),
         }
     }
 }

@@ -34,6 +34,7 @@ impl fmt::Print for PartitionBoundSpec {
                 p.word(")");
                 Ok(())
             }
+            _ => Ok(()),
         }
     }
 }
