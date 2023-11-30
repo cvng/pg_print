@@ -8,8 +8,6 @@ use pg_query::protobuf::SortByNulls;
 
 impl fmt::Print for IndexElem {
     fn print(&self, p: &mut fmt::Printer) -> fmt::Result {
-        dbg!(&self);
-
         if !self.name.is_empty() {
             p.ident(self.name.clone());
         } else if let Some(expr) = &self.expr {
