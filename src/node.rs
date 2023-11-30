@@ -94,7 +94,7 @@ impl fmt::Print for Node {
             NodeEnum::ListenStmt(node) => todo!("{:?}", node),
             NodeEnum::UnlistenStmt(node) => todo!("{:?}", node),
             NodeEnum::TransactionStmt(node) => todo!("{:?}", node),
-            NodeEnum::ViewStmt(node) => todo!("{:?}", node),
+            NodeEnum::ViewStmt(node) => node.print(p),
             NodeEnum::LoadStmt(node) => todo!("{:?}", node),
             NodeEnum::CreateDomainStmt(node) => node.print(p),
             NodeEnum::CreatedbStmt(node) => todo!("{:?}", node),
