@@ -5,6 +5,7 @@ mod collate_clause;
 mod column_def;
 mod column_ref;
 mod constraint;
+mod create_domain_stmt;
 mod create_stmt;
 mod create_table_as_stmt;
 mod def_elem;
@@ -31,7 +32,6 @@ mod type_name;
 mod utils;
 mod val;
 mod with_clause;
-mod create_domain_stmt;
 
 use fmt::Print;
 use fmt::Printer;
