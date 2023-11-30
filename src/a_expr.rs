@@ -51,7 +51,15 @@ impl fmt::Print for AExpr {
             }
             AExprKind::AexprOpAny => todo!("{:?}", self.kind()),
             AExprKind::AexprOpAll => todo!("{:?}", self.kind()),
-            AExprKind::AexprDistinct => todo!("{:?}", self.kind()),
+            AExprKind::AexprDistinct => {
+                p.word_if("(", need_lexpr_parens);
+                self.lexpr.as_ref().unwrap().print(p)?;
+                p.word_if(")", need_lexpr_parens);
+                p.keyword(" is distinct from ");
+                p.word_if("(", need_rexpr_parens);
+                self.rexpr.as_ref().unwrap().print(p)?;
+                p.word_if(")", need_rexpr_parens);
+            }
             AExprKind::AexprNotDistinct => todo!("{:?}", self.kind()),
             AExprKind::AexprNullif => todo!("{:?}", self.kind()),
             AExprKind::AexprIn => todo!("{:?}", self.kind()),

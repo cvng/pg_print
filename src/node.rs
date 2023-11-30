@@ -23,7 +23,7 @@ impl fmt::Print for Node {
             NodeEnum::DistinctExpr(node) => todo!("{:?}", node),
             NodeEnum::NullIfExpr(node) => todo!("{:?}", node),
             NodeEnum::ScalarArrayOpExpr(node) => todo!("{:?}", node),
-            NodeEnum::BoolExpr(node) => todo!("{:?}", node),
+            NodeEnum::BoolExpr(node) => node.print(p),
             NodeEnum::SubLink(node) => todo!("{:?}", node),
             NodeEnum::SubPlan(node) => todo!("{:?}", node),
             NodeEnum::AlternativeSubPlan(node) => todo!("{:?}", node),

@@ -1,6 +1,7 @@
 mod a_const;
 mod a_expr;
 mod a_star;
+mod bool_expr;
 mod collate_clause;
 mod column_def;
 mod column_ref;
@@ -10,6 +11,7 @@ mod create_extension_stmt;
 mod create_schema_stmt;
 mod create_stmt;
 mod create_table_as_stmt;
+mod create_trig_stmt;
 mod def_elem;
 mod define_stmt;
 mod execute_stmt;
@@ -36,9 +38,8 @@ mod select_stmt;
 mod type_name;
 mod utils;
 mod val;
-mod with_clause;
 mod view_stmt;
-mod create_trig_stmt;
+mod with_clause;
 
 use fmt::Print;
 use fmt::Printer;
