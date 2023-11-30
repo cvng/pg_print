@@ -128,3 +128,41 @@ pub fn print_any_name(p: &mut fmt::Printer, list: &[Node]) -> fmt::Result {
 
     Ok(())
 }
+
+pub fn print_from_clause(p: &mut fmt::Printer, list: &[Node]) -> fmt::Result {
+    if !list.is_empty() {
+        p.keyword("from ");
+
+        for (i, item) in list.iter().enumerate() {
+            item.print(p)?;
+            p.comma(i >= list.len() - 1);
+        }
+        p.word(" ");
+    }
+
+    Ok(())
+}
+
+pub fn print_where_clause(p: &mut fmt::Printer, node: Option<&Node>) -> fmt::Result {
+    if let Some(node) = node {
+        p.keyword("where ");
+        node.print(p)?;
+        p.word(" ");
+    }
+
+    Ok(())
+}
+
+pub fn print_opt_collate(p: &mut fmt::Printer, list: &[Node]) -> fmt::Result {
+    if !list.is_empty() {
+        p.keyword("collate ");
+        print_any_name(p, list)?;
+        p.nbsp();
+    }
+
+    Ok(())
+}
+
+pub fn print_rel_options(_p: &mut fmt::Printer, list: &[Node]) -> fmt::Result {
+    todo!("{:?}", &list);
+}

@@ -32,6 +32,10 @@ mod type_name;
 mod utils;
 mod val;
 mod with_clause;
+mod create_schema_stmt;
+mod role_spec;
+mod index_stmt;
+mod index_elem;
 
 use fmt::Print;
 use fmt::Printer;

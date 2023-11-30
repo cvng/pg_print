@@ -5,7 +5,7 @@ use insta::with_settings;
 use pg_deparser::unparse;
 use pg_query::parse;
 
-const PASSES: [&str; 3] = [
+const PASSES: [&str; 4] = [
     // "tests/sql/ddl/alter_default_privileges.sql",
     // "tests/sql/ddl/alter_subscription.sql",
     // "tests/sql/ddl/alter_table.sql",
@@ -22,7 +22,7 @@ const PASSES: [&str; 3] = [
     // "tests/sql/ddl/create_index.sql",
     // "tests/sql/ddl/create_language.sql",
     // "tests/sql/ddl/create_rule.sql",
-    // "tests/sql/ddl/create_schema.sql",
+    "tests/sql/ddl/create_schema.sql",
     // "tests/sql/ddl/create_sequence.sql",
     "tests/sql/ddl/create_table.sql",
     // "tests/sql/ddl/create_transform.sql",

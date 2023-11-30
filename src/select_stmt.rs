@@ -1,9 +1,9 @@
 use crate::fmt;
-use crate::fmt::Print;
 use crate::utils::print_expr_list;
 use pg_query::protobuf::SelectStmt;
 use pg_query::protobuf::SetOperation;
-use pg_query::Node;
+use crate::utils::print_where_clause;
+use crate::utils::print_from_clause;
 
 impl fmt::Print for SelectStmt {
     fn print(&self, p: &mut fmt::Printer) -> fmt::Result {
@@ -50,28 +50,4 @@ impl fmt::Print for SelectStmt {
 
         Ok(())
     }
-}
-
-fn print_from_clause(p: &mut fmt::Printer, list: &[Node]) -> fmt::Result {
-    if !list.is_empty() {
-        p.keyword("from ");
-
-        for (i, item) in list.iter().enumerate() {
-            item.print(p)?;
-            p.comma(i >= list.len() - 1);
-        }
-        p.word(" ");
-    }
-
-    Ok(())
-}
-
-fn print_where_clause(p: &mut fmt::Printer, node: Option<&Node>) -> fmt::Result {
-    if let Some(node) = node {
-        p.keyword("where ");
-        node.print(p)?;
-        p.word(" ");
-    }
-
-    Ok(())
 }
