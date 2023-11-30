@@ -1,9 +1,9 @@
 use crate::fmt;
 use crate::utils::print_expr_list;
+use crate::utils::print_from_clause;
+use crate::utils::print_where_clause;
 use pg_query::protobuf::SelectStmt;
 use pg_query::protobuf::SetOperation;
-use crate::utils::print_where_clause;
-use crate::utils::print_from_clause;
 
 impl fmt::Print for SelectStmt {
     fn print(&self, p: &mut fmt::Printer) -> fmt::Result {
