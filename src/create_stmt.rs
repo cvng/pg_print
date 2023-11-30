@@ -31,7 +31,7 @@ impl fmt::Print for CreateStmt {
         if let Some(of_typename) = &self.of_typename {
             p.keyword("of ");
             of_typename.print(p)?;
-            p.space();
+            p.nbsp();
         }
 
         if self.partbound.is_some() {

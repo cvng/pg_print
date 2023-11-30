@@ -34,7 +34,7 @@ impl fmt::Print for DefineStmt {
 
         if !self.oldstyle && matches!(self.kind(), ObjectType::ObjectAggregate) {
             todo!("{:?}", self.kind());
-            // p.space();
+            // p.nbsp();
         }
 
         if (matches!(self.kind(), ObjectType::ObjectCollation)
