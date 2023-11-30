@@ -107,7 +107,7 @@ impl fmt::Print for Node {
             NodeEnum::VariableSetStmt(node) => todo!("{:?}", node),
             NodeEnum::VariableShowStmt(node) => todo!("{:?}", node),
             NodeEnum::DiscardStmt(node) => todo!("{:?}", node),
-            NodeEnum::CreateTrigStmt(node) => todo!("{:?}", node),
+            NodeEnum::CreateTrigStmt(node) => node.print(p),
             NodeEnum::CreatePlangStmt(node) => todo!("{:?}", node),
             NodeEnum::CreateRoleStmt(node) => todo!("{:?}", node),
             NodeEnum::AlterRoleStmt(node) => todo!("{:?}", node),

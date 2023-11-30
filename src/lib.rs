@@ -38,6 +38,7 @@ mod utils;
 mod val;
 mod with_clause;
 mod view_stmt;
+mod create_trig_stmt;
 
 use fmt::Print;
 use fmt::Printer;
