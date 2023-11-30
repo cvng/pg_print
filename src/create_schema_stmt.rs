@@ -1,5 +1,4 @@
 use crate::fmt;
-use crate::utils::print_expr_list;
 use pg_query::protobuf::CreateSchemaStmt;
 
 impl fmt::Print for CreateSchemaStmt {
@@ -18,7 +17,7 @@ impl fmt::Print for CreateSchemaStmt {
             p.nbsp();
         }
 
-        print_expr_list(p, &self.schema_elts)?;
+        self.schema_elts.print(p)?;
 
         Ok(())
     }

@@ -1,6 +1,5 @@
 use crate::fmt;
 use crate::partition_strategy::PartitionStrategy;
-use crate::utils::print_expr_list;
 use pg_query::protobuf::PartitionBoundSpec;
 
 impl fmt::Print for PartitionBoundSpec {
@@ -22,15 +21,15 @@ impl fmt::Print for PartitionBoundSpec {
             }
             PartitionStrategy::List => {
                 p.keyword("in (");
-                print_expr_list(p, &self.listdatums)?;
+                self.listdatums.print(p)?;
                 p.word(")");
                 Ok(())
             }
             PartitionStrategy::Range => {
                 p.keyword("from (");
-                print_expr_list(p, &self.lowerdatums)?;
+                self.lowerdatums.print(p)?;
                 p.keyword(") to (");
-                print_expr_list(p, &self.upperdatums)?;
+                self.upperdatums.print(p)?;
                 p.word(")");
                 Ok(())
             }

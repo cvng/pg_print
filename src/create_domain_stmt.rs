@@ -1,6 +1,5 @@
 use crate::fmt;
 use crate::utils::print_any_name;
-use crate::utils::print_expr_list;
 use pg_query::protobuf::CreateDomainStmt;
 
 impl fmt::Print for CreateDomainStmt {
@@ -17,7 +16,7 @@ impl fmt::Print for CreateDomainStmt {
             p.nbsp();
         }
 
-        print_expr_list(p, &self.constraints)?;
+        self.constraints.print(p)?;
 
         Ok(())
     }
