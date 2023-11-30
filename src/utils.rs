@@ -8,6 +8,8 @@ use pg_query::NodeEnum;
 
 const ESCAPE_STRING_SYNTAX: char = 'E';
 
+const NAMEDATALEN: usize = 64;
+
 // See https://github.com/pganalyze/libpg_query/blob/15-latest/src/postgres_deparse.c#L53.
 pub fn print_string_literal(p: &mut fmt::Printer, val: &str) -> fmt::Result {
     if val.contains('\\') {
@@ -165,4 +167,14 @@ pub fn print_opt_collate(p: &mut fmt::Printer, list: &[Node]) -> fmt::Result {
 
 pub fn print_rel_options(_p: &mut fmt::Printer, list: &[Node]) -> fmt::Result {
     todo!("{:?}", &list);
+}
+
+pub fn print_non_reserved_word_or_scont(p: &mut fmt::Printer, val: String) -> fmt::Result {
+    match val.len() {
+        0 => p.word("''".to_string()),
+        x if x > NAMEDATALEN => print_string_literal(p, &val)?,
+        _ => p.ident(val),
+    }
+
+    Ok(())
 }
