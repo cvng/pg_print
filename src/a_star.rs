@@ -3,6 +3,7 @@ use pg_query::protobuf::AStar;
 
 impl fmt::Print for AStar {
     fn print(&self, p: &mut fmt::Printer) -> fmt::Result {
-        Ok(p.word("*"))
+        p.word("*");
+        Ok(())
     }
 }
