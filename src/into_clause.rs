@@ -1,6 +1,6 @@
 use crate::fmt;
-use crate::utils::print_column_list;
-use crate::utils::print_opt_with;
+use crate::fmt::gram::print_column_list;
+use crate::fmt::gram::print_opt_with;
 use pg_query::protobuf::IntoClause;
 
 impl fmt::Print for IntoClause {

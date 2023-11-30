@@ -1,6 +1,6 @@
 use crate::fmt;
-use crate::utils::print_opt_with;
-use crate::utils::print_where_clause;
+use crate::fmt::gram::print_opt_with;
+use crate::fmt::gram::print_where_clause;
 use pg_query::protobuf::IndexStmt;
 
 impl fmt::Print for IndexStmt {

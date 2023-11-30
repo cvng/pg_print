@@ -1,6 +1,6 @@
 use crate::fmt;
-use crate::utils::print_opt_temp;
-use crate::utils::print_opt_with;
+use crate::fmt::gram::print_opt_temp;
+use crate::fmt::gram::print_opt_with;
 use crate::INDENT;
 use pg_query::protobuf::CreateStmt;
 use pg_query::Node;

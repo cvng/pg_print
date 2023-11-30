@@ -1,7 +1,7 @@
 use crate::fmt;
-use crate::utils::opt_drop_behavior;
-use crate::utils::print_expr_list;
-use crate::utils::privilege_target;
+use crate::fmt::gram::opt_drop_behavior;
+use crate::fmt::gram::print_expr_list;
+use crate::fmt::gram::privilege_target;
 use pg_query::protobuf::GrantStmt;
 
 impl fmt::Print for GrantStmt {

@@ -1,7 +1,7 @@
 use crate::fmt;
-use crate::utils::print_any_name;
-use crate::utils::print_opt_collate;
-use crate::utils::print_rel_options;
+use crate::fmt::gram::print_any_name;
+use crate::fmt::gram::print_opt_collate;
+use crate::fmt::gram::print_rel_options;
 use pg_query::protobuf::IndexElem;
 use pg_query::protobuf::SortByDir;
 use pg_query::protobuf::SortByNulls;

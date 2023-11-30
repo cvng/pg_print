@@ -1,6 +1,6 @@
 use crate::fmt;
-use crate::utils::print_from_clause;
-use crate::utils::print_where_clause;
+use crate::fmt::gram::print_from_clause;
+use crate::fmt::gram::print_where_clause;
 use pg_query::protobuf::SelectStmt;
 use pg_query::protobuf::SetOperation;
 

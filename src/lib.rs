@@ -38,7 +38,6 @@ mod res_target;
 mod role_spec;
 mod select_stmt;
 mod type_name;
-mod utils;
 mod val;
 mod view_stmt;
 mod with_clause;

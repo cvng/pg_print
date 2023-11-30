@@ -1,12 +1,12 @@
 use crate::fmt;
+use crate::fmt::gram::a_const_int_val;
+use crate::fmt::gram::int_val;
+use crate::fmt::gram::print_any_name;
+use crate::fmt::gram::str_val;
 use crate::fmt::Print;
 use crate::interval_fields::IntervalFields;
 use crate::interval_fields::INTERVAL_FULL_PRECISION;
 use crate::name::Name;
-use crate::utils::a_const_int_val;
-use crate::utils::int_val;
-use crate::utils::print_any_name;
-use crate::utils::str_val;
 use pg_query::protobuf::Integer;
 use pg_query::protobuf::TypeName;
 use pg_query::Node;

@@ -1,5 +1,5 @@
 use crate::fmt;
-use crate::utils::print_any_name;
+use crate::fmt::gram::print_any_name;
 use pg_query::protobuf::CreateDomainStmt;
 
 impl fmt::Print for CreateDomainStmt {

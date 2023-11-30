@@ -1,8 +1,8 @@
 use crate::fmt;
-use crate::utils::print_column_list;
-use crate::utils::print_func_name;
-use crate::utils::print_string_literal;
-use crate::utils::str_val;
+use crate::fmt::gram::print_column_list;
+use crate::fmt::gram::print_func_name;
+use crate::fmt::gram::print_string_literal;
+use crate::fmt::gram::str_val;
 use pg_query::protobuf::CreateTrigStmt;
 
 const TRIGGER_TYPE_BEFORE: usize = 1 << 1;

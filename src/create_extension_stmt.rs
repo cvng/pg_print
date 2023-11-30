@@ -1,6 +1,6 @@
 use crate::fmt;
-use crate::utils::print_non_reserved_word_or_scont;
-use crate::utils::str_val;
+use crate::fmt::gram::print_non_reserved_word_or_scont;
+use crate::fmt::gram::str_val;
 use pg_query::protobuf::CreateExtensionStmt;
 use pg_query::NodeEnum;
 

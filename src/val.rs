@@ -1,5 +1,5 @@
 use crate::fmt;
-use crate::utils::print_string_literal;
+use crate::fmt::gram::print_string_literal;
 use pg_query::protobuf::a_const::Val;
 
 impl fmt::Print for Val {

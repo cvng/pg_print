@@ -1,5 +1,5 @@
 use crate::fmt;
-use crate::utils::print_opt_temp;
+use crate::fmt::gram::print_opt_temp;
 use pg_query::protobuf::CreateTableAsStmt;
 use pg_query::protobuf::IntoClause;
 

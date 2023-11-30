@@ -1,7 +1,7 @@
 use crate::fmt;
-use crate::utils::print_column_list;
-use crate::utils::print_opt_temp;
-use crate::utils::print_opt_with;
+use crate::fmt::gram::print_column_list;
+use crate::fmt::gram::print_opt_temp;
+use crate::fmt::gram::print_opt_with;
 use pg_query::protobuf::ViewCheckOption;
 use pg_query::protobuf::ViewStmt;
 

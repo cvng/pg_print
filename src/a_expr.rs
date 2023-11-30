@@ -1,6 +1,6 @@
 use crate::fmt;
-use crate::utils::is_op;
-use crate::utils::str_val;
+use crate::fmt::gram::is_op;
+use crate::fmt::gram::str_val;
 use pg_query::protobuf::AExpr;
 use pg_query::protobuf::AExprKind;
 use pg_query::Node;
