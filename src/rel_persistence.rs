@@ -11,6 +11,17 @@ pub enum RelPersistence {
     Permanent,
 }
 
+impl From<String> for RelPersistence {
+    fn from(value: String) -> Self {
+        match value.chars().next().unwrap() {
+            RELPERSISTENCE_TEMP => Self::Temp,
+            RELPERSISTENCE_UNLOGGED => Self::Unlogged,
+            RELPERSISTENCE_PERMANENT => Self::Permanent,
+            _ => Self::Undefined,
+        }
+    }
+}
+
 impl fmt::Print for RelPersistence {
     fn print(&self, p: &mut fmt::Printer) -> fmt::Result {
         match self {
@@ -21,18 +32,5 @@ impl fmt::Print for RelPersistence {
         }
 
         Ok(())
-    }
-}
-
-impl TryFrom<String> for RelPersistence {
-    type Error = ();
-
-    fn try_from(value: String) -> Result<Self, Self::Error> {
-        match value.chars().next().unwrap() {
-            RELPERSISTENCE_TEMP => Ok(Self::Temp),
-            RELPERSISTENCE_UNLOGGED => Ok(Self::Unlogged),
-            RELPERSISTENCE_PERMANENT => Ok(Self::Permanent),
-            _ => Ok(Self::Undefined),
-        }
     }
 }

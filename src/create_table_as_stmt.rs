@@ -7,7 +7,7 @@ impl fmt::Print for CreateTableAsStmt {
     fn print(&self, p: &mut fmt::Printer) -> fmt::Result {
         p.keyword("create ");
 
-        RelPersistence::try_from(
+        RelPersistence::from(
             self.into
                 .as_ref()
                 .unwrap()
@@ -17,7 +17,6 @@ impl fmt::Print for CreateTableAsStmt {
                 .relpersistence
                 .clone(),
         )
-        .unwrap()
         .print(p)?;
 
         self.objtype().print(p)?;

@@ -11,13 +11,11 @@ impl fmt::Print for CreateStmt {
         p.cbox(INDENT);
         p.keyword("create ");
 
-        if matches!(ctx, fmt::Context::ForeignTable) {
+        if matches!(ctx, fmt::Context::ForeignRelation) {
             p.keyword("foreign ");
         }
 
-        RelPersistence::try_from(self.relation.as_ref().unwrap().relpersistence.clone())
-            .unwrap()
-            .print(p)?;
+        RelPersistence::from(self.relation.as_ref().unwrap().relpersistence.clone()).print(p)?;
 
         p.keyword("table ");
 
