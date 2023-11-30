@@ -25,6 +25,16 @@ impl fmt::Print for Constraint {
             ConstrType::ConstrUnique => {
                 p.keyword("unique");
             }
+            ConstrType::ConstrCheck => {
+                p.keyword("check (");
+                if let Some(raw_expr) = &self.raw_expr {
+                    raw_expr.print(p)?;
+                }
+                p.word(")");
+            }
+            ConstrType::ConstrNotnull => {
+                p.keyword("not null");
+            }
             _ => todo!("{:?}", self.contype()),
         }
 

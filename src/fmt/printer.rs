@@ -411,6 +411,12 @@ impl Printer {
         self.word(wrd);
     }
 
+    pub fn word_if<S: Into<Cow<'static, str>>>(&mut self, wrd: S, cnd: bool) {
+        if cnd {
+            self.word(wrd);
+        }
+    }
+
     fn spaces(&mut self, n: usize) {
         self.scan_break(BreakToken {
             blank_space: n,

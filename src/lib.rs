@@ -31,6 +31,7 @@ mod type_name;
 mod utils;
 mod val;
 mod with_clause;
+mod create_domain_stmt;
 
 use fmt::Print;
 use fmt::Printer;
