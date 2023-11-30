@@ -22,7 +22,7 @@ impl fmt::Print for Val {
                     p.word("b");
                     deparse_string_literal(p, &val.bsval[1..])?
                 }
-                _ => unreachable!(),
+                _ => return Err(fmt::Error),
             },
         }
 

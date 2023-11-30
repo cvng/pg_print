@@ -92,6 +92,6 @@ fn print_any_operator(p: &mut fmt::Printer, list: &[Node]) -> fmt::Result {
             p.ident(str_val(list.last().unwrap()).unwrap());
             Ok(())
         }
-        _ => unreachable!(),
+        _ => Err(fmt::Error),
     }
 }

@@ -28,7 +28,7 @@ impl fmt::Print for DefineStmt {
             | ObjectType::ObjectTstemplate
             | ObjectType::ObjectTsconfiguration
             | ObjectType::ObjectCollation => print_any_name(p, &self.defnames)?,
-            _ => unreachable!(),
+            _ => return Err(fmt::Error),
         }
         p.space();
 
