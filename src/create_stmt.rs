@@ -1,9 +1,6 @@
 use crate::fmt;
-use crate::utils::print_opt_temp;
-use crate::utils::print_opt_with;
 use crate::INDENT;
 use pg_query::protobuf::CreateStmt;
-use pg_query::Node;
 use pg_query::NodeEnum;
 
 impl fmt::Print for CreateStmt {
@@ -15,7 +12,7 @@ impl fmt::Print for CreateStmt {
             p.keyword("foreign ");
         }
 
-        print_opt_temp(p, self.relation.as_ref().unwrap().relpersistence.clone())?;
+        p.opt_temp(self.relation.as_ref().unwrap().relpersistence.clone())?;
 
         p.keyword("table ");
 
@@ -68,10 +65,10 @@ impl fmt::Print for CreateStmt {
             partbound.print(p)?;
             p.word(" ");
         } else {
-            print_opt_inherit(p, &self.inh_relations)?;
+            p.opt_inherit(&self.inh_relations)?;
         }
 
-        print_opt_with(p, &self.options)?;
+        p.opt_with(&self.options)?;
 
         self.oncommit().print(p)?;
 
@@ -84,12 +81,4 @@ impl fmt::Print for CreateStmt {
 
         Ok(())
     }
-}
-
-fn print_opt_inherit(_p: &mut fmt::Printer, list: &[Node]) -> fmt::Result {
-    if !list.is_empty() {
-        todo!("{:?}", list)
-    }
-
-    Ok(())
 }

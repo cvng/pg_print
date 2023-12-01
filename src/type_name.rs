@@ -1,12 +1,11 @@
 use crate::fmt;
+use crate::fmt::a_const_int_val;
+use crate::fmt::int_val;
+use crate::fmt::str_val;
 use crate::fmt::Print;
 use crate::interval_fields::IntervalFields;
 use crate::interval_fields::INTERVAL_FULL_PRECISION;
 use crate::name::Name;
-use crate::utils::a_const_int_val;
-use crate::utils::int_val;
-use crate::utils::print_any_name;
-use crate::utils::str_val;
 use pg_query::protobuf::Integer;
 use pg_query::protobuf::TypeName;
 use pg_query::Node;
@@ -41,7 +40,7 @@ impl fmt::Print for TypeName {
                     if !self.typmods.is_empty() {
                         p.word("(");
                         for (i, typmod) in self.typmods.iter().enumerate() {
-                            print_signed_iconst(p, typmod);
+                            p.signed_iconst(typmod);
                             p.comma(i >= self.typmods.len() - 1);
                         }
                         p.word(") ");
@@ -57,7 +56,7 @@ impl fmt::Print for TypeName {
                     if !self.typmods.is_empty() {
                         p.word("(");
                         for (i, typmod) in self.typmods.iter().enumerate() {
-                            print_signed_iconst(p, typmod);
+                            p.signed_iconst(typmod);
                             p.comma(i >= self.typmods.len() - 1);
                         }
                         p.word(") ");
@@ -78,7 +77,7 @@ impl fmt::Print for TypeName {
                 }
             };
         } else {
-            print_any_name(p, &self.names)?;
+            p.any_name(&self.names)?;
         }
 
         if !self.typmods.is_empty() && !skip_typmods {
@@ -126,8 +125,4 @@ fn print_interval_typmods(p: &mut fmt::Printer, node: &TypeName) -> fmt::Result 
     }
 
     Ok(())
-}
-
-fn print_signed_iconst(p: &mut fmt::Printer, node: &Node) {
-    p.word(format!("{}", int_val(node).unwrap()));
 }

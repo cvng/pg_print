@@ -1,8 +1,6 @@
 use crate::fmt;
-use crate::utils::print_column_list;
-use crate::utils::print_func_name;
-use crate::utils::print_string_literal;
-use crate::utils::str_val;
+use crate::fmt::str_val;
+use crate::fmt::string_literal;
 use pg_query::protobuf::CreateTrigStmt;
 
 const TRIGGER_TYPE_BEFORE: usize = 1 << 1;
@@ -59,7 +57,7 @@ impl fmt::Print for CreateTrigStmt {
 
             if !self.columns.is_empty() {
                 p.keyword("of ");
-                print_column_list(p, &self.columns)?;
+                p.column_list(&self.columns)?;
                 p.nbsp();
             }
             skip_events_or = false;
@@ -109,11 +107,11 @@ impl fmt::Print for CreateTrigStmt {
         }
 
         p.keyword("execute function ");
-        print_func_name(p, &self.funcname)?;
+        p.func_name(&self.funcname)?;
 
         p.word("(");
         for (i, arg) in self.args.iter().enumerate() {
-            print_string_literal(p, &str_val(arg).unwrap())?;
+            string_literal(p, &str_val(arg).unwrap())?;
             p.comma(i >= self.args.len() - 1);
         }
         p.word(")");

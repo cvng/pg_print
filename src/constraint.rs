@@ -1,6 +1,4 @@
 use crate::fmt;
-use crate::utils::print_column_list;
-use crate::utils::print_opt_with;
 use pg_query::protobuf::ConstrType;
 use pg_query::protobuf::Constraint;
 
@@ -41,13 +39,13 @@ impl fmt::Print for Constraint {
         if !self.keys.is_empty() {
             p.nbsp();
             p.word("(");
-            print_column_list(p, &self.keys)?;
+            p.column_list(&self.keys)?;
             p.word(")");
         }
 
         match self.contype() {
             ConstrType::ConstrPrimary | ConstrType::ConstrUnique | ConstrType::ConstrExclusion => {
-                print_opt_with(p, &self.options)?
+                p.opt_with(&self.options)?
             }
             _ => {}
         }

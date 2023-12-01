@@ -1,6 +1,5 @@
 use crate::fmt;
-use crate::utils::print_non_reserved_word_or_scont;
-use crate::utils::str_val;
+use crate::fmt::str_val;
 use pg_query::protobuf::CreateExtensionStmt;
 use pg_query::NodeEnum;
 
@@ -32,10 +31,7 @@ impl fmt::Print for CreateExtensionStmt {
                 }
                 "new_version" => {
                     p.keyword("version ");
-                    print_non_reserved_word_or_scont(
-                        p,
-                        str_val(&def_elem.arg.clone().unwrap()).unwrap(),
-                    )?;
+                    p.non_reserved_word_or_scont(str_val(&def_elem.arg.clone().unwrap()).unwrap())?;
                 }
                 "cascade" => {
                     p.keyword("cascade");

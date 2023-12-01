@@ -1,7 +1,6 @@
 // Adapted from https://github.com/pganalyze/libpg_query/blob/15-latest/src/postgres_deparse.c.
 
 use crate::fmt;
-use crate::utils;
 use pg_query::Node;
 use pg_query::NodeEnum;
 
@@ -252,6 +251,6 @@ impl fmt::Print for Node {
 
 impl fmt::Print for [Node] {
     fn print(&self, p: &mut fmt::Printer) -> fmt::Result {
-        utils::print_expr_list(p, self)
+        p.expr_list(self)
     }
 }

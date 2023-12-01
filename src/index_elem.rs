@@ -1,7 +1,4 @@
 use crate::fmt;
-use crate::utils::print_any_name;
-use crate::utils::print_opt_collate;
-use crate::utils::print_rel_options;
 use pg_query::protobuf::IndexElem;
 use pg_query::protobuf::SortByDir;
 use pg_query::protobuf::SortByNulls;
@@ -16,13 +13,13 @@ impl fmt::Print for IndexElem {
             unreachable!("{:?}", self);
         }
 
-        print_opt_collate(p, &self.collation)?;
+        p.opt_collate(&self.collation)?;
 
         if !self.opclass.is_empty() {
-            print_any_name(p, &self.opclass)?;
+            p.any_name(&self.opclass)?;
 
             if !self.opclassopts.is_empty() {
-                print_rel_options(p, &self.opclassopts)?;
+                p.reloptions(&self.opclassopts)?;
             }
 
             p.nbsp();

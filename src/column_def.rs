@@ -1,6 +1,5 @@
 use crate::fmt;
 use pg_query::protobuf::ColumnDef;
-use pg_query::Node;
 
 impl fmt::Print for ColumnDef {
     fn print(&self, p: &mut fmt::Printer) -> fmt::Result {
@@ -21,7 +20,7 @@ impl fmt::Print for ColumnDef {
 
         if !self.fdwoptions.is_empty() {
             p.nbsp();
-            print_create_generic_options(p, &self.fdwoptions)?;
+            p.create_generic_options(&self.fdwoptions)?;
         }
 
         for constraint in self.constraints.iter() {
@@ -35,8 +34,4 @@ impl fmt::Print for ColumnDef {
 
         Ok(())
     }
-}
-
-pub fn print_create_generic_options(_p: &mut fmt::Printer, list: &[Node]) -> fmt::Result {
-    todo!("{:?}", list)
 }

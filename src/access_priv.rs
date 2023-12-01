@@ -1,5 +1,4 @@
 use crate::fmt;
-use crate::utils::print_column_list;
 use pg_query::protobuf::AccessPriv;
 
 impl fmt::Print for AccessPriv {
@@ -19,7 +18,7 @@ impl fmt::Print for AccessPriv {
 
         if !self.cols.is_empty() {
             p.word("(");
-            print_column_list(p, &self.cols)?;
+            p.column_list(&self.cols)?;
             p.word(")");
         }
 

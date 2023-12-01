@@ -1,23 +1,19 @@
 use crate::fmt;
-use crate::utils::print_any_name;
 use pg_query::protobuf::CreateDomainStmt;
 
 impl fmt::Print for CreateDomainStmt {
     fn print(&self, p: &mut fmt::Printer) -> fmt::Result {
         p.keyword("create domain ");
-        print_any_name(p, &self.domainname)?;
-        p.keyword(" as ");
-
-        self.type_name.as_ref().unwrap().print(p)?;
-        p.nbsp();
-
-        if let Some(coll_clause) = &self.coll_clause {
-            coll_clause.print(p)?;
-            p.nbsp();
-        }
-
-        self.constraints.print(p)?;
-
-        Ok(())
+        p.any_name(&self.domainname)?;
+        p.opt_as();
+        self.type_name
+            .as_ref()
+            .and_then(|t| t.print(p).ok())
+            .and_then(|_| p.nbsp());
+        self.coll_clause
+            .as_ref()
+            .and_then(|c| c.print(p).ok())
+            .and_then(|_| p.nbsp());
+        self.constraints.print(p)
     }
 }
