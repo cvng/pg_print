@@ -18,7 +18,7 @@ impl fmt::Print for SelectStmt {
                         p.word("(");
                         [list.clone()].print(p)?;
                         p.word(")");
-                        p.comma(i >= self.values_lists.len() - 1);
+                        p.trailing_comma(i >= self.values_lists.len() - 1);
                     }
 
                     p.word(" ");

@@ -41,7 +41,7 @@ impl fmt::Print for TypeName {
                         p.word("(");
                         for (i, typmod) in self.typmods.iter().enumerate() {
                             p.signed_iconst(typmod);
-                            p.comma(i >= self.typmods.len() - 1);
+                            p.trailing_comma(i >= self.typmods.len() - 1);
                         }
                         p.word(") ");
                     }
@@ -57,7 +57,7 @@ impl fmt::Print for TypeName {
                         p.word("(");
                         for (i, typmod) in self.typmods.iter().enumerate() {
                             p.signed_iconst(typmod);
-                            p.comma(i >= self.typmods.len() - 1);
+                            p.trailing_comma(i >= self.typmods.len() - 1);
                         }
                         p.word(") ");
                     }
@@ -84,7 +84,7 @@ impl fmt::Print for TypeName {
             p.word("(");
             for (i, typmod) in self.typmods.iter().enumerate() {
                 typmod.print(p)?;
-                p.comma(i >= self.typmods.len() - 1);
+                p.trailing_comma(i >= self.typmods.len() - 1);
             }
             p.word(")");
         }

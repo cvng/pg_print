@@ -8,27 +8,27 @@ impl fmt::Print for BoolExpr {
             BoolExprType::AndExpr => {
                 for (i, arg) in self.args.iter().enumerate() {
                     let need_parens = true; // TODO
-                    p.word_if("(", need_parens);
+                    p.optional_word("(", need_parens);
                     arg.print(p)?;
-                    p.word_if(")", need_parens);
-                    p.keyword_if(" and ", i < self.args.len() - 1);
+                    p.optional_word(")", need_parens);
+                    p.optional_keyword(" and ", i < self.args.len() - 1);
                 }
             }
             BoolExprType::OrExpr => {
                 for (i, arg) in self.args.iter().enumerate() {
                     let need_parens = true; // TODO
-                    p.word_if("(", need_parens);
+                    p.optional_word("(", need_parens);
                     arg.print(p)?;
-                    p.word_if(")", need_parens);
-                    p.keyword_if(" or ", i < self.args.len() - 1);
+                    p.optional_word(")", need_parens);
+                    p.optional_keyword(" or ", i < self.args.len() - 1);
                 }
             }
             BoolExprType::NotExpr => {
                 let need_parens = true; // TODO
                 p.keyword("not ");
-                p.word_if("(", need_parens);
+                p.optional_word("(", need_parens);
                 self.args.first().unwrap().print(p)?;
-                p.word_if(")", need_parens);
+                p.optional_word(")", need_parens);
             }
             _ => {}
         }

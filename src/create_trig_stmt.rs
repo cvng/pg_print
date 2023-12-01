@@ -112,7 +112,7 @@ impl fmt::Print for CreateTrigStmt {
         p.word("(");
         for (i, arg) in self.args.iter().enumerate() {
             string_literal(p, &str_val(arg).unwrap())?;
-            p.comma(i >= self.args.len() - 1);
+            p.trailing_comma(i >= self.args.len() - 1);
         }
         p.word(")");
 

@@ -72,19 +72,19 @@ impl Printer {
         self.word(wrd.into().to_ascii_uppercase());
     }
 
-    pub fn keyword_if<S: Into<Cow<'static, str>>>(&mut self, wrd: S, cnd: bool) {
-        if cnd {
-            self.keyword(wrd);
-        }
-    }
-
     pub fn ident<S: Into<Cow<'static, str>>>(&mut self, wrd: S) {
         self.word(wrd);
     }
 
-    pub fn word_if<S: Into<Cow<'static, str>>>(&mut self, wrd: S, cnd: bool) {
+    pub fn optional_word<S: Into<Cow<'static, str>>>(&mut self, wrd: S, cnd: bool) {
         if cnd {
             self.word(wrd);
+        }
+    }
+
+    pub fn optional_keyword<S: Into<Cow<'static, str>>>(&mut self, wrd: S, cnd: bool) {
+        if cnd {
+            self.keyword(wrd);
         }
     }
 
@@ -128,13 +128,20 @@ impl Printer {
         });
     }
 
-    pub fn trailing_comma(&mut self, is_last: bool) {
+    pub fn _trailing_comma(&mut self, is_last: bool) {
         if is_last {
             self.scan_break(BreakToken {
                 pre_break: Some(','),
                 ..BreakToken::default()
             });
         } else {
+            self.word(",");
+            self.space();
+        }
+    }
+
+    pub fn trailing_comma(&mut self, is_last: bool) {
+        if !is_last {
             self.word(",");
             self.space();
         }
@@ -148,13 +155,6 @@ impl Printer {
                 ..BreakToken::default()
             });
         } else {
-            self.word(",");
-            self.space();
-        }
-    }
-
-    pub fn comma(&mut self, is_last: bool) {
-        if !is_last {
             self.word(",");
             self.space();
         }

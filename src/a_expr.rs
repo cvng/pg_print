@@ -12,12 +12,12 @@ impl fmt::Print for AExpr {
             AExprKind::AexprOp => {
                 let need_outer_parens = matches!(ctx, fmt::Context::AExpr);
 
-                p.word_if("(", need_outer_parens);
+                p.optional_word("(", need_outer_parens);
 
                 if let Some(lexpr) = &self.lexpr {
-                    p.word_if("(", need_lexpr_parens);
+                    p.optional_word("(", need_lexpr_parens);
                     lexpr.print(p)?;
-                    p.word_if(")", need_lexpr_parens);
+                    p.optional_word(")", need_lexpr_parens);
                     p.nbsp();
                 }
 
@@ -25,23 +25,23 @@ impl fmt::Print for AExpr {
 
                 if let Some(rexpr) = &self.rexpr {
                     p.nbsp();
-                    p.word_if("(", need_rexpr_parens);
+                    p.optional_word("(", need_rexpr_parens);
                     rexpr.print(p)?;
-                    p.word_if(")", need_rexpr_parens);
+                    p.optional_word(")", need_rexpr_parens);
                 }
 
-                p.word_if(")", need_outer_parens);
+                p.optional_word(")", need_outer_parens);
             }
             AExprKind::AexprOpAny => todo!("{:?}", self.kind()),
             AExprKind::AexprOpAll => todo!("{:?}", self.kind()),
             AExprKind::AexprDistinct => {
-                p.word_if("(", need_lexpr_parens);
+                p.optional_word("(", need_lexpr_parens);
                 self.lexpr.as_ref().unwrap().print(p)?;
-                p.word_if(")", need_lexpr_parens);
+                p.optional_word(")", need_lexpr_parens);
                 p.keyword(" is distinct from ");
-                p.word_if("(", need_rexpr_parens);
+                p.optional_word("(", need_rexpr_parens);
                 self.rexpr.as_ref().unwrap().print(p)?;
-                p.word_if(")", need_rexpr_parens);
+                p.optional_word(")", need_rexpr_parens);
             }
             AExprKind::AexprNotDistinct => todo!("{:?}", self.kind()),
             AExprKind::AexprNullif => todo!("{:?}", self.kind()),
