@@ -1,3 +1,5 @@
+// Adapted from https://github.com/dtolnay/prettyplease/blob/0.2.15/src/convenience.rs.
+
 #![allow(dead_code)]
 
 use super::algo::BeginToken;
