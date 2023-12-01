@@ -56,7 +56,7 @@ pub fn unparse(protobuf: &protobuf::ParseResult) -> Result<String> {
 
     protobuf
         .print(&mut p)
-        .map_err(|_| Error::Parse(String::new()))?;
+        .map_err(|_| Error::Parse("oups".into()))?;
 
     Ok(p.eof())
 }
