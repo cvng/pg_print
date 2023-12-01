@@ -51,7 +51,7 @@ enum PrintFrame {
     Broken(usize, Breaks),
 }
 
-pub struct Algorithm {
+pub struct Printer {
     out: String,
     // Number of spaces left on line
     space: isize,
@@ -75,9 +75,9 @@ pub struct Algorithm {
     pending_indentation: usize,
 }
 
-impl Algorithm {
+impl Printer {
     pub fn new() -> Self {
-        Algorithm {
+        Self {
             out: String::new(),
             space: MARGIN,
             buf: RingBuffer::new(),

@@ -1,16 +1,94 @@
-use super::utils::int_val;
-use super::utils::is_op;
-use super::utils::str_val;
-use super::utils::string_literal;
+use super::alg::Printer;
 use crate::fmt;
 use crate::fmt::Print;
 use crate::rel_persistence::RelPersistence;
+use pg_query::protobuf::a_const::Val;
+use pg_query::protobuf::AConst;
 use pg_query::protobuf::DropBehavior;
 use pg_query::protobuf::GrantTargetType;
 use pg_query::protobuf::ObjectType;
 use pg_query::Node;
+use pg_query::NodeEnum;
 
 const NAMEDATALEN: usize = 64;
+const ESCAPE_STRING_SYNTAX: char = 'E';
+
+// See https://github.com/pganalyze/libpg_query/blob/15-latest/src/postgres_deparse.c#L53.
+pub fn string_literal(p: &mut fmt::Printer, val: &str) -> fmt::Result {
+    if val.contains('\\') {
+        p.word(ESCAPE_STRING_SYNTAX.to_string());
+    }
+
+    p.word('\''.to_string());
+
+    for c in val.chars() {
+        if c == '\'' || c == '\\' {
+            p.word(c.to_string());
+        }
+
+        p.word(c.to_string());
+    }
+
+    p.word('\''.to_string());
+
+    Ok(())
+}
+
+pub fn is_op(val: Option<String>) -> bool {
+    val.unwrap().chars().all(|cp| {
+        cp == '~'
+            || cp == '!'
+            || cp == '@'
+            || cp == '#'
+            || cp == '^'
+            || cp == '&'
+            || cp == '|'
+            || cp == '`'
+            || cp == '?'
+            || cp == '+'
+            || cp == '-'
+            || cp == '*'
+            || cp == '/'
+            || cp == '%'
+            || cp == '<'
+            || cp == '>'
+            || cp == '='
+    })
+}
+
+pub fn str_val(node: &Node) -> Option<String> {
+    match node.node.as_ref().unwrap() {
+        NodeEnum::String(val) => Some(val.sval.clone()),
+        _ => None,
+    }
+}
+
+pub fn int_val(node: &Node) -> Option<i32> {
+    match node.node.as_ref().unwrap() {
+        NodeEnum::Integer(val) => Some(val.ival),
+        _ => None,
+    }
+}
+
+pub fn a_const_int_val(node: &Node) -> Option<i32> {
+    match node.node.as_ref().unwrap() {
+        NodeEnum::AConst(AConst {
+            val: Some(Val::Ival(val)),
+            ..
+        }) => Some(val.ival),
+        _ => None,
+    }
+}
+
+impl Printer {
+    pub fn any_name(&mut self, list: &[Node]) -> fmt::Result {
+        any_name(self, list)
+    }
+
+    pub fn opt_as(&mut self) {
+        self.keyword(" as ")
+    }
+}
 
 pub fn expr_list(p: &mut fmt::Printer, list: &[Node]) -> fmt::Result {
     for (i, expr) in list.iter().enumerate() {

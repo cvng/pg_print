@@ -1,12 +1,11 @@
-mod algorithm;
-mod printer;
+mod alg;
+mod print;
 
 pub mod gram;
-pub mod utils;
 
-pub use printer::Context;
-pub use printer::Error;
-pub use printer::Print;
-pub use printer::Printer;
-pub use printer::Result;
-pub use utils::*;
+pub use alg::Printer;
+pub use gram::*;
+pub use print::Context;
+pub use print::Error;
+pub use print::Print;
+pub use print::Result;

@@ -1,12 +1,10 @@
 #![allow(dead_code)]
 
-use super::algorithm::Algorithm;
-use super::algorithm::BeginToken;
-use super::algorithm::BreakToken;
-use super::algorithm::Breaks;
-use super::algorithm::SIZE_INFINITY;
-use super::gram;
-use pg_query::Node;
+use super::alg::BeginToken;
+use super::alg::BreakToken;
+use super::alg::Breaks;
+use super::alg::Printer;
+use super::alg::SIZE_INFINITY;
 use std::borrow::Cow;
 use std::result;
 
@@ -44,46 +42,28 @@ pub trait Print {
     }
 }
 
-pub struct Printer {
-    inner: Algorithm,
-}
-
 impl Printer {
-    pub fn new() -> Self {
-        Self {
-            inner: Algorithm::new(),
-        }
-    }
-
-    pub fn eof(self) -> String {
-        self.inner.eof()
-    }
-
-    pub fn offset(&mut self, offset: isize) {
-        self.inner.offset(offset)
-    }
-
     pub fn ibox(&mut self, indent: isize) {
-        self.inner.scan_begin(BeginToken {
+        self.scan_begin(BeginToken {
             offset: indent,
             breaks: Breaks::Inconsistent,
         });
     }
 
     pub fn cbox(&mut self, indent: isize) {
-        self.inner.scan_begin(BeginToken {
+        self.scan_begin(BeginToken {
             offset: indent,
             breaks: Breaks::Consistent,
         });
     }
 
     pub fn end(&mut self) {
-        self.inner.scan_end();
+        self.scan_end();
     }
 
     pub fn word<S: Into<Cow<'static, str>>>(&mut self, wrd: S) {
         let s = wrd.into();
-        self.inner.scan_string(s);
+        self.scan_string(s);
     }
 
     pub fn keyword<S: Into<Cow<'static, str>>>(&mut self, wrd: S) {
@@ -107,7 +87,7 @@ impl Printer {
     }
 
     fn spaces(&mut self, n: usize) {
-        self.inner.scan_break(BreakToken {
+        self.scan_break(BreakToken {
             blank_space: n,
             ..BreakToken::default()
         });
@@ -131,7 +111,7 @@ impl Printer {
     }
 
     pub fn space_if_nonempty(&mut self) {
-        self.inner.scan_break(BreakToken {
+        self.scan_break(BreakToken {
             blank_space: 1,
             if_nonempty: true,
             ..BreakToken::default()
@@ -139,7 +119,7 @@ impl Printer {
     }
 
     pub fn hardbreak_if_nonempty(&mut self) {
-        self.inner.scan_break(BreakToken {
+        self.scan_break(BreakToken {
             blank_space: SIZE_INFINITY as usize,
             if_nonempty: true,
             ..BreakToken::default()
@@ -148,7 +128,7 @@ impl Printer {
 
     pub fn trailing_comma(&mut self, is_last: bool) {
         if is_last {
-            self.inner.scan_break(BreakToken {
+            self.scan_break(BreakToken {
                 pre_break: Some(','),
                 ..BreakToken::default()
             });
@@ -160,7 +140,7 @@ impl Printer {
 
     pub fn trailing_comma_or_space(&mut self, is_last: bool) {
         if is_last {
-            self.inner.scan_break(BreakToken {
+            self.scan_break(BreakToken {
                 blank_space: 1,
                 pre_break: Some(','),
                 ..BreakToken::default()
@@ -179,17 +159,9 @@ impl Printer {
     }
 
     pub fn neverbreak(&mut self) {
-        self.inner.scan_break(BreakToken {
+        self.scan_break(BreakToken {
             never_break: true,
             ..BreakToken::default()
         });
-    }
-
-    pub fn any_name(&mut self, list: &[Node]) -> Result {
-        gram::any_name(self, list)
-    }
-
-    pub fn opt_as(&mut self) {
-        self.keyword(" as ")
     }
 }
