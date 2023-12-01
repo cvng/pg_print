@@ -1,11 +1,11 @@
 use crate::fmt;
-use crate::fmt::gram::print_any_name;
+use crate::fmt::gram;
 use pg_query::protobuf::CreateDomainStmt;
 
 impl fmt::Print for CreateDomainStmt {
     fn print(&self, p: &mut fmt::Printer) -> fmt::Result {
         p.keyword("create domain ");
-        print_any_name(p, &self.domainname)?;
+        gram::print_any_name(p, &self.domainname)?;
         p.keyword(" as ");
 
         self.type_name.as_ref().unwrap().print(p)?;

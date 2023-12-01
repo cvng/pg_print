@@ -1,7 +1,5 @@
 use crate::fmt;
-use crate::fmt::gram::opt_drop_behavior;
-use crate::fmt::gram::print_expr_list;
-use crate::fmt::gram::privilege_target;
+use crate::fmt::gram;
 use pg_query::protobuf::GrantStmt;
 
 impl fmt::Print for GrantStmt {
@@ -17,7 +15,7 @@ impl fmt::Print for GrantStmt {
         }
 
         if !self.privileges.is_empty() {
-            print_expr_list(p, &self.privileges)?;
+            gram::print_expr_list(p, &self.privileges)?;
             p.nbsp();
         } else {
             p.keyword("all ");
@@ -25,7 +23,7 @@ impl fmt::Print for GrantStmt {
 
         p.keyword("on ");
 
-        privilege_target(p, &self.targtype(), &self.objtype(), &self.objects)?;
+        gram::privilege_target(p, &self.targtype(), &self.objtype(), &self.objects)?;
         p.nbsp();
 
         if self.is_grant {
@@ -43,7 +41,7 @@ impl fmt::Print for GrantStmt {
             p.keyword(" with grant option");
         }
 
-        opt_drop_behavior(p, self.behavior())?;
+        gram::opt_drop_behavior(p, self.behavior())?;
 
         if let Some(grantor) = &self.grantor {
             p.keyword("granted by ");

@@ -1,6 +1,5 @@
 use crate::fmt;
-use crate::fmt::gram::print_opt_with;
-use crate::fmt::gram::print_where_clause;
+use crate::fmt::gram;
 use pg_query::protobuf::IndexStmt;
 
 impl fmt::Print for IndexStmt {
@@ -48,7 +47,7 @@ impl fmt::Print for IndexStmt {
             p.keyword("nulls not distinct ");
         }
 
-        print_opt_with(p, &self.options)?;
+        gram::print_opt_with(p, &self.options)?;
 
         if !self.table_space.is_empty() {
             p.keyword("tablespace ");
@@ -56,7 +55,7 @@ impl fmt::Print for IndexStmt {
             p.nbsp();
         }
 
-        print_where_clause(p, self.where_clause.as_deref())?;
+        gram::print_where_clause(p, self.where_clause.as_deref())?;
 
         Ok(())
     }

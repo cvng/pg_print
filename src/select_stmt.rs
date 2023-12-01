@@ -1,6 +1,5 @@
 use crate::fmt;
-use crate::fmt::gram::print_from_clause;
-use crate::fmt::gram::print_where_clause;
+use crate::fmt::gram;
 use pg_query::protobuf::SelectStmt;
 use pg_query::protobuf::SetOperation;
 
@@ -41,8 +40,8 @@ impl fmt::Print for SelectStmt {
                     p.word(" ");
                 }
 
-                print_from_clause(p, &self.from_clause)?;
-                print_where_clause(p, self.where_clause.as_deref())?;
+                gram::print_from_clause(p, &self.from_clause)?;
+                gram::print_where_clause(p, self.where_clause.as_deref())?;
             }
             _ => todo!("{:?}", self.op()),
         };

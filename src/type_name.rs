@@ -1,7 +1,7 @@
 use crate::fmt;
+use crate::fmt::gram;
 use crate::fmt::gram::a_const_int_val;
 use crate::fmt::gram::int_val;
-use crate::fmt::gram::print_any_name;
 use crate::fmt::gram::str_val;
 use crate::fmt::Print;
 use crate::interval_fields::IntervalFields;
@@ -41,7 +41,7 @@ impl fmt::Print for TypeName {
                     if !self.typmods.is_empty() {
                         p.word("(");
                         for (i, typmod) in self.typmods.iter().enumerate() {
-                            print_signed_iconst(p, typmod);
+                            gram::print_signed_iconst(p, typmod);
                             p.comma(i >= self.typmods.len() - 1);
                         }
                         p.word(") ");
@@ -57,7 +57,7 @@ impl fmt::Print for TypeName {
                     if !self.typmods.is_empty() {
                         p.word("(");
                         for (i, typmod) in self.typmods.iter().enumerate() {
-                            print_signed_iconst(p, typmod);
+                            gram::print_signed_iconst(p, typmod);
                             p.comma(i >= self.typmods.len() - 1);
                         }
                         p.word(") ");
@@ -78,7 +78,7 @@ impl fmt::Print for TypeName {
                 }
             };
         } else {
-            print_any_name(p, &self.names)?;
+            gram::print_any_name(p, &self.names)?;
         }
 
         if !self.typmods.is_empty() && !skip_typmods {
@@ -126,8 +126,4 @@ fn print_interval_typmods(p: &mut fmt::Printer, node: &TypeName) -> fmt::Result 
     }
 
     Ok(())
-}
-
-fn print_signed_iconst(p: &mut fmt::Printer, node: &Node) {
-    p.word(format!("{}", int_val(node).unwrap()));
 }

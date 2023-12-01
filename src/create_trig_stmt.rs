@@ -1,7 +1,5 @@
 use crate::fmt;
-use crate::fmt::gram::print_column_list;
-use crate::fmt::gram::print_func_name;
-use crate::fmt::gram::print_string_literal;
+use crate::fmt::gram;
 use crate::fmt::gram::str_val;
 use pg_query::protobuf::CreateTrigStmt;
 
@@ -59,7 +57,7 @@ impl fmt::Print for CreateTrigStmt {
 
             if !self.columns.is_empty() {
                 p.keyword("of ");
-                print_column_list(p, &self.columns)?;
+                gram::print_column_list(p, &self.columns)?;
                 p.nbsp();
             }
             skip_events_or = false;
@@ -109,11 +107,11 @@ impl fmt::Print for CreateTrigStmt {
         }
 
         p.keyword("execute function ");
-        print_func_name(p, &self.funcname)?;
+        gram::print_func_name(p, &self.funcname)?;
 
         p.word("(");
         for (i, arg) in self.args.iter().enumerate() {
-            print_string_literal(p, &str_val(arg).unwrap())?;
+            gram::print_string_literal(p, &str_val(arg).unwrap())?;
             p.comma(i >= self.args.len() - 1);
         }
         p.word(")");

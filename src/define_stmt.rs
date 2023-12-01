@@ -1,5 +1,5 @@
 use crate::fmt;
-use crate::fmt::gram::print_any_name;
+use crate::fmt::gram;
 use pg_query::protobuf::DefineStmt;
 use pg_query::protobuf::ObjectType;
 use pg_query::NodeEnum;
@@ -27,7 +27,7 @@ impl fmt::Print for DefineStmt {
             | ObjectType::ObjectTsdictionary
             | ObjectType::ObjectTstemplate
             | ObjectType::ObjectTsconfiguration
-            | ObjectType::ObjectCollation => print_any_name(p, &self.defnames)?,
+            | ObjectType::ObjectCollation => gram::print_any_name(p, &self.defnames)?,
             _ => return Err(fmt::Error),
         }
         p.space();

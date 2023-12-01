@@ -1,6 +1,5 @@
 use crate::fmt;
-use crate::fmt::gram::print_column_list;
-use crate::fmt::gram::print_opt_with;
+use crate::fmt::gram;
 use pg_query::protobuf::IntoClause;
 
 impl fmt::Print for IntoClause {
@@ -11,7 +10,7 @@ impl fmt::Print for IntoClause {
 
         if !self.col_names.is_empty() {
             p.word(" (");
-            print_column_list(p, &self.col_names)?;
+            gram::print_column_list(p, &self.col_names)?;
             p.word(")");
         }
 
@@ -21,7 +20,7 @@ impl fmt::Print for IntoClause {
             p.word(" ");
         }
 
-        print_opt_with(p, &self.options)?;
+        gram::print_opt_with(p, &self.options)?;
 
         self.on_commit().print(p)?;
 

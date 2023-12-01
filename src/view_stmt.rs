@@ -1,7 +1,5 @@
 use crate::fmt;
-use crate::fmt::gram::print_column_list;
-use crate::fmt::gram::print_opt_temp;
-use crate::fmt::gram::print_opt_with;
+use crate::fmt::gram;
 use pg_query::protobuf::ViewCheckOption;
 use pg_query::protobuf::ViewStmt;
 
@@ -13,18 +11,18 @@ impl fmt::Print for ViewStmt {
             p.keyword("or replace ");
         }
 
-        print_opt_temp(p, self.view.as_ref().unwrap().relpersistence.clone())?;
+        gram::print_opt_temp(p, self.view.as_ref().unwrap().relpersistence.clone())?;
 
         p.keyword("view ");
         self.view.as_ref().unwrap().print(p)?;
 
         if !self.aliases.is_empty() {
             p.word("(");
-            print_column_list(p, &self.aliases)?;
+            gram::print_column_list(p, &self.aliases)?;
             p.word(")");
         }
 
-        print_opt_with(p, &self.options)?;
+        gram::print_opt_with(p, &self.options)?;
 
         p.keyword(" as ");
         self.query.as_ref().unwrap().print(p)?;

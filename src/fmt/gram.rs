@@ -261,3 +261,43 @@ pub fn name_list(p: &mut fmt::Printer, list: &[Node]) -> fmt::Result {
 
     Ok(())
 }
+
+pub fn qual_op(p: &mut fmt::Printer, list: &[Node]) -> fmt::Result {
+    if list.len() == 1 && is_op(str_val(list.first().unwrap())) {
+        p.word(str_val(list.first().unwrap()).unwrap());
+    } else {
+        p.word("operator(");
+        any_operator(p, list)?;
+        p.word(")");
+    }
+
+    Ok(())
+}
+
+pub fn any_operator(p: &mut fmt::Printer, list: &[Node]) -> fmt::Result {
+    match list.len() {
+        2 => {
+            p.ident(str_val(list.first().unwrap()).unwrap());
+            p.word(".");
+            p.word(str_val(list.last().unwrap()).unwrap());
+            Ok(())
+        }
+        1 => {
+            p.ident(str_val(list.last().unwrap()).unwrap());
+            Ok(())
+        }
+        _ => Err(fmt::Error),
+    }
+}
+
+pub fn opt_inherit(_p: &mut fmt::Printer, list: &[Node]) -> fmt::Result {
+    if !list.is_empty() {
+        todo!("{:?}", list)
+    }
+
+    Ok(())
+}
+
+pub fn print_signed_iconst(p: &mut fmt::Printer, node: &Node) {
+    p.word(format!("{}", int_val(node).unwrap()));
+}
