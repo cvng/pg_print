@@ -1,4 +1,4 @@
-use super::alg::Printer;
+use super::algo::Printer;
 use crate::fmt;
 use crate::fmt::Print;
 use crate::rel_persistence::RelPersistence;

@@ -1,10 +1,10 @@
 #![allow(dead_code)]
 
-use super::alg::BeginToken;
-use super::alg::BreakToken;
-use super::alg::Breaks;
-use super::alg::Printer;
-use super::alg::SIZE_INFINITY;
+use super::algo::BeginToken;
+use super::algo::BreakToken;
+use super::algo::Breaks;
+use super::algo::Printer;
+use super::algo::SIZE_INFINITY;
 use std::borrow::Cow;
 use std::result;
 

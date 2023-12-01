@@ -10,8 +10,8 @@ use std::ops::Index;
 use std::ops::IndexMut;
 use std::option;
 
-const MARGIN: isize = 89;
-const MIN_SPACE: isize = 60;
+pub const MARGIN: isize = 89;
+pub const MIN_SPACE: isize = 60;
 pub const SIZE_INFINITY: isize = 0xffff;
 
 #[derive(Clone, Copy, PartialEq)]

@@ -1,10 +1,10 @@
-mod alg;
+mod algo;
+mod conv;
 mod gram;
-mod print;
 
-pub use alg::Printer;
+pub use algo::Printer;
+pub use conv::Context;
+pub use conv::Error;
+pub use conv::Print;
+pub use conv::Result;
 pub use gram::*;
-pub use print::Context;
-pub use print::Error;
-pub use print::Print;
-pub use print::Result;
