@@ -1,6 +1,5 @@
 use crate::fmt;
 use crate::fmt::a_const_int_val;
-use crate::fmt::gram;
 use crate::fmt::int_val;
 use crate::fmt::str_val;
 use crate::fmt::Print;
@@ -41,7 +40,7 @@ impl fmt::Print for TypeName {
                     if !self.typmods.is_empty() {
                         p.word("(");
                         for (i, typmod) in self.typmods.iter().enumerate() {
-                            gram::signed_iconst(p, typmod);
+                            p.signed_iconst(typmod);
                             p.comma(i >= self.typmods.len() - 1);
                         }
                         p.word(") ");
@@ -57,7 +56,7 @@ impl fmt::Print for TypeName {
                     if !self.typmods.is_empty() {
                         p.word("(");
                         for (i, typmod) in self.typmods.iter().enumerate() {
-                            gram::signed_iconst(p, typmod);
+                            p.signed_iconst(typmod);
                             p.comma(i >= self.typmods.len() - 1);
                         }
                         p.word(") ");
@@ -78,7 +77,7 @@ impl fmt::Print for TypeName {
                 }
             };
         } else {
-            gram::any_name(p, &self.names)?;
+            p.any_name(&self.names)?;
         }
 
         if !self.typmods.is_empty() && !skip_typmods {

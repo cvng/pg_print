@@ -1,5 +1,4 @@
 use crate::fmt;
-use crate::fmt::gram;
 use pg_query::protobuf::AExpr;
 use pg_query::protobuf::AExprKind;
 
@@ -22,7 +21,7 @@ impl fmt::Print for AExpr {
                     p.nbsp();
                 }
 
-                gram::qual_op(p, &self.name)?;
+                p.qual_op(&self.name)?;
 
                 if let Some(rexpr) = &self.rexpr {
                     p.nbsp();

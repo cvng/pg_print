@@ -1,5 +1,4 @@
 use crate::fmt;
-use crate::fmt::gram;
 use pg_query::protobuf::ConstrType;
 use pg_query::protobuf::Constraint;
 
@@ -40,13 +39,13 @@ impl fmt::Print for Constraint {
         if !self.keys.is_empty() {
             p.nbsp();
             p.word("(");
-            gram::column_list(p, &self.keys)?;
+            p.column_list(&self.keys)?;
             p.word(")");
         }
 
         match self.contype() {
             ConstrType::ConstrPrimary | ConstrType::ConstrUnique | ConstrType::ConstrExclusion => {
-                gram::opt_with(p, &self.options)?
+                p.opt_with(&self.options)?
             }
             _ => {}
         }

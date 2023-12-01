@@ -1,5 +1,4 @@
 use crate::fmt;
-use crate::fmt::gram;
 use pg_query::protobuf::SelectStmt;
 use pg_query::protobuf::SetOperation;
 
@@ -40,8 +39,8 @@ impl fmt::Print for SelectStmt {
                     p.word(" ");
                 }
 
-                gram::from_clause(p, &self.from_clause)?;
-                gram::where_clause(p, self.where_clause.as_deref())?;
+                p.from_clause(&self.from_clause)?;
+                p.where_clause(self.where_clause.as_deref())?;
             }
             _ => todo!("{:?}", self.op()),
         };

@@ -1,5 +1,4 @@
 use crate::fmt;
-use crate::fmt::gram;
 use crate::INDENT;
 use pg_query::protobuf::CreateStmt;
 use pg_query::NodeEnum;
@@ -13,7 +12,7 @@ impl fmt::Print for CreateStmt {
             p.keyword("foreign ");
         }
 
-        gram::opt_temp(p, self.relation.as_ref().unwrap().relpersistence.clone())?;
+        p.opt_temp(self.relation.as_ref().unwrap().relpersistence.clone())?;
 
         p.keyword("table ");
 
@@ -66,10 +65,10 @@ impl fmt::Print for CreateStmt {
             partbound.print(p)?;
             p.word(" ");
         } else {
-            gram::opt_inherit(p, &self.inh_relations)?;
+            p.opt_inherit(&self.inh_relations)?;
         }
 
-        gram::opt_with(p, &self.options)?;
+        p.opt_with(&self.options)?;
 
         self.oncommit().print(p)?;
 

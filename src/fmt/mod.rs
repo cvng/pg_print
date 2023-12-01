@@ -1,7 +1,6 @@
 mod alg;
+mod gram;
 mod print;
-
-pub mod gram;
 
 pub use alg::Printer;
 pub use gram::*;

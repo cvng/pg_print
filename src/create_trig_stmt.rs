@@ -1,5 +1,4 @@
 use crate::fmt;
-use crate::fmt::gram;
 use crate::fmt::str_val;
 use crate::fmt::string_literal;
 use pg_query::protobuf::CreateTrigStmt;
@@ -58,7 +57,7 @@ impl fmt::Print for CreateTrigStmt {
 
             if !self.columns.is_empty() {
                 p.keyword("of ");
-                gram::column_list(p, &self.columns)?;
+                p.column_list(&self.columns)?;
                 p.nbsp();
             }
             skip_events_or = false;
@@ -108,7 +107,7 @@ impl fmt::Print for CreateTrigStmt {
         }
 
         p.keyword("execute function ");
-        gram::func_name(p, &self.funcname)?;
+        p.func_name(&self.funcname)?;
 
         p.word("(");
         for (i, arg) in self.args.iter().enumerate() {

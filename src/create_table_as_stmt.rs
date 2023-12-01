@@ -1,5 +1,4 @@
 use crate::fmt;
-use crate::fmt::gram;
 use pg_query::protobuf::CreateTableAsStmt;
 use pg_query::protobuf::IntoClause;
 
@@ -7,8 +6,7 @@ impl fmt::Print for CreateTableAsStmt {
     fn print(&self, p: &mut fmt::Printer) -> fmt::Result {
         p.keyword("create ");
 
-        gram::opt_temp(
-            p,
+        p.opt_temp(
             self.into
                 .as_ref()
                 .unwrap()

@@ -1,5 +1,4 @@
 use crate::fmt;
-use crate::fmt::gram;
 use pg_query::protobuf::CollateClause;
 use pg_query::NodeEnum;
 
@@ -15,7 +14,7 @@ impl fmt::Print for CollateClause {
         }
 
         p.keyword("collate ");
-        gram::any_name(p, &self.collname)?;
+        p.any_name(&self.collname)?;
 
         Ok(())
     }

@@ -1,5 +1,4 @@
 use crate::fmt;
-use crate::fmt::gram;
 use pg_query::protobuf::ColumnDef;
 
 impl fmt::Print for ColumnDef {
@@ -21,7 +20,7 @@ impl fmt::Print for ColumnDef {
 
         if !self.fdwoptions.is_empty() {
             p.nbsp();
-            gram::create_generic_options(p, &self.fdwoptions)?;
+            p.create_generic_options(&self.fdwoptions)?;
         }
 
         for constraint in self.constraints.iter() {
