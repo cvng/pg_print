@@ -27,7 +27,7 @@ impl fmt::Print for DefineStmt {
             | ObjectType::ObjectTsdictionary
             | ObjectType::ObjectTstemplate
             | ObjectType::ObjectTsconfiguration
-            | ObjectType::ObjectCollation => gram::print_any_name(p, &self.defnames)?,
+            | ObjectType::ObjectCollation => gram::any_name(p, &self.defnames)?,
             _ => return Err(fmt::Error),
         }
         p.space();

@@ -252,6 +252,6 @@ impl fmt::Print for Node {
 
 impl fmt::Print for [Node] {
     fn print(&self, p: &mut fmt::Printer) -> fmt::Result {
-        gram::print_expr_list(p, self)
+        gram::expr_list(p, self)
     }
 }

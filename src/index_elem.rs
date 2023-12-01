@@ -14,13 +14,13 @@ impl fmt::Print for IndexElem {
             unreachable!("{:?}", self);
         }
 
-        gram::print_opt_collate(p, &self.collation)?;
+        gram::opt_collate(p, &self.collation)?;
 
         if !self.opclass.is_empty() {
-            gram::print_any_name(p, &self.opclass)?;
+            gram::any_name(p, &self.opclass)?;
 
             if !self.opclassopts.is_empty() {
-                gram::print_rel_options(p, &self.opclassopts)?;
+                gram::rel_options(p, &self.opclassopts)?;
             }
 
             p.nbsp();

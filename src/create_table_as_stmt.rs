@@ -7,7 +7,7 @@ impl fmt::Print for CreateTableAsStmt {
     fn print(&self, p: &mut fmt::Printer) -> fmt::Result {
         p.keyword("create ");
 
-        gram::print_opt_temp(
+        gram::opt_temp(
             p,
             self.into
                 .as_ref()

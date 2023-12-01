@@ -13,7 +13,7 @@ impl fmt::Print for CreateStmt {
             p.keyword("foreign ");
         }
 
-        gram::print_opt_temp(p, self.relation.as_ref().unwrap().relpersistence.clone())?;
+        gram::opt_temp(p, self.relation.as_ref().unwrap().relpersistence.clone())?;
 
         p.keyword("table ");
 
@@ -69,7 +69,7 @@ impl fmt::Print for CreateStmt {
             gram::opt_inherit(p, &self.inh_relations)?;
         }
 
-        gram::print_opt_with(p, &self.options)?;
+        gram::opt_with(p, &self.options)?;
 
         self.oncommit().print(p)?;
 

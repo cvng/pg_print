@@ -1,8 +1,8 @@
 use crate::fmt;
+use crate::fmt::a_const_int_val;
 use crate::fmt::gram;
-use crate::fmt::gram::a_const_int_val;
-use crate::fmt::gram::int_val;
-use crate::fmt::gram::str_val;
+use crate::fmt::int_val;
+use crate::fmt::str_val;
 use crate::fmt::Print;
 use crate::interval_fields::IntervalFields;
 use crate::interval_fields::INTERVAL_FULL_PRECISION;
@@ -41,7 +41,7 @@ impl fmt::Print for TypeName {
                     if !self.typmods.is_empty() {
                         p.word("(");
                         for (i, typmod) in self.typmods.iter().enumerate() {
-                            gram::print_signed_iconst(p, typmod);
+                            gram::signed_iconst(p, typmod);
                             p.comma(i >= self.typmods.len() - 1);
                         }
                         p.word(") ");
@@ -57,7 +57,7 @@ impl fmt::Print for TypeName {
                     if !self.typmods.is_empty() {
                         p.word("(");
                         for (i, typmod) in self.typmods.iter().enumerate() {
-                            gram::print_signed_iconst(p, typmod);
+                            gram::signed_iconst(p, typmod);
                             p.comma(i >= self.typmods.len() - 1);
                         }
                         p.word(") ");
@@ -78,7 +78,7 @@ impl fmt::Print for TypeName {
                 }
             };
         } else {
-            gram::print_any_name(p, &self.names)?;
+            gram::any_name(p, &self.names)?;
         }
 
         if !self.typmods.is_empty() && !skip_typmods {

@@ -5,6 +5,8 @@ use super::algorithm::BeginToken;
 use super::algorithm::BreakToken;
 use super::algorithm::Breaks;
 use super::algorithm::SIZE_INFINITY;
+use super::gram;
+use pg_query::Node;
 use std::borrow::Cow;
 use std::result;
 
@@ -119,8 +121,9 @@ impl Printer {
         self.spaces(1);
     }
 
-    pub fn nbsp(&mut self) {
+    pub fn nbsp(&mut self) -> Option<()> {
         self.word(" ");
+        Some(())
     }
 
     pub fn hardbreak(&mut self) {
@@ -180,5 +183,13 @@ impl Printer {
             never_break: true,
             ..BreakToken::default()
         });
+    }
+
+    pub fn any_name(&mut self, list: &[Node]) -> Result {
+        gram::any_name(self, list)
+    }
+
+    pub fn opt_as(&mut self) {
+        self.keyword(" as ")
     }
 }

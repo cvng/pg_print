@@ -19,7 +19,7 @@ impl fmt::Print for AccessPriv {
 
         if !self.cols.is_empty() {
             p.word("(");
-            gram::print_column_list(p, &self.cols)?;
+            gram::column_list(p, &self.cols)?;
             p.word(")");
         }
 

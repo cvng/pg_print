@@ -40,8 +40,8 @@ impl fmt::Print for SelectStmt {
                     p.word(" ");
                 }
 
-                gram::print_from_clause(p, &self.from_clause)?;
-                gram::print_where_clause(p, self.where_clause.as_deref())?;
+                gram::from_clause(p, &self.from_clause)?;
+                gram::where_clause(p, self.where_clause.as_deref())?;
             }
             _ => todo!("{:?}", self.op()),
         };

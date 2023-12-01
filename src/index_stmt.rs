@@ -47,7 +47,7 @@ impl fmt::Print for IndexStmt {
             p.keyword("nulls not distinct ");
         }
 
-        gram::print_opt_with(p, &self.options)?;
+        gram::opt_with(p, &self.options)?;
 
         if !self.table_space.is_empty() {
             p.keyword("tablespace ");
@@ -55,7 +55,7 @@ impl fmt::Print for IndexStmt {
             p.nbsp();
         }
 
-        gram::print_where_clause(p, self.where_clause.as_deref())?;
+        gram::where_clause(p, self.where_clause.as_deref())?;
 
         Ok(())
     }

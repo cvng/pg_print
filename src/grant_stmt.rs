@@ -15,7 +15,7 @@ impl fmt::Print for GrantStmt {
         }
 
         if !self.privileges.is_empty() {
-            gram::print_expr_list(p, &self.privileges)?;
+            gram::expr_list(p, &self.privileges)?;
             p.nbsp();
         } else {
             p.keyword("all ");

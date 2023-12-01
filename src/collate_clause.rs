@@ -15,7 +15,7 @@ impl fmt::Print for CollateClause {
         }
 
         p.keyword("collate ");
-        gram::print_any_name(p, &self.collname)?;
+        gram::any_name(p, &self.collname)?;
 
         Ok(())
     }

@@ -11,18 +11,18 @@ impl fmt::Print for ViewStmt {
             p.keyword("or replace ");
         }
 
-        gram::print_opt_temp(p, self.view.as_ref().unwrap().relpersistence.clone())?;
+        gram::opt_temp(p, self.view.as_ref().unwrap().relpersistence.clone())?;
 
         p.keyword("view ");
         self.view.as_ref().unwrap().print(p)?;
 
         if !self.aliases.is_empty() {
             p.word("(");
-            gram::print_column_list(p, &self.aliases)?;
+            gram::column_list(p, &self.aliases)?;
             p.word(")");
         }
 
-        gram::print_opt_with(p, &self.options)?;
+        gram::opt_with(p, &self.options)?;
 
         p.keyword(" as ");
         self.query.as_ref().unwrap().print(p)?;

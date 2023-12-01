@@ -10,7 +10,7 @@ impl fmt::Print for IntoClause {
 
         if !self.col_names.is_empty() {
             p.word(" (");
-            gram::print_column_list(p, &self.col_names)?;
+            gram::column_list(p, &self.col_names)?;
             p.word(")");
         }
 
@@ -20,7 +20,7 @@ impl fmt::Print for IntoClause {
             p.word(" ");
         }
 
-        gram::print_opt_with(p, &self.options)?;
+        gram::opt_with(p, &self.options)?;
 
         self.on_commit().print(p)?;
 

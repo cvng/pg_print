@@ -40,13 +40,13 @@ impl fmt::Print for Constraint {
         if !self.keys.is_empty() {
             p.nbsp();
             p.word("(");
-            gram::print_column_list(p, &self.keys)?;
+            gram::column_list(p, &self.keys)?;
             p.word(")");
         }
 
         match self.contype() {
             ConstrType::ConstrPrimary | ConstrType::ConstrUnique | ConstrType::ConstrExclusion => {
-                gram::print_opt_with(p, &self.options)?
+                gram::opt_with(p, &self.options)?
             }
             _ => {}
         }
