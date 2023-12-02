@@ -6,11 +6,7 @@ use pg_query::NodeEnum;
 impl fmt::Print for CreateExtensionStmt {
     fn print(&self, p: &mut fmt::Printer) -> fmt::Result {
         p.keyword("create extension ");
-
-        if self.if_not_exists {
-            p.keyword("if not exists ");
-        }
-
+        p.optional_keyword("if not exists ", self.if_not_exists);
         p.ident(self.extname.clone());
         p.nbsp();
 
@@ -34,12 +30,11 @@ impl fmt::Print for CreateExtensionStmt {
                     p.non_reserved_word_or_scont(str_val(&def_elem.arg.clone().unwrap()).unwrap())?;
                 }
                 "cascade" => {
-                    p.keyword("cascade");
+                    p.keyword("cascade ");
                 }
-                _ => unreachable!("{}", def_elem.defname),
+                _ => {}
             }
-
-            p.space()
+            p.space();
         }
 
         Ok(())

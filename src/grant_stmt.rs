@@ -33,7 +33,7 @@ impl fmt::Print for GrantStmt {
 
         for (i, grantee) in self.grantees.iter().enumerate() {
             grantee.print(p)?;
-            p.comma(i >= self.grantees.len() - 1);
+            p.trailing_comma(i >= self.grantees.len() - 1);
         }
 
         if self.is_grant && self.grant_option {

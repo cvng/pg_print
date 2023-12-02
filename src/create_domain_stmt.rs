@@ -6,14 +6,17 @@ impl fmt::Print for CreateDomainStmt {
         p.keyword("create domain ");
         p.any_name(&self.domainname)?;
         p.opt_as();
-        self.type_name
-            .as_ref()
-            .and_then(|t| t.print(p).ok())
-            .and_then(|_| p.nbsp());
-        self.coll_clause
-            .as_ref()
-            .and_then(|c| c.print(p).ok())
-            .and_then(|_| p.nbsp());
+
+        if let Some(type_name) = &self.type_name {
+            type_name.print(p)?;
+            p.nbsp();
+        }
+
+        if let Some(coll_clause) = &self.coll_clause {
+            coll_clause.print(p)?;
+            p.nbsp();
+        }
+
         self.constraints.print(p)
     }
 }

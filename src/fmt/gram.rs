@@ -100,7 +100,7 @@ impl Printer {
     pub fn expr_list(&mut self, list: &[Node]) -> fmt::Result {
         for (i, expr) in list.iter().enumerate() {
             expr.print(self)?;
-            self.comma(i >= list.len() - 1);
+            self.trailing_comma(i >= list.len() - 1);
         }
 
         Ok(())
@@ -125,7 +125,7 @@ impl Printer {
 
             for (i, option) in list.iter().enumerate() {
                 option.print(self)?;
-                self.comma(i >= list.len() - 1);
+                self.trailing_comma(i >= list.len() - 1);
             }
 
             self.word(")");
@@ -142,7 +142,7 @@ impl Printer {
 
             for (i, item) in list.iter().enumerate() {
                 item.print(self)?;
-                self.comma(i >= list.len() - 1);
+                self.trailing_comma(i >= list.len() - 1);
             }
             self.word(" ");
         }
@@ -248,7 +248,7 @@ impl Printer {
     pub fn name_list(&mut self, list: &[Node]) -> fmt::Result {
         for (i, name) in list.iter().enumerate() {
             self.ident(str_val(name).unwrap());
-            self.comma(i >= list.len() - 1);
+            self.trailing_comma(i >= list.len() - 1);
         }
 
         Ok(())

@@ -7,9 +7,9 @@ impl fmt::Print for CollateClause {
         if let Some(arg) = &self.arg {
             let need_parens = matches!(arg.node.as_ref().unwrap(), NodeEnum::AExpr(_));
 
-            p.word_if("(", need_parens);
+            p.optional_word("(", need_parens);
             arg.print(p)?;
-            p.word_if(")", need_parens);
+            p.optional_word(")", need_parens);
             p.nbsp();
         }
 

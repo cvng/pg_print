@@ -1,6 +1,5 @@
 use crate::fmt;
 use pg_query::protobuf::CreateTableAsStmt;
-use pg_query::protobuf::IntoClause;
 
 impl fmt::Print for CreateTableAsStmt {
     fn print(&self, p: &mut fmt::Printer) -> fmt::Result {
@@ -32,11 +31,10 @@ impl fmt::Print for CreateTableAsStmt {
 
         p.word(" ");
 
-        if let Some(IntoClause {
-            skip_data: true, ..
-        }) = self.into.as_deref()
-        {
-            p.word("with no data ");
+        if let Some(into) = self.into.as_deref() {
+            if into.skip_data {
+                p.word("with no data ");
+            }
         }
 
         Ok(())
