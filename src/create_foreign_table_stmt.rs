@@ -16,7 +16,7 @@ impl fmt::Print for CreateForeignTableStmt {
                     .relation
                     .as_ref()
                     .unwrap()
-                    .clone(), // TODO: clone()!
+                    .clone(), // TODO: expensive clone (size = 152)
             )),
         })?;
 
@@ -26,12 +26,13 @@ impl fmt::Print for CreateForeignTableStmt {
         p.hardbreak();
         p.offset(-INDENT);
         p.end();
-        p.word(")");
+        p.word(") ");
 
         p.opt_inherit(&self.base_stmt.as_ref().unwrap().inh_relations)?;
 
-        p.keyword("server");
+        p.keyword("server ");
         p.name(self.servername.clone());
+        p.nbsp();
 
         p.create_generic_options(&self.options)?;
         Ok(())

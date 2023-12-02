@@ -283,10 +283,12 @@ impl Printer {
     }
 
     pub fn create_generic_options(&mut self, list: &[Node]) -> fmt::Result {
-        self.keyword("options ");
-        self.word("(");
-        self.generic_option_list(list)?;
-        self.word(")");
+        if !list.is_empty() {
+            self.keyword("options ");
+            self.word("(");
+            self.generic_option_list(list)?;
+            self.word(") ");
+        }
         Ok(())
     }
 
@@ -309,10 +311,12 @@ impl Printer {
     }
 
     pub fn opt_inherit(&mut self, list: &[Node]) -> fmt::Result {
-        self.keyword("inherits ");
-        self.word("(");
-        self.qualified_name_list(list)?;
-        self.word(")");
+        if !list.is_empty() {
+            self.keyword("inherits ");
+            self.word("(");
+            self.qualified_name_list(list)?;
+            self.word(") ");
+        }
         Ok(())
     }
 
