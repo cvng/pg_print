@@ -9,6 +9,7 @@ impl fmt::Print for CreateExtensionStmt {
         p.optional_keyword("if not exists ", self.if_not_exists);
         p.ident(self.extname.clone());
         p.nbsp();
+
         for option in &self.options {
             let def_elem = option
                 .node
@@ -18,6 +19,7 @@ impl fmt::Print for CreateExtensionStmt {
                     _ => None,
                 })
                 .unwrap();
+
             match def_elem.defname.as_ref() {
                 "schema" => {
                     p.keyword("schema ");
@@ -28,12 +30,13 @@ impl fmt::Print for CreateExtensionStmt {
                     p.non_reserved_word_or_scont(str_val(&def_elem.arg.clone().unwrap()).unwrap())?;
                 }
                 "cascade" => {
-                    p.keyword("cascade");
+                    p.keyword("cascade ");
                 }
                 _ => {}
             }
             p.space();
         }
+
         Ok(())
     }
 }

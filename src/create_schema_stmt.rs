@@ -6,11 +6,13 @@ impl fmt::Print for CreateSchemaStmt {
         p.keyword("create schema ");
         p.optional_keyword("if not exists ", self.if_not_exists);
         p.ident(self.schemaname.clone());
-        self.authrole.as_ref().and_then(|a| {
+
+        if let Some(authrole) = &self.authrole {
             p.keyword("authorization ");
-            a.print(p).ok();
-            p.nbsp()
-        });
+            authrole.print(p)?;
+            p.nbsp();
+        }
+
         self.schema_elts.print(p)
     }
 }
