@@ -1,0 +1,14 @@
+---
+source: tests/unparse_tests.rs
+description: "tests/sql/ddl/create_foreign_table.sql:1"
+expression: prettified
+---
+CREATE FOREIGN TABLE films (
+    code char(5) NOT NULL,
+    title varchar(40) NOT NULL,
+    did int NOT NULL,
+    date_prod date,
+    kind varchar(10),
+    len interval hour to minute
+)
+SERVER film_server
