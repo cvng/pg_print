@@ -293,7 +293,7 @@ impl Printer {
     }
 
     pub fn generic_option_list(&mut self, list: &[Node]) -> fmt::Result {
-        self.expr_list(list)
+        self.qualified_name_list(list)
     }
 
     pub fn opt_temp(&mut self, relpersistence: String) -> fmt::Result {
@@ -325,18 +325,28 @@ impl Printer {
     }
 
     pub fn qualified_name_list(&mut self, list: &[Node]) -> fmt::Result {
-        for name in list.iter() {
+        for (i, name) in list.iter().enumerate() {
             self.qualified_name(name)?;
+            if i < list.len() - 1 {
+                self.word(",");
+                self.nbsp();
+            }
         }
         Ok(())
     }
 
     pub fn qualified_name(&mut self, node: &Node) -> fmt::Result {
         match node.node.as_ref().unwrap() {
+            NodeEnum::String(node) => self.col_label(node.sval.clone())?,
             NodeEnum::RangeVar(node) => node.print(self)?,
+            NodeEnum::DefElem(node) => node.print(self)?,
             _ => unreachable!(),
         }
-        self.nbsp();
+        Ok(())
+    }
+
+    pub fn col_label(&mut self, name: String) -> fmt::Result {
+        self.ident(name);
         Ok(())
     }
 

@@ -38,6 +38,7 @@ mod rel_persistence;
 mod res_target;
 mod role_spec;
 mod select_stmt;
+mod string;
 mod type_name;
 mod val;
 mod view_stmt;

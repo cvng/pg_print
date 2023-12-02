@@ -1,6 +1,5 @@
 ---
 source: tests/unparse_tests.rs
-assertion_line: 61
 description: "tests/sql/ddl/create_foreign_table.sql:1"
 expression: prettified
 ---
@@ -11,4 +10,5 @@ CREATE FOREIGN TABLE films (
     date_prod date,
     kind varchar(10),
     len interval hour to minute
-) SERVER film_server
+)
+SERVER film_server
