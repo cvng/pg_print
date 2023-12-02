@@ -336,18 +336,7 @@ impl Printer {
     }
 
     pub fn qualified_name(&mut self, node: &Node) -> fmt::Result {
-        match node.node.as_ref().unwrap() {
-            NodeEnum::String(node) => self.col_label(node.sval.clone())?,
-            NodeEnum::RangeVar(node) => node.print(self)?,
-            NodeEnum::DefElem(node) => node.print(self)?,
-            _ => unreachable!(),
-        }
-        Ok(())
-    }
-
-    pub fn col_label(&mut self, name: String) -> fmt::Result {
-        self.ident(name);
-        Ok(())
+        node.print(self)
     }
 
     pub fn name(&mut self, name: String) {
