@@ -283,7 +283,15 @@ impl Printer {
     }
 
     pub fn create_generic_options(&mut self, list: &[Node]) -> fmt::Result {
-        todo!("{:?}", list)
+        self.keyword("options ");
+        self.word("(");
+        self.generic_option_list(list)?;
+        self.word(")");
+        Ok(())
+    }
+
+    pub fn generic_option_list(&mut self, list: &[Node]) -> fmt::Result {
+        self.expr_list(list)
     }
 
     pub fn opt_temp(&mut self, relpersistence: String) -> fmt::Result {
@@ -301,14 +309,34 @@ impl Printer {
     }
 
     pub fn opt_inherit(&mut self, list: &[Node]) -> fmt::Result {
-        if !list.is_empty() {
-            todo!("{:?}", list)
-        }
-
+        self.keyword("inherits ");
+        self.word("(");
+        self.qualified_name_list(list)?;
+        self.word(")");
         Ok(())
     }
 
     pub fn signed_iconst(&mut self, node: &Node) {
         self.word(format!("{}", int_val(node).unwrap()));
+    }
+
+    pub fn qualified_name_list(&mut self, list: &[Node]) -> fmt::Result {
+        for name in list.iter() {
+            self.qualified_name(name)?;
+        }
+        Ok(())
+    }
+
+    pub fn qualified_name(&mut self, node: &Node) -> fmt::Result {
+        match node.node.as_ref().unwrap() {
+            NodeEnum::RangeVar(node) => node.print(self)?,
+            _ => unreachable!(),
+        }
+        self.nbsp();
+        Ok(())
+    }
+
+    pub fn name(&mut self, name: String) {
+        self.ident(name);
     }
 }

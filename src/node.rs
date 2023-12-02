@@ -154,7 +154,7 @@ impl fmt::Print for Node {
             NodeEnum::AlterTableSpaceOptionsStmt(node) => todo!("{:?}", node),
             NodeEnum::AlterTableMoveAllStmt(node) => todo!("{:?}", node),
             NodeEnum::SecLabelStmt(node) => todo!("{:?}", node),
-            NodeEnum::CreateForeignTableStmt(node) => todo!("{:?}", node),
+            NodeEnum::CreateForeignTableStmt(node) => node.print(p),
             NodeEnum::ImportForeignSchemaStmt(node) => todo!("{:?}", node),
             NodeEnum::CreateExtensionStmt(node) => node.print(p),
             NodeEnum::AlterExtensionStmt(node) => todo!("{:?}", node),
