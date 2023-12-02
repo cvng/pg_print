@@ -1,0 +1,7 @@
+---
+source: tests/unparse_tests.rs
+assertion_line: 61
+description: "Statement: tests/sql/ddl/create_function.sql:1"
+expression: prettified
+---
+CREATE OR REPLACE FUNCTION

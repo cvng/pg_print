@@ -5,8 +5,10 @@ use crate::rel_persistence::RelPersistence;
 use pg_query::protobuf::a_const::Val;
 use pg_query::protobuf::AConst;
 use pg_query::protobuf::DropBehavior;
+use pg_query::protobuf::FunctionParameterMode;
 use pg_query::protobuf::GrantTargetType;
 use pg_query::protobuf::ObjectType;
+use pg_query::protobuf::TypeName;
 use pg_query::Node;
 use pg_query::NodeEnum;
 
@@ -186,6 +188,70 @@ impl Printer {
         Ok(())
     }
 
+    pub fn func_args_with_defaults(&mut self, list: &[Node]) -> fmt::Result {
+        self.word("(");
+
+        for (i, arg) in list.iter().enumerate() {
+            arg.print(self)?;
+            self.trailing_comma(i >= list.len() - 1);
+        }
+
+        self.word(")");
+        self.nbsp();
+
+        Ok(())
+    }
+
+    pub fn func_returns(&mut self, node: &TypeName) -> fmt::Result {
+        node.print(self)?;
+        self.nbsp();
+
+        Ok(())
+    }
+
+    pub fn opt_createfunc_opt_list(&mut self, list: &[Node]) -> fmt::Result {
+        if !list.is_empty() {
+            self.keyword("options ");
+            self.word("(");
+
+            for (i, option) in list.iter().enumerate() {
+                option.print(self)?;
+                self.trailing_comma(i >= list.len() - 1);
+            }
+
+            self.word(")");
+            self.nbsp();
+        }
+
+        Ok(())
+    }
+
+    pub fn opt_routine_body(&mut self, node: Option<&Node>) -> fmt::Result {
+        if let Some(node) = node {
+            self.keyword("as ");
+            node.print(self)?;
+            self.nbsp();
+        }
+
+        Ok(())
+    }
+
+    pub fn arg_class(&mut self, node: &FunctionParameterMode) -> fmt::Result {
+        node.print(self)
+    }
+
+    pub fn param_name(&mut self, val: &str) -> fmt::Result {
+        self.ident(val.to_string());
+        self.word(" ");
+        Ok(())
+    }
+
+    pub fn func_type(&mut self, node: &TypeName) -> fmt::Result {
+        node.print(self)?;
+        self.nbsp();
+        Ok(())
+    }
+
     pub fn privilege_target(
         &mut self,
         targtype: &GrantTargetType,
@@ -341,5 +407,11 @@ impl Printer {
 
     pub fn name(&mut self, name: String) {
         self.ident(name);
+    }
+
+    pub fn opt_or_replace(&mut self, replace: bool) {
+        if replace {
+            self.keyword("or replace ");
+        }
     }
 }
