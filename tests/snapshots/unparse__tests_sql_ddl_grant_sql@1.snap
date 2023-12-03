@@ -2,4 +2,4 @@
 source: tests/unparse.rs
 expression: "tests/sql/ddl/grant.sql:1"
 ---
-grant all on schema foo to role1, role2 with grant option
+GRANT ALL ON SCHEMA foo TO role1, role2 WITH GRANT OPTION

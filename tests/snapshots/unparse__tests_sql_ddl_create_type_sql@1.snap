@@ -2,4 +2,4 @@
 source: tests/unparse.rs
 expression: "tests/sql/ddl/create_type.sql:1"
 ---
-create type foo
+CREATE TYPE foo

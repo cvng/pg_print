@@ -2,6 +2,6 @@
 source: tests/unparse.rs
 expression: "tests/sql/ddl/create_table.sql:3"
 ---
-create temporary table a (
+CREATE TEMPORARY TABLE a (
     id serial
-) on commit drop
+) ON COMMIT DROP
