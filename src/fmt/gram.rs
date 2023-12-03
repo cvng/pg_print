@@ -216,7 +216,6 @@ impl Printer {
     }
 
     pub fn opt_createfunc_opt_list(&mut self, list: &[Node]) -> fmt::Result {
-        dbg!(&list);
         if !list.is_empty() {
             for option in list.iter().skip(1) {
                 if let NodeEnum::DefElem(node) = option.node.as_ref().unwrap() {
