@@ -6,7 +6,7 @@ use pg_query::NodeEnum;
 impl fmt::Print for CreateExtensionStmt {
     fn print(&self, p: &mut fmt::Printer) -> fmt::Result {
         p.word("create extension ");
-        p.optional_keyword("if not exists ", self.if_not_exists);
+        p.optional_word("if not exists ", self.if_not_exists);
         p.ident(self.extname.clone());
         p.nbsp();
 
