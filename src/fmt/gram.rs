@@ -99,10 +99,6 @@ impl Printer {
         Ok(())
     }
 
-    pub fn opt_as(&mut self) {
-        self.word(" as ")
-    }
-
     pub fn expr_list(&mut self, list: &[Node]) -> fmt::Result {
         for (i, expr) in list.iter().enumerate() {
             expr.print(self)?;

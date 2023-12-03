@@ -93,7 +93,7 @@ impl fmt::Print for Node {
             NodeEnum::TransactionStmt(node) => todo!("{:?}", node),
             NodeEnum::ViewStmt(node) => node.print(p),
             NodeEnum::LoadStmt(node) => todo!("{:?}", node),
-            NodeEnum::CreateDomainStmt(node) => node.print(p),
+            NodeEnum::CreateDomainStmt(n) => p.create_domain_stmt(n),
             NodeEnum::CreatedbStmt(node) => todo!("{:?}", node),
             NodeEnum::DropdbStmt(node) => todo!("{:?}", node),
             NodeEnum::VacuumStmt(node) => todo!("{:?}", node),

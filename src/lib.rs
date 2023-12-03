@@ -7,7 +7,7 @@ mod collate_clause;
 mod column_def;
 mod column_ref;
 mod constraint;
-mod create_domain_stmt;
+mod domain;
 mod create_extension_stmt;
 mod create_foreign_table_stmt;
 mod create_function_stmt;
