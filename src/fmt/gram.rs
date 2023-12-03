@@ -191,9 +191,9 @@ impl Printer {
     }
 
     pub fn func_args_with_defaults(&mut self, list: &[Node]) -> fmt::Result {
+        self.word("(");
         if !list.is_empty() {
             self.cbox(INDENT);
-            self.word("(");
             self.hardbreak_if_nonempty();
             for (i, arg) in list.iter().enumerate() {
                 arg.print(self)?;
@@ -202,9 +202,9 @@ impl Printer {
             self.space();
             self.offset(-INDENT);
             self.end();
-            self.word(")");
-            self.nbsp();
         }
+        self.word(")");
+        self.space();
         Ok(())
     }
 
@@ -216,6 +216,7 @@ impl Printer {
     }
 
     pub fn opt_createfunc_opt_list(&mut self, list: &[Node]) -> fmt::Result {
+        dbg!(&list);
         if !list.is_empty() {
             for option in list.iter().skip(1) {
                 if let NodeEnum::DefElem(node) = option.node.as_ref().unwrap() {
@@ -241,10 +242,7 @@ impl Printer {
                             self.hardbreak_if_nonempty();
                             if let NodeEnum::List(List { items }) = arg.node.as_ref().unwrap() {
                                 self.word(
-                                    str_val(items.first().unwrap())
-                                        .unwrap()
-                                        .trim_start()
-                                        .to_owned(),
+                                    str_val(items.first().unwrap()).unwrap().trim().to_owned(),
                                 );
                             }
                             self.hardbreak();

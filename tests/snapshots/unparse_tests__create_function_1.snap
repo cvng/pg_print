@@ -9,7 +9,8 @@ CREATE OR REPLACE FUNCTION auth.login(
     OUT user_id int,
     OUT first_name varchar(32),
     OUT last_name varchar(32)
-) LANGUAGE sql
+)
+LANGUAGE sql
 AS $$
-    SELECT u.id, u.first_name, u.last_name FROM auth.users u WHERE u.name = usr AND crypt(pwd, u.password) = u.password AND u.validity @> CURRENT_DATE; 
+    SELECT u.id, u.first_name, u.last_name FROM auth.users u WHERE u.name = usr AND crypt(pwd, u.password) = u.password AND u.validity @> CURRENT_DATE;
 $$

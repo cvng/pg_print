@@ -1,0 +1,10 @@
+---
+source: tests/unparse_tests.rs
+description: "Statement: tests/sql/ddl/create_function.sql:2"
+expression: prettified
+---
+CREATE OR REPLACE FUNCTION auth.crypt_user_password()
+RETURNS trigger LANGUAGE plpgsql
+AS $$
+    BEGIN IF new.password IS NOT NULL AND (char_length(new.password) <> 60 OR substring(new.password, 1, 1) <> '$') THEN new.password := crypt(new.password, gen_salt('bf')); END IF; RETURN new; END;
+$$
