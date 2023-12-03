@@ -5,7 +5,7 @@ use insta::with_settings;
 use pg_deparser::unparse;
 use pg_query::parse;
 
-const PASSES: [&str; 9] = [
+const PASSES: [&str; 10] = [
     // "tests/sql/ddl/alter_default_privileges.sql",
     // "tests/sql/ddl/alter_subscription.sql",
     // "tests/sql/ddl/alter_table.sql",
@@ -18,7 +18,7 @@ const PASSES: [&str; 9] = [
     "tests/sql/ddl/create_extension.sql",
     // "tests/sql/ddl/create_foreign_data_wrapper.sql",
     "tests/sql/ddl/create_foreign_table.sql",
-    // "tests/sql/ddl/create_function.sql",
+    "tests/sql/ddl/create_function.sql",
     // "tests/sql/ddl/create_index.sql",
     // "tests/sql/ddl/create_language.sql",
     // "tests/sql/ddl/create_rule.sql",
@@ -46,6 +46,7 @@ fn test_unparse_statements() {
             .unwrap()
             .split('\n')
             .filter(|line| !line.is_empty())
+            .filter(|line| !line.starts_with("--"))
             .enumerate()
         {
             lineno += 1;
@@ -56,7 +57,7 @@ fn test_unparse_statements() {
                 .to_string();
 
             with_settings!({
-                description => format!("{}:{}", src.display(), lineno),
+                description => format!("Statement: {}:{}", src.display(), lineno),
             }, {
                 assert_snapshot!(
                     format!("{}_{}", src.file_stem().unwrap().to_string_lossy(), lineno),
