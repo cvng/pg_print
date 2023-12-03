@@ -2,11 +2,13 @@ use super::algo::Printer;
 use crate::fmt;
 use crate::fmt::Print;
 use crate::rel_persistence::RelPersistence;
+use crate::INDENT;
 use pg_query::protobuf::a_const::Val;
 use pg_query::protobuf::AConst;
 use pg_query::protobuf::DropBehavior;
 use pg_query::protobuf::FunctionParameterMode;
 use pg_query::protobuf::GrantTargetType;
+use pg_query::protobuf::List;
 use pg_query::protobuf::ObjectType;
 use pg_query::protobuf::TypeName;
 use pg_query::Node;
@@ -189,20 +191,22 @@ impl Printer {
     }
 
     pub fn func_args_with_defaults(&mut self, list: &[Node]) -> fmt::Result {
-        self.word("(");
-
-        for (i, arg) in list.iter().enumerate() {
-            arg.print(self)?;
-            self.trailing_comma(i >= list.len() - 1);
+        if !list.is_empty() {
+            self.cbox(INDENT);
+            self.word("(");
+            self.hardbreak_if_nonempty();
+            for (i, arg) in list.iter().enumerate() {
+                dbg!(arg);
+                arg.print(self)?;
+                self.trailing_comma(i >= list.len() - 1);
+            }
+            self.word(")");
+            self.nbsp();
         }
-
-        self.word(")");
-        self.nbsp();
-
         Ok(())
     }
 
-    pub fn func_returns(&mut self, node: &TypeName) -> fmt::Result {
+    pub fn func_return(&mut self, node: &TypeName) -> fmt::Result {
         node.print(self)?;
         self.nbsp();
 
@@ -211,18 +215,37 @@ impl Printer {
 
     pub fn opt_createfunc_opt_list(&mut self, list: &[Node]) -> fmt::Result {
         if !list.is_empty() {
-            self.keyword("options ");
-            self.word("(");
-
-            for (i, option) in list.iter().enumerate() {
-                option.print(self)?;
-                self.trailing_comma(i >= list.len() - 1);
+            for option in list.iter().skip(1) {
+                if let NodeEnum::DefElem(node) = option.node.as_ref().unwrap() {
+                    self.keyword(node.defname.clone());
+                    if let Some(arg) = &node.arg {
+                        self.nbsp();
+                        self.word(str_val(arg).unwrap());
+                    }
+                }
+                self.hardbreak();
             }
-
-            self.word(")");
-            self.nbsp();
+            if let Some(option) = list.first() {
+                if let NodeEnum::DefElem(node) = option.node.as_ref().unwrap() {
+                    self.keyword(node.defname.clone());
+                    if let Some(arg) = &node.arg {
+                        if node.defname == "as" {
+                            self.cbox(INDENT);
+                            self.nbsp();
+                            self.word("$$");
+                            self.hardbreak_if_nonempty();
+                            if let NodeEnum::List(List { items }) = arg.node.as_ref().unwrap() {
+                                self.word(str_val(items.first().unwrap()).unwrap());
+                            }
+                            self.hardbreak();
+                            self.offset(-INDENT);
+                            self.word("$$");
+                        }
+                    }
+                    self.nbsp();
+                }
+            }
         }
-
         Ok(())
     }
 

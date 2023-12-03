@@ -4,13 +4,9 @@ use pg_query::protobuf::CreateStmt;
 use pg_query::NodeEnum;
 
 impl fmt::Print for CreateStmt {
-    fn print_in_context(&self, p: &mut fmt::Printer, ctx: &fmt::Context) -> fmt::Result {
+    fn print(&self, p: &mut fmt::Printer) -> fmt::Result {
         p.cbox(INDENT);
         p.keyword("create ");
-
-        if matches!(ctx, fmt::Context::ForeignRelation) {
-            p.keyword("foreign ");
-        }
 
         p.opt_temp(self.relation.as_ref().unwrap().relpersistence.clone())?;
 

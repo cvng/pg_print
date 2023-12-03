@@ -29,7 +29,6 @@ pub enum Context {
     CreateType,
     AlterType,
     SetStatement,
-    ForeignRelation,
     Identifier,
     Constant,
 }

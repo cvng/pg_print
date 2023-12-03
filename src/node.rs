@@ -241,7 +241,7 @@ impl fmt::Print for Node {
             NodeEnum::Boolean(node) => todo!("{:?}", node),
             NodeEnum::String(node) => node.print(p),
             NodeEnum::BitString(node) => todo!("{:?}", node),
-            NodeEnum::List(node) => todo!("{:?}", node),
+            NodeEnum::List(node) => node.print(p),
             NodeEnum::IntList(node) => todo!("{:?}", node),
             NodeEnum::OidList(node) => todo!("{:?}", node),
             NodeEnum::AConst(node) => node.print(p),

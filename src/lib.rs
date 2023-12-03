@@ -26,6 +26,7 @@ mod index_stmt;
 mod integer;
 mod interval_fields;
 mod into_clause;
+mod list;
 mod name;
 mod node;
 mod object_type;
