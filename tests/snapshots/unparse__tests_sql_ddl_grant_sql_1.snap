@@ -1,0 +1,5 @@
+---
+source: tests/unparse.rs
+expression: "tests/sql/ddl/grant.sql:1"
+---
+GRANT ALL ON SCHEMA foo TO role1, role2 WITH GRANT OPTION

@@ -1,6 +1,0 @@
----
-source: tests/unparse_tests.rs
-description: "tests/sql/ddl/create_schema.sql:3"
-expression: prettified
----
-CREATE INDEX by_release ON films USING btree (release)

@@ -1,7 +1,6 @@
 ---
-source: tests/unparse_tests.rs
-description: "tests/sql/ddl/create_table.sql:2"
-expression: prettified
+source: tests/unparse.rs
+expression: "tests/sql/ddl/create_table.sql:2"
 ---
 CREATE TABLE films (
     code char(5),

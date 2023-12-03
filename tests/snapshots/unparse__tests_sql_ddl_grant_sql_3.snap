@@ -1,0 +1,5 @@
+---
+source: tests/unparse.rs
+expression: "tests/sql/ddl/grant.sql:3"
+---
+GRANT ALL (field1, field2) ON tab2 TO role2

@@ -1,6 +1,0 @@
----
-source: tests/unparse_tests.rs
-description: "tests/sql/ddl/create_view.sql:1"
-expression: prettified
----
-CREATE OR REPLACE VIEW foo AS SELECT a, b FROM bar

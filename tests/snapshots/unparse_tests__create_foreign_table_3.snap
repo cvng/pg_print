@@ -1,7 +1,0 @@
----
-source: tests/unparse_tests.rs
-description: "tests/sql/ddl/create_foreign_table.sql:3"
-expression: prettified
----
-CREATE FOREIGN TABLE measurement_y2016m07 INHERITS (measurement) 
-SERVER server_07
