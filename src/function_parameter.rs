@@ -14,10 +14,10 @@ impl fmt::Print for FunctionParameter {
 impl fmt::Print for FunctionParameterMode {
     fn print(&self, p: &mut fmt::Printer) -> fmt::Result {
         match self {
-            FunctionParameterMode::FuncParamIn => p.keyword("in "),
-            FunctionParameterMode::FuncParamOut => p.keyword("out "),
-            FunctionParameterMode::FuncParamInout => p.keyword("inout "),
-            FunctionParameterMode::FuncParamVariadic => p.keyword("variadic "),
+            FunctionParameterMode::FuncParamIn => p.word("in "),
+            FunctionParameterMode::FuncParamOut => p.word("out "),
+            FunctionParameterMode::FuncParamInout => p.word("inout "),
+            FunctionParameterMode::FuncParamVariadic => p.word("variadic "),
             _ => {}
         }
         Ok(())

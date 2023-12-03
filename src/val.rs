@@ -34,7 +34,7 @@ impl fmt::Print for Option<Val> {
     fn print_in_context(&self, p: &mut fmt::Printer, ctx: &fmt::Context) -> fmt::Result {
         match self {
             Some(val) => val.print_in_context(p, ctx)?,
-            None => p.keyword("null"),
+            None => p.word("null"),
         }
 
         Ok(())

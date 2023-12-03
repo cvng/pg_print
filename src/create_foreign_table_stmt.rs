@@ -6,7 +6,7 @@ use pg_query::NodeEnum;
 
 impl fmt::Print for CreateForeignTableStmt {
     fn print(&self, p: &mut fmt::Printer) -> fmt::Result {
-        p.keyword("create foreign table ");
+        p.word("create foreign table ");
         p.qualified_name(&Node {
             node: Some(NodeEnum::RangeVar(
                 self.base_stmt
@@ -34,7 +34,7 @@ impl fmt::Print for CreateForeignTableStmt {
         p.opt_inherit(&self.base_stmt.as_ref().unwrap().inh_relations)?;
 
         p.hardbreak();
-        p.keyword("server ");
+        p.word("server ");
         p.name(self.servername.clone());
         p.nbsp();
 

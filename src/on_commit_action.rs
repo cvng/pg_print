@@ -6,9 +6,9 @@ impl fmt::Print for OnCommitAction {
         match self {
             OnCommitAction::Undefined => {}
             OnCommitAction::OncommitNoop => {}
-            OnCommitAction::OncommitPreserveRows => p.keyword(" on commit preserve rows"),
-            OnCommitAction::OncommitDeleteRows => p.keyword(" on commit delete rows"),
-            OnCommitAction::OncommitDrop => p.keyword(" on commit drop"),
+            OnCommitAction::OncommitPreserveRows => p.word(" on commit preserve rows"),
+            OnCommitAction::OncommitDeleteRows => p.word(" on commit delete rows"),
+            OnCommitAction::OncommitDrop => p.word(" on commit drop"),
         }
 
         Ok(())

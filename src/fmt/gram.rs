@@ -98,7 +98,7 @@ impl Printer {
     }
 
     pub fn opt_as(&mut self) {
-        self.keyword(" as ")
+        self.word(" as ")
     }
 
     pub fn expr_list(&mut self, list: &[Node]) -> fmt::Result {
@@ -124,7 +124,7 @@ impl Printer {
 
     pub fn opt_with(&mut self, list: &[Node]) -> fmt::Result {
         if !list.is_empty() {
-            self.keyword(" with ");
+            self.word(" with ");
             self.word("(");
 
             for (i, option) in list.iter().enumerate() {
@@ -142,7 +142,7 @@ impl Printer {
     #[allow(clippy::wrong_self_convention)]
     pub fn from_clause(&mut self, list: &[Node]) -> fmt::Result {
         if !list.is_empty() {
-            self.keyword("from ");
+            self.word("from ");
 
             for (i, item) in list.iter().enumerate() {
                 item.print(self)?;
@@ -156,7 +156,7 @@ impl Printer {
 
     pub fn where_clause(&mut self, node: Option<&Node>) -> fmt::Result {
         if let Some(node) = node {
-            self.keyword("where ");
+            self.word("where ");
             node.print(self)?;
             self.word(" ");
         }
@@ -166,7 +166,7 @@ impl Printer {
 
     pub fn opt_collate(&mut self, list: &[Node]) -> fmt::Result {
         if !list.is_empty() {
-            self.keyword("collate ");
+            self.word("collate ");
             self.any_name(list)?;
             self.nbsp();
         }
@@ -222,7 +222,7 @@ impl Printer {
                     if let Some(arg) = &node.arg {
                         if node.defname == "volatility" && str_val(arg).unwrap() == "stable" {
                         } else {
-                            self.keyword(node.defname.clone());
+                            self.word(node.defname.clone());
                             self.nbsp();
                             self.word(str_val(arg).unwrap());
                         }
@@ -234,7 +234,7 @@ impl Printer {
                     if let Some(arg) = &node.arg {
                         if node.defname == "as" {
                             self.hardbreak_if_nonempty();
-                            self.keyword(node.defname.clone());
+                            self.word(node.defname.clone());
                             self.cbox(INDENT);
                             self.nbsp();
                             self.word("$$");
@@ -258,7 +258,7 @@ impl Printer {
 
     pub fn opt_routine_body(&mut self, node: Option<&Node>) -> fmt::Result {
         if let Some(node) = node {
-            self.keyword("as ");
+            self.word("as ");
             node.print(self)?;
             self.nbsp();
         }
@@ -301,7 +301,7 @@ impl Printer {
                 ObjectType::ObjectLanguage => todo!(),
                 ObjectType::ObjectLargeobject => todo!(),
                 ObjectType::ObjectSchema => {
-                    self.keyword("schema ");
+                    self.word("schema ");
                     self.name_list(objs)?;
                 }
                 ObjectType::ObjectTablespace => todo!(),
@@ -333,7 +333,7 @@ impl Printer {
     pub fn opt_drop_behavior(&mut self, node: DropBehavior) -> fmt::Result {
         match node {
             DropBehavior::DropRestrict => {}
-            DropBehavior::DropCascade => self.keyword("cascade "),
+            DropBehavior::DropCascade => self.word("cascade "),
             _ => {}
         };
 
@@ -379,7 +379,7 @@ impl Printer {
 
     pub fn create_generic_options(&mut self, list: &[Node]) -> fmt::Result {
         if !list.is_empty() {
-            self.keyword("options ");
+            self.word("options ");
             self.word("(");
             self.generic_option_list(list)?;
             self.word(") ");
@@ -407,7 +407,7 @@ impl Printer {
 
     pub fn opt_inherit(&mut self, list: &[Node]) -> fmt::Result {
         if !list.is_empty() {
-            self.keyword("inherits ");
+            self.word("inherits ");
             self.word("(");
             self.qualified_name_list(list)?;
             self.word(") ");
@@ -440,7 +440,7 @@ impl Printer {
 
     pub fn opt_or_replace(&mut self, replace: bool) {
         if replace {
-            self.keyword("or replace ");
+            self.word("or replace ");
         }
     }
 }

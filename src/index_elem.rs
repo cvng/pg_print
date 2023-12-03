@@ -32,8 +32,8 @@ impl fmt::Print for IndexElem {
         }
 
         match self.nulls_ordering() {
-            SortByNulls::SortbyNullsFirst => p.keyword("nulls first "),
-            SortByNulls::SortbyNullsLast => p.keyword("nulls last "),
+            SortByNulls::SortbyNullsFirst => p.word("nulls first "),
+            SortByNulls::SortbyNullsLast => p.word("nulls last "),
             _ => {}
         }
 

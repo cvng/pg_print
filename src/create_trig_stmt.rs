@@ -15,48 +15,48 @@ impl fmt::Print for CreateTrigStmt {
     fn print(&self, p: &mut fmt::Printer) -> fmt::Result {
         let mut skip_events_or = true;
 
-        p.keyword("create ");
+        p.word("create ");
 
         if self.replace {
-            p.keyword("or replace ");
+            p.word("or replace ");
         }
 
         if self.isconstraint {
-            p.keyword("constraint ");
+            p.word("constraint ");
         }
 
-        p.keyword("trigger ");
+        p.word("trigger ");
         p.ident(self.trigname.clone());
         p.nbsp();
 
         match self.timing as usize {
-            TRIGGER_TYPE_BEFORE => p.keyword("before "),
-            TRIGGER_TYPE_AFTER => p.keyword("after "),
-            TRIGGER_TYPE_INSTEAD => p.keyword("instead of "),
+            TRIGGER_TYPE_BEFORE => p.word("before "),
+            TRIGGER_TYPE_AFTER => p.word("after "),
+            TRIGGER_TYPE_INSTEAD => p.word("instead of "),
             _ => {}
         }
 
         if self.events as usize & TRIGGER_TYPE_INSERT != 0 {
-            p.keyword("insert ");
+            p.word("insert ");
             skip_events_or = false;
         }
 
         if self.events as usize & TRIGGER_TYPE_DELETE != 0 {
             if !skip_events_or {
-                p.keyword("or ");
+                p.word("or ");
             }
-            p.keyword("delete ");
+            p.word("delete ");
             skip_events_or = false;
         }
 
         if self.events as usize & TRIGGER_TYPE_UPDATE != 0 {
             if !skip_events_or {
-                p.keyword("or ");
+                p.word("or ");
             }
-            p.keyword("update ");
+            p.word("update ");
 
             if !self.columns.is_empty() {
-                p.keyword("of ");
+                p.word("of ");
                 p.column_list(&self.columns)?;
                 p.nbsp();
             }
@@ -65,17 +65,17 @@ impl fmt::Print for CreateTrigStmt {
 
         if self.events as usize & TRIGGER_TYPE_TRUNCATE != 0 {
             if !skip_events_or {
-                p.keyword("or ");
+                p.word("or ");
             }
-            p.keyword("truncate ");
+            p.word("truncate ");
         }
 
-        p.keyword("on ");
+        p.word("on ");
         self.relation.as_ref().unwrap().print(p)?;
         p.nbsp();
 
         if !self.transition_rels.is_empty() {
-            p.keyword("referencing ");
+            p.word("referencing ");
             for transition_rel in &self.transition_rels {
                 transition_rel.print(p)?;
                 p.nbsp();
@@ -83,30 +83,30 @@ impl fmt::Print for CreateTrigStmt {
         }
 
         if let Some(constrrel) = &self.constrrel {
-            p.keyword("from ");
+            p.word("from ");
             constrrel.print(p)?;
             p.nbsp();
         }
 
         if self.deferrable {
-            p.keyword("deferrable ");
+            p.word("deferrable ");
         }
 
         if self.initdeferred {
-            p.keyword("initially deferred ");
+            p.word("initially deferred ");
         }
 
         if self.row {
-            p.keyword("for each row ");
+            p.word("for each row ");
         }
 
         if let Some(when_clause) = &self.when_clause {
-            p.keyword("when (");
+            p.word("when (");
             when_clause.print(p)?;
             p.word(") ");
         }
 
-        p.keyword("execute function ");
+        p.word("execute function ");
         p.func_name(&self.funcname)?;
 
         p.word("(");

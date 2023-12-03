@@ -6,10 +6,10 @@ impl fmt::Print for RoleSpec {
     fn print(&self, p: &mut fmt::Printer) -> fmt::Result {
         match self.roletype() {
             RoleSpecType::RolespecCstring => p.ident(self.rolename.clone()),
-            RoleSpecType::RolespecCurrentRole => p.keyword("current_role"),
-            RoleSpecType::RolespecCurrentUser => p.keyword("current_user"),
-            RoleSpecType::RolespecSessionUser => p.keyword("session_user"),
-            RoleSpecType::RolespecPublic => p.keyword("public"),
+            RoleSpecType::RolespecCurrentRole => p.word("current_role"),
+            RoleSpecType::RolespecCurrentUser => p.word("current_user"),
+            RoleSpecType::RolespecSessionUser => p.word("session_user"),
+            RoleSpecType::RolespecPublic => p.word("public"),
             _ => {}
         }
 

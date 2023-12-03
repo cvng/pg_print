@@ -67,10 +67,6 @@ impl Printer {
         self.scan_string(s);
     }
 
-    pub fn keyword<S: Into<Cow<'static, str>>>(&mut self, wrd: S) {
-        self.word(wrd.into().to_ascii_uppercase());
-    }
-
     pub fn ident<S: Into<Cow<'static, str>>>(&mut self, wrd: S) {
         self.word(wrd);
     }
@@ -83,7 +79,7 @@ impl Printer {
 
     pub fn optional_keyword<S: Into<Cow<'static, str>>>(&mut self, wrd: S, cnd: bool) {
         if cnd {
-            self.keyword(wrd);
+            self.word(wrd);
         }
     }
 

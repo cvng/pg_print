@@ -13,7 +13,7 @@ impl fmt::Print for CollateClause {
             p.nbsp();
         }
 
-        p.keyword("collate ");
+        p.word("collate ");
         p.any_name(&self.collname)?;
 
         Ok(())

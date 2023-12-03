@@ -3,7 +3,7 @@ use pg_query::protobuf::CreateDomainStmt;
 
 impl fmt::Print for CreateDomainStmt {
     fn print(&self, p: &mut fmt::Printer) -> fmt::Result {
-        p.keyword("create domain ");
+        p.word("create domain ");
         p.any_name(&self.domainname)?;
         p.opt_as();
 

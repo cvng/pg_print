@@ -25,8 +25,8 @@ impl From<String> for RelPersistence {
 impl fmt::Print for RelPersistence {
     fn print(&self, p: &mut fmt::Printer) -> fmt::Result {
         match self {
-            Self::Temp => p.keyword("temporary "),
-            Self::Unlogged => p.keyword("unlogged "),
+            Self::Temp => p.word("temporary "),
+            Self::Unlogged => p.word("unlogged "),
             Self::Permanent => {}
             Self::Undefined => return Err(fmt::Error),
         }

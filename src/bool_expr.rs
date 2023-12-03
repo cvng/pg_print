@@ -25,7 +25,7 @@ impl fmt::Print for BoolExpr {
             }
             BoolExprType::NotExpr => {
                 let need_parens = true; // TODO
-                p.keyword("not ");
+                p.word("not ");
                 p.optional_word("(", need_parens);
                 self.args.first().unwrap().print(p)?;
                 p.optional_word(")", need_parens);

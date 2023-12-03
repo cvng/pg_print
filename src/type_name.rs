@@ -16,7 +16,7 @@ impl fmt::Print for TypeName {
         let mut skip_typmods = false;
 
         if self.setof {
-            p.keyword("setof ");
+            p.word("setof ");
         }
 
         if self.names.len() == 2 && str_val(self.names.first().unwrap()).unwrap() == "pg_catalog" {
