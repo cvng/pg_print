@@ -1,0 +1,9 @@
+---
+source: tests/unparse.rs
+expression: "tests/sql/ddl/create_table.sql:4"
+---
+create table distributors (
+    did int,
+    name varchar(40),
+    unique (name) with (fillfactor = 70) using index tablespace indexes
+) with (fillfactor = 70)
