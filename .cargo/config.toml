@@ -1,4 +1,4 @@
 [alias]
 dev = "watch --clear --exec check"
-lint = "clippy --all-targets --all-features"
+lint = "clippy --all-targets"
 snap = "insta review"

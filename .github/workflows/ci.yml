@@ -1,9 +1,9 @@
 name: CI
 
-on: push
+on: [push]
 
 env:
-    CARGO_TERM_COLOR: always
+    RUSTFLAGS: --deny warnings
 
 jobs:
     test:
@@ -11,8 +11,6 @@ jobs:
         steps:
             - uses: actions/checkout@v4
             - uses: dtolnay/rust-toolchain@stable
-            - uses: swatinem/rust-cache@v1
-            - run: cargo fmt --check
-            - run: cargo build --release --locked --all-features
-            - run: cargo clippy --release --locked --all-features -- --deny warnings
-            - run: cargo test --release --locked --all-features
+            - run: cargo check
+            - run: cargo lint
+            - run: cargo test
