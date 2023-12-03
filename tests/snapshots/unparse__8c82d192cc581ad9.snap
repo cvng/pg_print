@@ -1,0 +1,5 @@
+---
+source: tests/unparse.rs
+expression: "tests/unparse.sql:144"
+---
+create table films2 as select * from films  
