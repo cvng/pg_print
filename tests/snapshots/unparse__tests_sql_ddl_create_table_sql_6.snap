@@ -2,5 +2,5 @@
 source: tests/unparse.rs
 expression: "tests/sql/ddl/create_table.sql:6"
 ---
-CREATE TEMPORARY TABLE films_recent (title, director) ON COMMIT DELETE ROWS AS SELECT title,
-director FROM films WHERE date_prod >= '2002-01-01'
+create temporary table films_recent (title, director) on commit delete rows as select title,
+director from films where date_prod >= '2002-01-01'

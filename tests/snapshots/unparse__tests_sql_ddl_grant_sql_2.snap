@@ -2,4 +2,4 @@
 source: tests/unparse.rs
 expression: "tests/sql/ddl/grant.sql:2"
 ---
-GRANT update (field1) ON tab1 TO role1
+grant update (field1) on tab1 to role1
