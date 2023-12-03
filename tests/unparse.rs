@@ -1,23 +1,15 @@
-// Adapted from https://github.com/lelit/pglast/blob/v5/tests/test_printers_prettification.py.
-
 use insta::assert_snapshot;
 use pg_query::parse;
-use rstest::rstest;
-use std::env;
 use std::fs;
 use std::path::PathBuf;
 
-#[rstest]
-fn unparse(
-    #[files("tests/**/*.sql")]
-    #[exclude("exclude")]
-    path: PathBuf,
-) {
-    let path = path.strip_prefix(env::current_dir().unwrap()).unwrap();
+#[test]
+fn unparse() {
+    let path = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("tests/unparse.sql");
 
-    for (mut lineno, case) in fs::read_to_string(path)
+    for (mut lineno, case) in fs::read_to_string(&path)
         .unwrap()
-        .split('\n')
+        .lines()
         .filter(|line| !line.is_empty())
         .filter(|line| !line.starts_with("--"))
         .enumerate()
@@ -42,11 +34,7 @@ fn unparse(
         assert_eq!(deparsed, reparsed);
 
         assert_snapshot!(
-            format!(
-                "{}_{}",
-                path.to_str().unwrap().replace(['/', '.'], "_"),
-                lineno
-            ),
+            lineno.to_string(),
             unparsed,
             &format!("{}:{}", path.display(), lineno)
         );

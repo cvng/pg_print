@@ -1,3 +1,0 @@
-show all
-=
-SHOW ALL

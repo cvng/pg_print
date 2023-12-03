@@ -1,5 +1,3 @@
-// Adapted from https://github.com/pganalyze/libpg_query/blob/15-latest/src/postgres_deparse.c.
-
 use crate::fmt;
 use pg_query::Node;
 use pg_query::NodeEnum;

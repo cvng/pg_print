@@ -13,4 +13,3 @@ pg_query = "0.8.2"
 
 [dev-dependencies]
 insta = "1.34.0"
-rstest = "0.18.2"

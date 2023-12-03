@@ -1,5 +1,0 @@
----
-source: tests/unparse.rs
-expression: "tests/sql/ddl/create_view.sql:1"
----
-create or replace view foo as select a, b from bar
