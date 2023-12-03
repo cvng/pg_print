@@ -100,18 +100,16 @@ impl Printer {
         Ok(())
     }
 
-    pub fn type_name(&mut self, node: &TypeName) -> fmt::Result {
-        node.print(self)?;
+    pub fn type_name(&mut self, node: &TypeName) {
+        node.print(self).unwrap();
         self.nbsp();
-        Ok(())
     }
 
-    pub fn col_qual_list(&mut self, col: Option<&CollateClause>, list: &[Node]) -> fmt::Result {
+    pub fn col_qual_list(&mut self, col: Option<&CollateClause>, list: &[Node]) {
         if let Some(col) = col {
-            col.print(self)?;
+            col.print(self).unwrap();
         }
-        list.print(self)?;
-        Ok(())
+        list.print(self).unwrap();
     }
 
     pub fn expr_list(&mut self, list: &[Node]) -> fmt::Result {

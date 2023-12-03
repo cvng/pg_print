@@ -8,11 +8,10 @@ impl Printer {
         self.any_name(&n.domainname).unwrap();
         self.opt_as();
         if let Some(type_name) = &n.type_name {
-            self.type_name(type_name).unwrap();
+            self.type_name(type_name);
             self.nbsp();
         }
-        self.col_qual_list(n.coll_clause.as_deref(), &n.constraints)
-            .unwrap();
+        self.col_qual_list(n.coll_clause.as_deref(), &n.constraints);
     }
 
     pub fn _alter_domain_stmt(&mut self, n: &AlterDomainStmt) {
