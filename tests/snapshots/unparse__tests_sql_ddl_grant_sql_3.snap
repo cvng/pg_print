@@ -1,5 +1,0 @@
----
-source: tests/unparse.rs
-expression: "tests/sql/ddl/grant.sql:3"
----
-grant all (field1, field2) on tab2 to role2
