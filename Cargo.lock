@@ -423,7 +423,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "pg_deparser"
+name = "pg_print"
 version = "0.1.0"
 dependencies = [
  "insta",

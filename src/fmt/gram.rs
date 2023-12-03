@@ -1,3 +1,5 @@
+// Adapted from https://github.com/postgres/postgres/blob/REL_15_STABLE/src/backend/parser/gram.y.
+
 use super::algo::Printer;
 use crate::fmt;
 use crate::fmt::Print;
