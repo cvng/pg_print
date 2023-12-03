@@ -46,6 +46,7 @@ fn test_unparse_statements() {
             .unwrap()
             .split('\n')
             .filter(|line| !line.is_empty())
+            .filter(|line| !line.starts_with("--"))
             .enumerate()
         {
             lineno += 1;
