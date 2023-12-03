@@ -12,6 +12,7 @@ use std::result;
 
 pub type Result = result::Result<(), Error>;
 
+#[derive(Debug)]
 pub struct Error;
 
 /// Deparse node context: parent / field / identifier / constant.

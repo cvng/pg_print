@@ -1,3 +1,5 @@
+#![allow(clippy::unit_arg)]
+
 use crate::fmt;
 use pg_query::Node;
 use pg_query::NodeEnum;
@@ -93,7 +95,7 @@ impl fmt::Print for Node {
             NodeEnum::TransactionStmt(node) => todo!("{:?}", node),
             NodeEnum::ViewStmt(node) => node.print(p),
             NodeEnum::LoadStmt(node) => todo!("{:?}", node),
-            NodeEnum::CreateDomainStmt(n) => p.create_domain_stmt(n),
+            NodeEnum::CreateDomainStmt(n) => Ok(p.create_domain_stmt(n)),
             NodeEnum::CreatedbStmt(node) => todo!("{:?}", node),
             NodeEnum::DropdbStmt(node) => todo!("{:?}", node),
             NodeEnum::VacuumStmt(node) => todo!("{:?}", node),

@@ -7,6 +7,7 @@ use crate::rel_persistence::RelPersistence;
 use crate::INDENT;
 use pg_query::protobuf::a_const::Val;
 use pg_query::protobuf::AConst;
+use pg_query::protobuf::CollateClause;
 use pg_query::protobuf::DropBehavior;
 use pg_query::protobuf::FunctionParameterMode;
 use pg_query::protobuf::GrantTargetType;
@@ -96,6 +97,20 @@ impl Printer {
             self.ident(str_val(part).unwrap());
         }
 
+        Ok(())
+    }
+
+    pub fn type_name(&mut self, node: &TypeName) -> fmt::Result {
+        node.print(self)?;
+        self.nbsp();
+        Ok(())
+    }
+
+    pub fn col_qual_list(&mut self, col: Option<&CollateClause>, list: &[Node]) -> fmt::Result {
+        if let Some(col) = col {
+            col.print(self)?;
+        }
+        list.print(self)?;
         Ok(())
     }
 
