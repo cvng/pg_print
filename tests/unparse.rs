@@ -7,14 +7,6 @@ use std::env;
 use std::fs;
 use std::path::PathBuf;
 
-macro_rules! set_snapshot_suffix {
-    ($($expr:expr),*) => {
-        let mut settings = insta::Settings::clone_current();
-        settings.set_snapshot_suffix(format!($($expr,)*));
-        let _guard = settings.bind_to_scope();
-    }
-}
-
 #[rstest]
 fn unparse(
     #[files("tests/**/*.sql")]
@@ -31,8 +23,6 @@ fn unparse(
         .enumerate()
     {
         lineno += 1;
-
-        set_snapshot_suffix!("{}", lineno);
 
         let deparsed = pg_query::deparse(&parse(case).unwrap().protobuf)
             .unwrap()
@@ -52,7 +42,11 @@ fn unparse(
         assert_eq!(deparsed, reparsed);
 
         assert_snapshot!(
-            path.to_str().unwrap().replace(['/', '.'], "_"),
+            format!(
+                "{}_{}",
+                path.to_str().unwrap().replace(['/', '.'], "_"),
+                lineno
+            ),
             unparsed,
             &format!("{}:{}", path.display(), lineno)
         );
