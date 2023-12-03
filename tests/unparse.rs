@@ -29,7 +29,7 @@ fn unparse(
             .trim_end()
             .to_string();
 
-        let unparsed = pg_deparser::unparse(&parse(case).unwrap().protobuf)
+        let unparsed = pg_print::unparse(&parse(case).unwrap().protobuf)
             .unwrap()
             .trim_end()
             .to_string();
