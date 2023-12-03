@@ -1,8 +1,0 @@
----
-source: tests/unparse_tests.rs
-description: "tests/sql/ddl/create_table.sql:5"
-expression: prettified
----
-CREATE TABLE measurement_y2016m07 PARTITION OF measurement (
-    unitsales DEFAULT 0
-) FOR VALUES FROM ('2016-07-01') TO ('2016-08-01') TABLESPACE olddata

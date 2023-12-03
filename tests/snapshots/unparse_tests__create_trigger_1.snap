@@ -1,6 +1,0 @@
----
-source: tests/unparse_tests.rs
-description: "tests/sql/ddl/create_trigger.sql:1"
-expression: prettified
----
-CREATE TRIGGER trg_auth_users_100_log_changes BEFORE INSERT OR UPDATE OF password ON users FOR EACH ROW EXECUTE FUNCTION auth.crypt_user_password()

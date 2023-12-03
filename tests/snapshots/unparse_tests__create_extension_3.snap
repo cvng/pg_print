@@ -1,6 +1,0 @@
----
-source: tests/unparse_tests.rs
-description: "tests/sql/ddl/create_extension.sql:3"
-expression: prettified
----
-CREATE EXTENSION foo SCHEMA addons

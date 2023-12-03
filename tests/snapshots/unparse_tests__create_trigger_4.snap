@@ -1,6 +1,0 @@
----
-source: tests/unparse_tests.rs
-description: "tests/sql/ddl/create_trigger.sql:4"
-expression: prettified
----
-CREATE TRIGGER trig1 AFTER UPDATE ON table1 FOR EACH ROW WHEN (new IS DISTINCT FROM old) EXECUTE FUNCTION schema1.func1()

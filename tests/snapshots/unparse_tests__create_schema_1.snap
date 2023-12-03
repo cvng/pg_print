@@ -1,6 +1,0 @@
----
-source: tests/unparse_tests.rs
-description: "tests/sql/ddl/create_schema.sql:1"
-expression: prettified
----
-CREATE SCHEMA hollywood

@@ -1,6 +1,0 @@
----
-source: tests/unparse_tests.rs
-description: "tests/sql/ddl/grant.sql:3"
-expression: prettified
----
-GRANT ALL (field1, field2) ON tab2 TO role2

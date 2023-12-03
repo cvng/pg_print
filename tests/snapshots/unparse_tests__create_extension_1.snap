@@ -1,6 +1,0 @@
----
-source: tests/unparse_tests.rs
-description: "tests/sql/ddl/create_extension.sql:1"
-expression: prettified
----
-CREATE EXTENSION IF NOT EXISTS hstore

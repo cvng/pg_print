@@ -1,7 +1,6 @@
 // Adapted from https://github.com/lelit/pglast/blob/v5/tests/test_printers_prettification.py.
 
 use insta::assert_snapshot;
-use insta::with_settings;
 use pg_deparser::unparse;
 use pg_query::parse;
 
@@ -51,19 +50,28 @@ fn test_unparse_statements() {
         {
             lineno += 1;
 
+            // let base = deparse(&parse(case).unwrap().protobuf)
+            //     .unwrap()
+            //     .trim_end()
+            //     .to_string();
+
             let prettified = unparse(&parse(case).unwrap().protobuf)
                 .unwrap()
                 .trim_end()
                 .to_string();
 
-            with_settings!({
-                description => format!("Statement: {}:{}", src.display(), lineno),
-            }, {
-                assert_snapshot!(
-                    format!("{}_{}", src.file_stem().unwrap().to_string_lossy(), lineno),
-                    prettified
-                );
-            });
+            // let deparsed = deparse(&parse(&prettified).unwrap().protobuf)
+            //     .unwrap()
+            //     .trim_end()
+            //     .to_string();
+
+            // assert_eq!(base, deparsed);
+
+            assert_snapshot!(
+                format!("{}_{}", src.file_stem().unwrap().to_string_lossy(), lineno),
+                prettified,
+                &format!("{}:{}", src.display(), lineno)
+            );
         }
     }
 }
