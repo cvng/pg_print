@@ -1,3 +1,3 @@
 # pg_print
 
-Deparse SQL queries using the PostgreSQL parse tree.
+A minimal PostgreSQL tree pretty-printer.
