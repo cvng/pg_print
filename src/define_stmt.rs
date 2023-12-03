@@ -6,16 +6,16 @@ use pg_query::NodeEnum;
 impl fmt::Print for DefineStmt {
     fn print(&self, p: &mut fmt::Printer) -> fmt::Result {
         p.cbox(0);
-        p.keyword("create ");
+        p.word("create ");
 
         if self.replace {
-            p.keyword("or replace ");
+            p.word("or replace ");
         }
 
         self.kind().print(p)?;
 
         if self.if_not_exists {
-            p.keyword("if not exists ");
+            p.word("if not exists ");
         }
 
         match self.kind() {
@@ -43,7 +43,7 @@ impl fmt::Print for DefineStmt {
                 NodeEnum::DefElem(node) if node.defname == "from",
             ))
         {
-            p.keyword("from ");
+            p.word("from ");
             todo!("{:?}", self.kind());
         } else if !self.definition.is_empty() {
             todo!("{:?}", self.kind());

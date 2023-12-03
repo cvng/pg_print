@@ -2,6 +2,6 @@
 source: tests/unparse.rs
 expression: "tests/sql/ddl/create_table.sql:5"
 ---
-CREATE TABLE measurement_y2016m07 PARTITION OF measurement (
-    unitsales DEFAULT 0
-) FOR VALUES FROM ('2016-07-01') TO ('2016-08-01') TABLESPACE olddata
+create table measurement_y2016m07 partition of measurement (
+    unitsales default 0
+) for values from ('2016-07-01') to ('2016-08-01') tablespace olddata

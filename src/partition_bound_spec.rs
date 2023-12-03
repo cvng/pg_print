@@ -5,30 +5,30 @@ use pg_query::protobuf::PartitionBoundSpec;
 impl fmt::Print for PartitionBoundSpec {
     fn print(&self, p: &mut fmt::Printer) -> fmt::Result {
         if self.is_default {
-            p.keyword("default");
+            p.word("default");
             return Ok(());
         }
 
-        p.keyword(" for values ");
+        p.word(" for values ");
 
         match self.strategy.clone().try_into().unwrap() {
             PartitionStrategy::Hash => {
-                p.keyword(format!(
+                p.word(format!(
                     "with (modulus {}, remainder {})",
                     self.modulus, self.remainder
                 ));
                 Ok(())
             }
             PartitionStrategy::List => {
-                p.keyword("in (");
+                p.word("in (");
                 self.listdatums.print(p)?;
                 p.word(")");
                 Ok(())
             }
             PartitionStrategy::Range => {
-                p.keyword("from (");
+                p.word("from (");
                 self.lowerdatums.print(p)?;
-                p.keyword(") to (");
+                p.word(") to (");
                 self.upperdatums.print(p)?;
                 p.word(")");
                 Ok(())

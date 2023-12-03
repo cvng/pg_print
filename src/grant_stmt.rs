@@ -4,31 +4,31 @@ use pg_query::protobuf::GrantStmt;
 impl fmt::Print for GrantStmt {
     fn print(&self, p: &mut fmt::Printer) -> fmt::Result {
         if self.is_grant {
-            p.keyword("grant ");
+            p.word("grant ");
         } else {
-            p.keyword("revoke ");
+            p.word("revoke ");
         }
 
         if !self.is_grant && self.grant_option {
-            p.keyword("grant option for ");
+            p.word("grant option for ");
         }
 
         if !self.privileges.is_empty() {
             p.expr_list(&self.privileges)?;
             p.nbsp();
         } else {
-            p.keyword("all ");
+            p.word("all ");
         }
 
-        p.keyword("on ");
+        p.word("on ");
 
         p.privilege_target(&self.targtype(), &self.objtype(), &self.objects)?;
         p.nbsp();
 
         if self.is_grant {
-            p.keyword("to ");
+            p.word("to ");
         } else {
-            p.keyword("from ");
+            p.word("from ");
         }
 
         for (i, grantee) in self.grantees.iter().enumerate() {
@@ -37,13 +37,13 @@ impl fmt::Print for GrantStmt {
         }
 
         if self.is_grant && self.grant_option {
-            p.keyword(" with grant option");
+            p.word(" with grant option");
         }
 
         p.opt_drop_behavior(self.behavior())?;
 
         if let Some(grantor) = &self.grantor {
-            p.keyword("granted by ");
+            p.word("granted by ");
             grantor.print(p)?;
         }
 

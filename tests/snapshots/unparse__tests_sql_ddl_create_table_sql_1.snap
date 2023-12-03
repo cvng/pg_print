@@ -2,7 +2,7 @@
 source: tests/unparse.rs
 expression: "tests/sql/ddl/create_table.sql:1"
 ---
-CREATE TABLE a (
-    id serial PRIMARY KEY,
+create table a (
+    id serial primary key,
     value int
 )

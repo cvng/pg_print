@@ -5,8 +5,8 @@ use pg_query::NodeEnum;
 
 impl fmt::Print for CreateExtensionStmt {
     fn print(&self, p: &mut fmt::Printer) -> fmt::Result {
-        p.keyword("create extension ");
-        p.optional_keyword("if not exists ", self.if_not_exists);
+        p.word("create extension ");
+        p.optional_word("if not exists ", self.if_not_exists);
         p.ident(self.extname.clone());
         p.nbsp();
 
@@ -22,15 +22,15 @@ impl fmt::Print for CreateExtensionStmt {
 
             match def_elem.defname.as_ref() {
                 "schema" => {
-                    p.keyword("schema ");
+                    p.word("schema ");
                     p.ident(str_val(&def_elem.arg.clone().unwrap()).unwrap());
                 }
                 "new_version" => {
-                    p.keyword("version ");
+                    p.word("version ");
                     p.non_reserved_word_or_scont(str_val(&def_elem.arg.clone().unwrap()).unwrap())?;
                 }
                 "cascade" => {
-                    p.keyword("cascade ");
+                    p.word("cascade ");
                 }
                 _ => {}
             }

@@ -24,7 +24,7 @@ impl fmt::Print for SelectStmt {
                     p.word(" ");
                 }
 
-                p.keyword("select ");
+                p.word("select ");
 
                 if !self.target_list.is_empty() {
                     if !self.distinct_clause.is_empty() {

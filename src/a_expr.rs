@@ -38,7 +38,7 @@ impl fmt::Print for AExpr {
                 p.optional_word("(", need_lexpr_parens);
                 self.lexpr.as_ref().unwrap().print(p)?;
                 p.optional_word(")", need_lexpr_parens);
-                p.keyword(" is distinct from ");
+                p.word(" is distinct from ");
                 p.optional_word("(", need_rexpr_parens);
                 self.rexpr.as_ref().unwrap().print(p)?;
                 p.optional_word(")", need_rexpr_parens);

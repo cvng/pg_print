@@ -3,7 +3,7 @@ use pg_query::protobuf::CreateTableAsStmt;
 
 impl fmt::Print for CreateTableAsStmt {
     fn print(&self, p: &mut fmt::Printer) -> fmt::Result {
-        p.keyword("create ");
+        p.word("create ");
 
         p.opt_temp(
             self.into
@@ -25,7 +25,7 @@ impl fmt::Print for CreateTableAsStmt {
         self.into.as_ref().unwrap().print(p)?;
         p.word(" ");
 
-        p.keyword("as ");
+        p.word("as ");
 
         self.query.as_ref().unwrap().print(p)?;
 

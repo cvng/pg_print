@@ -6,14 +6,14 @@ use pg_query::NodeEnum;
 impl fmt::Print for CreateStmt {
     fn print(&self, p: &mut fmt::Printer) -> fmt::Result {
         p.cbox(INDENT);
-        p.keyword("create ");
+        p.word("create ");
 
         p.opt_temp(self.relation.as_ref().unwrap().relpersistence.clone())?;
 
-        p.keyword("table ");
+        p.word("table ");
 
         if self.if_not_exists {
-            p.keyword("if not exists ");
+            p.word("if not exists ");
         }
 
         if let Some(relation) = &self.relation {
@@ -22,13 +22,13 @@ impl fmt::Print for CreateStmt {
         }
 
         if let Some(of_typename) = &self.of_typename {
-            p.keyword("of ");
+            p.word("of ");
             of_typename.print(p)?;
             p.nbsp();
         }
 
         if self.partbound.is_some() {
-            p.keyword("partition of ");
+            p.word("partition of ");
             self.inh_relations
                 .first()
                 .and_then(|node| match node.node.as_ref().unwrap() {
@@ -69,7 +69,7 @@ impl fmt::Print for CreateStmt {
         self.oncommit().print(p)?;
 
         if !self.tablespacename.is_empty() {
-            p.keyword("tablespace ");
+            p.word("tablespace ");
             p.ident(self.tablespacename.clone());
         }
 

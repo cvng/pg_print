@@ -5,33 +5,33 @@ use pg_query::protobuf::Constraint;
 impl fmt::Print for Constraint {
     fn print(&self, p: &mut fmt::Printer) -> fmt::Result {
         if !self.conname.is_empty() {
-            p.keyword("constraint ");
+            p.word("constraint ");
             p.ident(self.conname.clone());
             p.nbsp();
         }
 
         match self.contype() {
             ConstrType::ConstrDefault => {
-                p.keyword("default ");
+                p.word("default ");
                 if let Some(raw_expr) = &self.raw_expr {
                     raw_expr.print(p)?;
                 }
             }
             ConstrType::ConstrPrimary => {
-                p.keyword("primary key");
+                p.word("primary key");
             }
             ConstrType::ConstrUnique => {
-                p.keyword("unique");
+                p.word("unique");
             }
             ConstrType::ConstrCheck => {
-                p.keyword("check (");
+                p.word("check (");
                 if let Some(raw_expr) = &self.raw_expr {
                     raw_expr.print(p)?;
                 }
                 p.word(")");
             }
             ConstrType::ConstrNotnull => {
-                p.keyword("not null");
+                p.word("not null");
             }
             _ => todo!("{:?}", self.contype()),
         }
@@ -51,7 +51,7 @@ impl fmt::Print for Constraint {
         }
 
         if !self.indexspace.is_empty() {
-            p.keyword("using index tablespace ");
+            p.word("using index tablespace ");
             p.ident(self.indexspace.clone());
         }
 
