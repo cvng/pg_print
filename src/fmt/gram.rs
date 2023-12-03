@@ -196,10 +196,12 @@ impl Printer {
             self.word("(");
             self.hardbreak_if_nonempty();
             for (i, arg) in list.iter().enumerate() {
-                dbg!(arg);
                 arg.print(self)?;
                 self.trailing_comma(i >= list.len() - 1);
             }
+            self.space();
+            self.offset(-INDENT);
+            self.end();
             self.word(")");
             self.nbsp();
         }
@@ -217,25 +219,33 @@ impl Printer {
         if !list.is_empty() {
             for option in list.iter().skip(1) {
                 if let NodeEnum::DefElem(node) = option.node.as_ref().unwrap() {
-                    self.keyword(node.defname.clone());
                     if let Some(arg) = &node.arg {
-                        self.nbsp();
-                        self.word(str_val(arg).unwrap());
+                        if node.defname == "volatility" && str_val(arg).unwrap() == "stable" {
+                        } else {
+                            self.keyword(node.defname.clone());
+                            self.nbsp();
+                            self.word(str_val(arg).unwrap());
+                        }
                     }
                 }
-                self.hardbreak();
             }
             if let Some(option) = list.first() {
                 if let NodeEnum::DefElem(node) = option.node.as_ref().unwrap() {
-                    self.keyword(node.defname.clone());
                     if let Some(arg) = &node.arg {
                         if node.defname == "as" {
+                            self.hardbreak_if_nonempty();
+                            self.keyword(node.defname.clone());
                             self.cbox(INDENT);
                             self.nbsp();
                             self.word("$$");
                             self.hardbreak_if_nonempty();
                             if let NodeEnum::List(List { items }) = arg.node.as_ref().unwrap() {
-                                self.word(str_val(items.first().unwrap()).unwrap());
+                                self.word(
+                                    str_val(items.first().unwrap())
+                                        .unwrap()
+                                        .trim_start()
+                                        .to_owned(),
+                                );
                             }
                             self.hardbreak();
                             self.offset(-INDENT);
@@ -271,7 +281,6 @@ impl Printer {
 
     pub fn func_type(&mut self, node: &TypeName) -> fmt::Result {
         node.print(self)?;
-        self.nbsp();
         Ok(())
     }
 
