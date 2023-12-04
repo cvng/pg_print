@@ -1,5 +1,6 @@
 use crate::fmt::Printer;
 use pg_query::protobuf::CreateTableAsStmt;
+use pg_query::NodeEnum;
 
 impl Printer {
     pub fn create_table_as_stmt(&mut self, n: &CreateTableAsStmt) {
@@ -27,7 +28,9 @@ impl Printer {
 
         self.word("as ");
 
-        self.node(n.query.as_ref().unwrap());
+        if let NodeEnum::SelectStmt(query) = &n.query.as_ref().unwrap().node.as_ref().unwrap() {
+            self.select_stmt(query);
+        }
 
         self.word(" ");
 
