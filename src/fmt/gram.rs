@@ -1,8 +1,7 @@
 // Adapted from https://github.com/postgres/postgres/blob/REL_15_STABLE/src/backend/parser/gram.y.
 
 use super::algo::Printer;
-use crate::fmt;
-use crate::fmt::Print;
+use super::Context;
 use crate::rel_persistence::RelPersistence;
 use crate::INDENT;
 use pg_query::protobuf::a_const::Val;
@@ -86,7 +85,7 @@ pub fn a_const_int_val(node: &Node) -> Option<i32> {
 
 impl Printer {
     pub fn a_const(&mut self, n: &AConst) {
-        self.opt_val(n.val.as_ref(), &fmt::Context::Constant);
+        self.opt_val(n.val.as_ref(), &Context::Constant);
     }
 
     pub fn a_star(&mut self, _n: &AStar) {
@@ -260,7 +259,7 @@ impl Printer {
     }
 
     pub fn arg_class(&mut self, n: &FunctionParameterMode) {
-        n.print(self);
+        self.function_parameter_mode(n);
     }
 
     pub fn param_name(&mut self, val: &str) {

@@ -1,18 +1,16 @@
-use crate::fmt;
+use crate::fmt::Printer;
 use pg_query::protobuf::FunctionParameter;
 use pg_query::protobuf::FunctionParameterMode;
 
-impl fmt::Print for FunctionParameter {
-    fn print(&self, p: &mut fmt::Printer) {
-        self.arg_class(&self.mode());
-        self.param_name(&self.name);
-        self.func_type(self.arg_type.as_ref().unwrap());
+impl Printer {
+    pub fn function_parameter(&mut self, n: &FunctionParameter) {
+        self.arg_class(&n.mode());
+        self.param_name(&n.name);
+        self.func_type(n.arg_type.as_ref().unwrap());
     }
-}
 
-impl fmt::Print for FunctionParameterMode {
-    fn print(&self, p: &mut fmt::Printer) {
-        match self {
+    pub fn function_parameter_mode(&mut self, n: &FunctionParameterMode) {
+        match n {
             FunctionParameterMode::FuncParamIn => self.word("in "),
             FunctionParameterMode::FuncParamOut => self.word("out "),
             FunctionParameterMode::FuncParamInout => self.word("inout "),

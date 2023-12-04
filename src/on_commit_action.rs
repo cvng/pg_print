@@ -2,7 +2,7 @@ use crate::fmt::Printer;
 use pg_query::protobuf::OnCommitAction;
 
 impl Printer {
-    pub fn on_commit_action(&self, n: &OnCommitAction) {
+    pub fn on_commit_action(&mut self, n: &OnCommitAction) {
         match n {
             OnCommitAction::Undefined => {}
             OnCommitAction::OncommitNoop => {}

@@ -2,7 +2,7 @@ use crate::fmt::Printer;
 use pg_query::protobuf::ObjectType;
 
 impl Printer {
-    pub fn object_type(&self, n: &ObjectType) {
+    pub fn object_type(&mut self, n: &ObjectType) {
         match n {
             ObjectType::ObjectAggregate => self.word("aggregate "),
             ObjectType::ObjectOperator => self.word("operator "),

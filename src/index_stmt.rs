@@ -2,7 +2,7 @@ use crate::fmt::Printer;
 use pg_query::protobuf::IndexStmt;
 
 impl Printer {
-    fn index_stmt(&mut self, n: &IndexStmt) {
+    pub fn index_stmt(&mut self, n: &IndexStmt) {
         self.word("create ");
 
         if n.unique {

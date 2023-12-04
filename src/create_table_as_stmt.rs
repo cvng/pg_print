@@ -1,12 +1,12 @@
-use crate::fmt;
+use crate::fmt::Printer;
 use pg_query::protobuf::CreateTableAsStmt;
 
-impl fmt::Print for CreateTableAsStmt {
-    fn print(&self, p: &mut fmt::Printer) {
+impl Printer {
+    pub fn create_table_as_stmt(&mut self, n: &CreateTableAsStmt) {
         self.word("create ");
 
         self.opt_temp(
-            self.into
+            n.into
                 .as_ref()
                 .unwrap()
                 .rel
@@ -16,22 +16,22 @@ impl fmt::Print for CreateTableAsStmt {
                 .clone(),
         );
 
-        self.objtype().print(p);
+        self.object_type(&n.objtype());
 
-        if self.if_not_exists {
+        if n.if_not_exists {
             self.word("if not exists ");
         }
 
-        self.into.as_ref().unwrap().print(p);
+        self.into_clause(n.into.as_ref().unwrap());
         self.word(" ");
 
         self.word("as ");
 
-        self.node(self.query.as_ref().unwrap());
+        self.node(n.query.as_ref().unwrap());
 
         self.word(" ");
 
-        if let Some(into) = self.into.as_deref() {
+        if let Some(into) = n.into.as_deref() {
             if into.skip_data {
                 self.word("with no data ");
             }

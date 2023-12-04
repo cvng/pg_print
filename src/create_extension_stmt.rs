@@ -1,16 +1,16 @@
-use crate::fmt;
 use crate::fmt::str_val;
+use crate::fmt::Printer;
 use pg_query::protobuf::CreateExtensionStmt;
 use pg_query::NodeEnum;
 
-impl fmt::Print for CreateExtensionStmt {
-    fn print(&self, p: &mut fmt::Printer) {
+impl Printer {
+    pub fn create_extension_stmt(&mut self, n: &CreateExtensionStmt) {
         self.word("create extension ");
-        self.optional_word("if not exists ", self.if_not_exists);
-        self.ident(self.extname.clone());
+        self.optional_word("if not exists ", n.if_not_exists);
+        self.ident(n.extname.clone());
         self.nbsp();
 
-        for option in &self.options {
+        for option in &n.options {
             let def_elem = option
                 .node
                 .as_ref()

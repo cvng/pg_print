@@ -3,7 +3,7 @@ use crate::partition_strategy::PartitionStrategy;
 use pg_query::protobuf::PartitionBoundSpec;
 
 impl Printer {
-    pub fn partition_bound_spec(&self, n: &PartitionBoundSpec) {
+    pub fn partition_bound_spec(&mut self, n: &PartitionBoundSpec) {
         if n.is_default {
             self.word("default");
             return;

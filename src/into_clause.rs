@@ -2,7 +2,8 @@ use crate::fmt::Printer;
 use pg_query::protobuf::IntoClause;
 
 impl Printer {
-    pub fn into_clause(&self, n: &IntoClause) {
+    #[allow(clippy::wrong_self_convention)]
+    pub fn into_clause(&mut self, n: &IntoClause) {
         if let Some(rel) = &n.rel {
             self.range_var(rel);
         }

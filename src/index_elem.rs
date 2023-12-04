@@ -4,7 +4,7 @@ use pg_query::protobuf::SortByDir;
 use pg_query::protobuf::SortByNulls;
 
 impl Printer {
-    pub fn index_elem(&self, n: &IndexElem) {
+    pub fn index_elem(&mut self, n: &IndexElem) {
         if !n.name.is_empty() {
             self.ident(n.name.clone());
         } else if let Some(expr) = &n.expr {
