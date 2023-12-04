@@ -8,12 +8,6 @@ use super::algo::Breaks;
 use super::algo::Printer;
 use super::algo::SIZE_INFINITY;
 use std::borrow::Cow;
-use std::result;
-
-pub type Result = result::Result<(), Error>;
-
-#[derive(Debug)]
-pub struct Error;
 
 /// Deparse node context: parent / field / identifier / constant.
 #[derive(Default)]
@@ -32,10 +26,6 @@ pub enum Context {
     SetStatement,
     Identifier,
     Constant,
-}
-
-pub trait Print {
-    fn print(&self, p: &mut super::Printer);
 }
 
 impl Printer {

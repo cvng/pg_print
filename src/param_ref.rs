@@ -1,8 +1,8 @@
-use crate::fmt;
+use crate::fmt::Printer;
 use pg_query::protobuf::ParamRef;
 
-impl fmt::Print for ParamRef {
-    fn print(&self, _p: &mut fmt::Printer) {
-        todo!("{:?}", self)
+impl Printer {
+    pub fn _param_ref(&self, _n: &ParamRef) {
+        todo!();
     }
 }
