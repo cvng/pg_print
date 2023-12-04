@@ -24,7 +24,7 @@ impl fmt::Print for CreateForeignTableStmt {
             p.cbox(INDENT);
             p.word("(");
             p.hardbreak_if_nonempty();
-            self.base_stmt.as_ref().unwrap().table_elts.print(p)?;
+            p.print_list(&self.base_stmt.as_ref().unwrap().table_elts);
             p.hardbreak();
             p.offset(-INDENT);
             p.end();

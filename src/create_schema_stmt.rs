@@ -13,6 +13,7 @@ impl fmt::Print for CreateSchemaStmt {
             p.nbsp();
         }
 
-        self.schema_elts.print(p)
+        p.print_list(&self.schema_elts);
+        Ok(())
     }
 }

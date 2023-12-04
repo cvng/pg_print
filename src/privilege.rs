@@ -82,7 +82,7 @@ impl Printer {
     ) {
         match targtype {
             GrantTargetType::AclTargetObject => match objtype {
-                ObjectType::ObjectTable => objs.print(self).unwrap(),
+                ObjectType::ObjectTable => self.print_list(objs),
                 ObjectType::ObjectSequence => todo!(),
                 ObjectType::ObjectFdw => todo!(),
                 ObjectType::ObjectForeignServer => todo!(),

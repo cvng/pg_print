@@ -8,7 +8,7 @@ impl fmt::Print for ExecuteStmt {
 
         if !self.params.is_empty() {
             p.word("(");
-            self.params.print(p)?;
+            p.print_list(&self.params);
             p.word(")");
         }
 

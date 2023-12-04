@@ -16,7 +16,7 @@ impl fmt::Print for SelectStmt {
 
                     for (i, list) in self.values_lists.iter().enumerate() {
                         p.word("(");
-                        [list.clone()].print(p)?;
+                        p.print_list(&[list.clone()]);
                         p.word(")");
                         p.trailing_comma(i >= self.values_lists.len() - 1);
                     }
@@ -31,11 +31,11 @@ impl fmt::Print for SelectStmt {
                         p.word("distinct ");
 
                         p.word("on (");
-                        self.distinct_clause.print(p)?;
+                        p.print_list(&self.distinct_clause);
                         p.word(") ");
                     }
 
-                    self.target_list.print(p)?;
+                    p.print_list(&self.target_list);
                     p.word(" ");
                 }
 

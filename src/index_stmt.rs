@@ -33,12 +33,12 @@ impl fmt::Print for IndexStmt {
         }
 
         p.word("(");
-        self.index_params.print(p)?;
+        p.print_list(&self.index_params);
         p.word(")");
 
         if !self.index_including_params.is_empty() {
             p.word(" include (");
-            self.index_including_params.print(p)?;
+            p.print_list(&self.index_including_params);
             p.word(") ");
         }
 

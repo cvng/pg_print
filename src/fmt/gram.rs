@@ -118,7 +118,7 @@ impl Printer {
         if let Some(col) = col {
             col.print(self).unwrap();
         }
-        list.print(self).unwrap();
+        self.print_list(list);
     }
 
     pub fn expr_list(&mut self, list: &[Node]) -> fmt::Result {
@@ -140,6 +140,10 @@ impl Printer {
         }
 
         Ok(())
+    }
+
+    pub fn print_list(&mut self, list: &[Node]) {
+        self.expr_list(list).unwrap();
     }
 
     pub fn opt_with(&mut self, list: &[Node]) -> fmt::Result {

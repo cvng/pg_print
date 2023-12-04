@@ -21,15 +21,15 @@ impl fmt::Print for PartitionBoundSpec {
             }
             PartitionStrategy::List => {
                 p.word("in (");
-                self.listdatums.print(p)?;
+                p.print_list(&self.listdatums);
                 p.word(")");
                 Ok(())
             }
             PartitionStrategy::Range => {
                 p.word("from (");
-                self.lowerdatums.print(p)?;
+                p.print_list(&self.lowerdatums);
                 p.word(") to (");
-                self.upperdatums.print(p)?;
+                p.print_list(&self.upperdatums);
                 p.word(")");
                 Ok(())
             }
