@@ -14,8 +14,8 @@ impl Printer {
         self.col_qual_list(n.coll_clause.as_deref(), &n.constraints);
     }
 
-    pub fn _alter_domain_stmt(&mut self, n: &AlterDomainStmt) {
-        todo!("{:?}", n);
+    pub fn _alter_domain_stmt(&mut self, _n: &AlterDomainStmt) {
+        todo!();
     }
 
     pub fn opt_as(&mut self) {

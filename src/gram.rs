@@ -174,8 +174,8 @@ impl Printer {
         }
     }
 
-    pub fn reloptions(&mut self, list: &[Node]) {
-        todo!("{:?}", &list);
+    pub fn reloptions(&mut self, _list: &[Node]) {
+        todo!();
     }
 
     pub fn func_name(&mut self, list: &[Node]) {

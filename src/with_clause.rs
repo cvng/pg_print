@@ -9,6 +9,6 @@ impl Printer {
             self.word("recursive ");
         }
 
-        todo!("{:?}", &n);
+        todo!();
     }
 }
