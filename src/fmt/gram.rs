@@ -22,20 +22,20 @@ const ESCAPE_STRING_SYNTAX: char = 'E';
 // See https://github.com/pganalyze/libpg_query/blob/15-latest/src/postgres_deparse.c#L53.
 pub fn string_literal(p: &mut Printer, val: &str) {
     if val.contains('\\') {
-        p.word(ESCAPE_STRING_SYNTAX.to_string());
+        self.word(ESCAPE_STRING_SYNTAX.to_string());
     }
 
-    p.word('\''.to_string());
+    self.word('\''.to_string());
 
     for c in val.chars() {
         if c == '\'' || c == '\\' {
-            p.word(c.to_string());
+            self.word(c.to_string());
         }
 
-        p.word(c.to_string());
+        self.word(c.to_string());
     }
 
-    p.word('\''.to_string());
+    self.word('\''.to_string());
 }
 
 pub fn is_op(val: Option<String>) -> bool {
@@ -101,11 +101,6 @@ impl Printer {
 
             self.ident(str_val(part).unwrap());
         }
-    }
-
-    pub fn type_name(&mut self, node: &TypeName) {
-        node.print(self);
-        self.nbsp();
     }
 
     pub fn col_qual_list(&mut self, col: Option<&CollateClause>, list: &[Node]) {

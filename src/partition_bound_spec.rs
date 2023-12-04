@@ -1,34 +1,34 @@
-use crate::fmt;
+use crate::fmt::Printer;
 use crate::partition_strategy::PartitionStrategy;
 use pg_query::protobuf::PartitionBoundSpec;
 
-impl fmt::Print for PartitionBoundSpec {
-    fn print(&self, p: &mut fmt::Printer) {
-        if self.is_default {
-            p.word("default");
+impl Printer {
+    pub fn partition_bound_spec(&self, n: &PartitionBoundSpec) {
+        if n.is_default {
+            self.word("default");
             return;
         }
 
-        p.word(" for values ");
+        self.word(" for values ");
 
-        match self.strategy.clone().try_into().unwrap() {
+        match n.strategy.clone().try_into().unwrap() {
             PartitionStrategy::Hash => {
-                p.word(format!(
+                self.word(format!(
                     "with (modulus {}, remainder {})",
-                    self.modulus, self.remainder
+                    n.modulus, n.remainder
                 ));
             }
             PartitionStrategy::List => {
-                p.word("in (");
-                p.print_list(&self.listdatums);
-                p.word(")");
+                self.word("in (");
+                self.print_list(&n.listdatums);
+                self.word(")");
             }
             PartitionStrategy::Range => {
-                p.word("from (");
-                p.print_list(&self.lowerdatums);
-                p.word(") to (");
-                p.print_list(&self.upperdatums);
-                p.word(")");
+                self.word("from (");
+                self.print_list(&n.lowerdatums);
+                self.word(") to (");
+                self.print_list(&n.upperdatums);
+                self.word(")");
             }
             _ => unreachable!(),
         }

@@ -1,35 +1,35 @@
-use crate::fmt;
+use crate::fmt::Printer;
 use pg_query::protobuf::ViewCheckOption;
 use pg_query::protobuf::ViewStmt;
 
-impl fmt::Print for ViewStmt {
-    fn print(&self, p: &mut fmt::Printer) {
-        p.word("create ");
+impl Printer {
+    pub fn view_stmt(&mut self, n: &ViewStmt) {
+        self.word("create ");
 
-        if self.replace {
-            p.word("or replace ");
+        if n.replace {
+            self.word("or replace ");
         }
 
-        p.opt_temp(self.view.as_ref().unwrap().relpersistence.clone());
+        self.opt_temp(n.view.as_ref().unwrap().relpersistence.clone());
 
-        p.word("view ");
-        self.view.as_ref().unwrap().print(p);
+        self.word("view ");
+        self.range_var(n.view.as_ref().unwrap());
 
-        if !self.aliases.is_empty() {
-            p.word("(");
-            p.column_list(&self.aliases);
-            p.word(")");
+        if !n.aliases.is_empty() {
+            self.word("(");
+            self.column_list(&n.aliases);
+            self.word(")");
         }
 
-        p.opt_with(&self.options);
+        self.opt_with(&n.options);
 
-        p.word(" as ");
-        p.node(self.query.as_ref().unwrap());
-        p.nbsp();
+        self.word(" as ");
+        self.node(n.query.as_ref().unwrap());
+        self.nbsp();
 
-        match self.with_check_option() {
-            ViewCheckOption::LocalCheckOption => p.word("with local check option "),
-            ViewCheckOption::CascadedCheckOption => p.word("with check option "),
+        match n.with_check_option() {
+            ViewCheckOption::LocalCheckOption => self.word("with local check option "),
+            ViewCheckOption::CascadedCheckOption => self.word("with check option "),
             _ => {}
         }
     }

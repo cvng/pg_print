@@ -54,19 +54,19 @@ impl From<i32> for IntervalFields {
 impl fmt::Print for IntervalFields {
     fn print(&self, p: &mut fmt::Printer) {
         match self {
-            IntervalFields::Year => p.word(" year"),
-            IntervalFields::Month => p.word(" month"),
-            IntervalFields::Day => p.word(" day"),
-            IntervalFields::Hour => p.word(" hour"),
-            IntervalFields::Minute => p.word(" minute"),
-            IntervalFields::Second => p.word(" second"),
-            IntervalFields::YearToMonth => p.word(" year to month"),
-            IntervalFields::DayToHour => p.word(" day to hour"),
-            IntervalFields::DayToMinute => p.word(" day to minute"),
-            IntervalFields::DayToSecond => p.word(" day to second"),
-            IntervalFields::HourToMinute => p.word(" hour to minute"),
-            IntervalFields::HourToSecond => p.word(" hour to second"),
-            IntervalFields::MinuteToSecond => p.word(" minute to second"),
+            IntervalFields::Year => self.word(" year"),
+            IntervalFields::Month => self.word(" month"),
+            IntervalFields::Day => self.word(" day"),
+            IntervalFields::Hour => self.word(" hour"),
+            IntervalFields::Minute => self.word(" minute"),
+            IntervalFields::Second => self.word(" second"),
+            IntervalFields::YearToMonth => self.word(" year to month"),
+            IntervalFields::DayToHour => self.word(" day to hour"),
+            IntervalFields::DayToMinute => self.word(" day to minute"),
+            IntervalFields::DayToSecond => self.word(" day to second"),
+            IntervalFields::HourToMinute => self.word(" hour to minute"),
+            IntervalFields::HourToSecond => self.word(" hour to second"),
+            IntervalFields::MinuteToSecond => self.word(" minute to second"),
             IntervalFields::FullRange => {}
             IntervalFields::Undefined => unreachable!(),
         }

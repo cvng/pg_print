@@ -1,4 +1,3 @@
-use crate::fmt::Print;
 use crate::fmt::Printer;
 use pg_query::protobuf::CreateSchemaStmt;
 
@@ -10,7 +9,7 @@ impl Printer {
 
         if let Some(authrole) = &n.authrole {
             self.word("authorization ");
-            authrole.print(self);
+            self.role_spec(authrole);
             self.nbsp();
         }
 

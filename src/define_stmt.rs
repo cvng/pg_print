@@ -5,17 +5,17 @@ use pg_query::NodeEnum;
 
 impl fmt::Print for DefineStmt {
     fn print(&self, p: &mut fmt::Printer) {
-        p.cbox(0);
-        p.word("create ");
+        self.cbox(0);
+        self.word("create ");
 
         if self.replace {
-            p.word("or replace ");
+            self.word("or replace ");
         }
 
         self.kind().print(p);
 
         if self.if_not_exists {
-            p.word("if not exists ");
+            self.word("if not exists ");
         }
 
         match self.kind() {
@@ -26,14 +26,14 @@ impl fmt::Print for DefineStmt {
             | ObjectType::ObjectTsdictionary
             | ObjectType::ObjectTstemplate
             | ObjectType::ObjectTsconfiguration
-            | ObjectType::ObjectCollation => p.any_name(&self.defnames),
+            | ObjectType::ObjectCollation => self.any_name(&self.defnames),
             _ => unreachable!(),
         }
-        p.space();
+        self.space();
 
         if !self.oldstyle && matches!(self.kind(), ObjectType::ObjectAggregate) {
             todo!("{:?}", self.kind());
-            // p.nbsp();
+            // self.nbsp();
         }
 
         if (matches!(self.kind(), ObjectType::ObjectCollation)
@@ -43,12 +43,12 @@ impl fmt::Print for DefineStmt {
                 NodeEnum::DefElem(node) if node.defname == "from",
             ))
         {
-            p.word("from ");
+            self.word("from ");
             todo!("{:?}", self.kind());
         } else if !self.definition.is_empty() {
             todo!("{:?}", self.kind());
         }
 
-        p.end();
+        self.end();
     }
 }

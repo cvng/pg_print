@@ -1,14 +1,14 @@
-use crate::fmt;
+use crate::fmt::Printer;
 use pg_query::protobuf::OnCommitAction;
 
-impl fmt::Print for OnCommitAction {
-    fn print(&self, p: &mut fmt::Printer) {
-        match self {
+impl Printer {
+    pub fn on_commit_action(&self, n: &OnCommitAction) {
+        match n {
             OnCommitAction::Undefined => {}
             OnCommitAction::OncommitNoop => {}
-            OnCommitAction::OncommitPreserveRows => p.word(" on commit preserve rows"),
-            OnCommitAction::OncommitDeleteRows => p.word(" on commit delete rows"),
-            OnCommitAction::OncommitDrop => p.word(" on commit drop"),
+            OnCommitAction::OncommitPreserveRows => self.word(" on commit preserve rows"),
+            OnCommitAction::OncommitDeleteRows => self.word(" on commit delete rows"),
+            OnCommitAction::OncommitDrop => self.word(" on commit drop"),
         }
     }
 }

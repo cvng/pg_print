@@ -6,34 +6,34 @@ use pg_query::protobuf::SortByNulls;
 impl fmt::Print for IndexElem {
     fn print(&self, p: &mut fmt::Printer) {
         if !self.name.is_empty() {
-            p.ident(self.name.clone());
+            self.ident(self.name.clone());
         } else if let Some(expr) = &self.expr {
-            p.node(expr);
+            self.node(expr);
         } else {
             unreachable!("{:?}", self);
         }
 
-        p.opt_collate(&self.collation);
+        self.opt_collate(&self.collation);
 
         if !self.opclass.is_empty() {
-            p.any_name(&self.opclass);
+            self.any_name(&self.opclass);
 
             if !self.opclassopts.is_empty() {
-                p.reloptions(&self.opclassopts);
+                self.reloptions(&self.opclassopts);
             }
 
-            p.nbsp();
+            self.nbsp();
         }
 
         match self.ordering() {
-            SortByDir::SortbyAsc => p.word("asc "),
-            SortByDir::SortbyDesc => p.word("desc "),
+            SortByDir::SortbyAsc => self.word("asc "),
+            SortByDir::SortbyDesc => self.word("desc "),
             _ => {}
         }
 
         match self.nulls_ordering() {
-            SortByNulls::SortbyNullsFirst => p.word("nulls first "),
-            SortByNulls::SortbyNullsLast => p.word("nulls last "),
+            SortByNulls::SortbyNullsFirst => self.word("nulls first "),
+            SortByNulls::SortbyNullsLast => self.word("nulls last "),
             _ => {}
         }
     }

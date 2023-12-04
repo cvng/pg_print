@@ -15,105 +15,105 @@ impl fmt::Print for CreateTrigStmt {
     fn print(&self, p: &mut fmt::Printer) {
         let mut skip_events_or = true;
 
-        p.word("create ");
+        self.word("create ");
 
         if self.replace {
-            p.word("or replace ");
+            self.word("or replace ");
         }
 
         if self.isconstraint {
-            p.word("constraint ");
+            self.word("constraint ");
         }
 
-        p.word("trigger ");
-        p.ident(self.trigname.clone());
-        p.nbsp();
+        self.word("trigger ");
+        self.ident(self.trigname.clone());
+        self.nbsp();
 
         match self.timing as usize {
-            TRIGGER_TYPE_BEFORE => p.word("before "),
-            TRIGGER_TYPE_AFTER => p.word("after "),
-            TRIGGER_TYPE_INSTEAD => p.word("instead of "),
+            TRIGGER_TYPE_BEFORE => self.word("before "),
+            TRIGGER_TYPE_AFTER => self.word("after "),
+            TRIGGER_TYPE_INSTEAD => self.word("instead of "),
             _ => {}
         }
 
         if self.events as usize & TRIGGER_TYPE_INSERT != 0 {
-            p.word("insert ");
+            self.word("insert ");
             skip_events_or = false;
         }
 
         if self.events as usize & TRIGGER_TYPE_DELETE != 0 {
             if !skip_events_or {
-                p.word("or ");
+                self.word("or ");
             }
-            p.word("delete ");
+            self.word("delete ");
             skip_events_or = false;
         }
 
         if self.events as usize & TRIGGER_TYPE_UPDATE != 0 {
             if !skip_events_or {
-                p.word("or ");
+                self.word("or ");
             }
-            p.word("update ");
+            self.word("update ");
 
             if !self.columns.is_empty() {
-                p.word("of ");
-                p.column_list(&self.columns);
-                p.nbsp();
+                self.word("of ");
+                self.column_list(&self.columns);
+                self.nbsp();
             }
             skip_events_or = false;
         }
 
         if self.events as usize & TRIGGER_TYPE_TRUNCATE != 0 {
             if !skip_events_or {
-                p.word("or ");
+                self.word("or ");
             }
-            p.word("truncate ");
+            self.word("truncate ");
         }
 
-        p.word("on ");
+        self.word("on ");
         self.relation.as_ref().unwrap().print(p);
-        p.nbsp();
+        self.nbsp();
 
         if !self.transition_rels.is_empty() {
-            p.word("referencing ");
+            self.word("referencing ");
             for transition_rel in &self.transition_rels {
-                p.node(transition_rel);
-                p.nbsp();
+                self.node(transition_rel);
+                self.nbsp();
             }
         }
 
         if let Some(constrrel) = &self.constrrel {
-            p.word("from ");
+            self.word("from ");
             constrrel.print(p);
-            p.nbsp();
+            self.nbsp();
         }
 
         if self.deferrable {
-            p.word("deferrable ");
+            self.word("deferrable ");
         }
 
         if self.initdeferred {
-            p.word("initially deferred ");
+            self.word("initially deferred ");
         }
 
         if self.row {
-            p.word("for each row ");
+            self.word("for each row ");
         }
 
         if let Some(when_clause) = &self.when_clause {
-            p.word("when (");
-            p.node(when_clause);
-            p.word(") ");
+            self.word("when (");
+            self.node(when_clause);
+            self.word(") ");
         }
 
-        p.word("execute function ");
-        p.func_name(&self.funcname);
+        self.word("execute function ");
+        self.func_name(&self.funcname);
 
-        p.word("(");
+        self.word("(");
         for (i, arg) in self.args.iter().enumerate() {
             string_literal(p, &str_val(arg).unwrap());
-            p.trailing_comma(i >= self.args.len() - 1);
+            self.trailing_comma(i >= self.args.len() - 1);
         }
-        p.word(")");
+        self.word(")");
     }
 }

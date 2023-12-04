@@ -1,4 +1,3 @@
-use crate::fmt::Print;
 use crate::fmt::Printer;
 use pg_query::protobuf::AccessPriv;
 use pg_query::protobuf::GrantStmt;
@@ -49,7 +48,7 @@ impl Printer {
 
         if let Some(grantor) = &n.grantor {
             self.word("granted by ");
-            grantor.print(self);
+            self.role_spec(grantor);
         }
     }
 

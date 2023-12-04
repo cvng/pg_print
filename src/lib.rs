@@ -50,6 +50,6 @@ const INDENT: isize = 4;
 /// Converts a parsed tree back into a pretty-printed string.
 pub fn unparse(protobuf: &ParseResult) -> pg_query::Result<String> {
     let mut p = Printer::new();
-    p.tree(protobuf);
-    Ok(p.eof())
+    self.tree(protobuf);
+    Ok(self.eof())
 }

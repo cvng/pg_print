@@ -3,57 +3,57 @@ use pg_query::protobuf::IndexStmt;
 
 impl fmt::Print for IndexStmt {
     fn print(&self, p: &mut fmt::Printer) {
-        p.word("create ");
+        self.word("create ");
 
         if self.unique {
-            p.word("unique ");
+            self.word("unique ");
         }
 
-        p.word("index ");
+        self.word("index ");
 
         if self.concurrent {
-            p.word("concurrently ");
+            self.word("concurrently ");
         }
 
         if self.if_not_exists {
-            p.word("if not exists ");
+            self.word("if not exists ");
         }
 
-        p.ident(self.idxname.clone());
-        p.nbsp();
+        self.ident(self.idxname.clone());
+        self.nbsp();
 
-        p.word("on ");
+        self.word("on ");
         self.relation.as_ref().unwrap().print(p);
-        p.nbsp();
+        self.nbsp();
 
         if !&self.access_method.is_empty() {
-            p.word("using ");
-            p.ident(self.access_method.clone());
-            p.nbsp();
+            self.word("using ");
+            self.ident(self.access_method.clone());
+            self.nbsp();
         }
 
-        p.word("(");
-        p.print_list(&self.index_params);
-        p.word(")");
+        self.word("(");
+        self.print_list(&self.index_params);
+        self.word(")");
 
         if !self.index_including_params.is_empty() {
-            p.word(" include (");
-            p.print_list(&self.index_including_params);
-            p.word(") ");
+            self.word(" include (");
+            self.print_list(&self.index_including_params);
+            self.word(") ");
         }
 
         if self.nulls_not_distinct {
-            p.word("nulls not distinct ");
+            self.word("nulls not distinct ");
         }
 
-        p.opt_with(&self.options);
+        self.opt_with(&self.options);
 
         if !self.table_space.is_empty() {
-            p.word("tablespace ");
-            p.ident(self.table_space.clone());
-            p.nbsp();
+            self.word("tablespace ");
+            self.ident(self.table_space.clone());
+            self.nbsp();
         }
 
-        p.where_clause(self.where_clause.as_deref());
+        self.where_clause(self.where_clause.as_deref());
     }
 }

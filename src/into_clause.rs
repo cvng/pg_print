@@ -1,32 +1,32 @@
-use crate::fmt;
+use crate::fmt::Printer;
 use pg_query::protobuf::IntoClause;
 
-impl fmt::Print for IntoClause {
-    fn print(&self, p: &mut fmt::Printer) {
-        if let Some(rel) = &self.rel {
-            rel.print(p);
+impl Printer {
+    pub fn into_clause(&self, n: &IntoClause) {
+        if let Some(rel) = &n.rel {
+            self.range_var(rel);
         }
 
-        if !self.col_names.is_empty() {
-            p.word(" (");
-            p.column_list(&self.col_names);
-            p.word(")");
+        if !n.col_names.is_empty() {
+            self.word(" (");
+            self.column_list(&n.col_names);
+            self.word(")");
         }
 
-        if !self.access_method.is_empty() {
-            p.word("using ");
-            p.ident(self.access_method.clone());
-            p.word(" ");
+        if !n.access_method.is_empty() {
+            self.word("using ");
+            self.ident(n.access_method.clone());
+            self.word(" ");
         }
 
-        p.opt_with(&self.options);
+        self.opt_with(&n.options);
 
-        self.on_commit().print(p);
+        self.on_commit_action(&n.on_commit());
 
-        if !self.table_space_name.is_empty() {
-            p.word("tablespace ");
-            p.ident(self.table_space_name.clone());
-            p.word(" ");
+        if !n.table_space_name.is_empty() {
+            self.word("tablespace ");
+            self.ident(n.table_space_name.clone());
+            self.word(" ");
         }
     }
 }

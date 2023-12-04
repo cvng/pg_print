@@ -1,4 +1,4 @@
-use crate::fmt;
+use crate::fmt::Printer;
 
 const RELPERSISTENCE_TEMP: char = 't';
 const RELPERSISTENCE_UNLOGGED: char = 'u';
@@ -22,13 +22,13 @@ impl From<String> for RelPersistence {
     }
 }
 
-impl fmt::Print for RelPersistence {
-    fn print(&self, p: &mut fmt::Printer) {
-        match self {
-            Self::Temp => p.word("temporary "),
-            Self::Unlogged => p.word("unlogged "),
-            Self::Permanent => {}
-            Self::Undefined => unreachable!(),
+impl Printer {
+    pub fn rel_persistence(&mut self, n: &RelPersistence) {
+        match n {
+            RelPersistence::Temp => self.word("temporary "),
+            RelPersistence::Unlogged => self.word("unlogged "),
+            RelPersistence::Permanent => {}
+            RelPersistence::Undefined => unreachable!(),
         }
     }
 }
