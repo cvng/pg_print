@@ -1,8 +1,8 @@
 use crate::fmt;
 use crate::fmt::Context;
 use crate::fmt::Printer;
-use pg_query::protobuf::a_const::Val;
 use crate::gram::string_literal;
+use pg_query::protobuf::a_const::Val;
 
 impl Printer {
     pub fn val(&mut self, val: &Val, context: &Context) {
