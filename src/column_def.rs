@@ -15,7 +15,7 @@ impl fmt::Print for ColumnDef {
         if let Some(raw_default) = &self.raw_default {
             p.nbsp();
             p.word("using ");
-            raw_default.print(p)?;
+            p.node(raw_default);
         }
 
         if !self.fdwoptions.is_empty() {
@@ -25,7 +25,7 @@ impl fmt::Print for ColumnDef {
 
         for constraint in self.constraints.iter() {
             p.nbsp();
-            constraint.print(p)?;
+            p.node(constraint);
         }
 
         if let Some(coll_clause) = &self.coll_clause {

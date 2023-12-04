@@ -12,7 +12,7 @@ impl fmt::Print for DefElem {
 
         if let Some(arg) = &self.arg {
             p.word(" = ");
-            arg.print(p)?;
+            p.node(arg);
         }
 
         Ok(())

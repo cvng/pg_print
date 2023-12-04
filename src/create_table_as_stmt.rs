@@ -27,7 +27,7 @@ impl fmt::Print for CreateTableAsStmt {
 
         p.word("as ");
 
-        self.query.as_ref().unwrap().print(p)?;
+        p.node(self.query.as_ref().unwrap());
 
         p.word(" ");
 

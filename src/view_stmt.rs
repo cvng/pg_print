@@ -24,7 +24,7 @@ impl fmt::Print for ViewStmt {
         p.opt_with(&self.options)?;
 
         p.word(" as ");
-        self.query.as_ref().unwrap().print(p)?;
+        p.node(self.query.as_ref().unwrap());
         p.nbsp();
 
         match self.with_check_option() {

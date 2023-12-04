@@ -77,7 +77,7 @@ impl fmt::Print for CreateTrigStmt {
         if !self.transition_rels.is_empty() {
             p.word("referencing ");
             for transition_rel in &self.transition_rels {
-                transition_rel.print(p)?;
+                p.node(transition_rel);
                 p.nbsp();
             }
         }
@@ -102,7 +102,7 @@ impl fmt::Print for CreateTrigStmt {
 
         if let Some(when_clause) = &self.when_clause {
             p.word("when (");
-            when_clause.print(p)?;
+            p.node(when_clause);
             p.word(") ");
         }
 

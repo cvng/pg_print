@@ -8,7 +8,7 @@ impl fmt::Print for IndexElem {
         if !self.name.is_empty() {
             p.ident(self.name.clone());
         } else if let Some(expr) = &self.expr {
-            expr.print(p)?;
+            p.node(expr);
         } else {
             unreachable!("{:?}", self);
         }

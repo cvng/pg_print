@@ -14,7 +14,7 @@ impl fmt::Print for Constraint {
             ConstrType::ConstrDefault => {
                 p.word("default ");
                 if let Some(raw_expr) = &self.raw_expr {
-                    raw_expr.print(p)?;
+                    p.node(raw_expr);
                 }
             }
             ConstrType::ConstrPrimary => {
@@ -26,7 +26,7 @@ impl fmt::Print for Constraint {
             ConstrType::ConstrCheck => {
                 p.word("check (");
                 if let Some(raw_expr) = &self.raw_expr {
-                    raw_expr.print(p)?;
+                    p.node(raw_expr);
                 }
                 p.word(")");
             }

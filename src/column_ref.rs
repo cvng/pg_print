@@ -6,7 +6,7 @@ use pg_query::NodeEnum;
 impl fmt::Print for ColumnRef {
     fn print(&self, p: &mut fmt::Printer) -> fmt::Result {
         if let NodeEnum::AStar(node) = self.fields.first().unwrap().node.as_ref().unwrap() {
-            node.print(p)?;
+            p.a_star(node);
         } else if let NodeEnum::String(node) = self.fields.first().unwrap().node.as_ref().unwrap() {
             print_col_label(p, &node.sval);
         }

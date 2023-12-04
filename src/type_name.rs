@@ -83,7 +83,7 @@ impl fmt::Print for TypeName {
         if !self.typmods.is_empty() && !skip_typmods {
             p.word("(");
             for (i, typmod) in self.typmods.iter().enumerate() {
-                typmod.print(p)?;
+                p.node(typmod);
                 p.trailing_comma(i >= self.typmods.len() - 1);
             }
             p.word(")");

@@ -9,7 +9,7 @@ impl fmt::Print for ResTarget {
         {
             node.print(p)?;
         } else {
-            self.val.as_deref().unwrap().print(p)?;
+            p.node(self.val.as_deref().unwrap());
         }
 
         if !self.name.is_empty() {

@@ -1,8 +1,3 @@
-mod a_const;
-mod a_expr;
-mod a_star;
-mod access_priv;
-mod bool_expr;
 mod collate_clause;
 mod column_def;
 mod column_ref;
@@ -18,9 +13,9 @@ mod def_elem;
 mod define_stmt;
 mod domain;
 mod execute_stmt;
+mod expr;
 mod fmt;
 mod function_parameter;
-mod grant_stmt;
 mod index_elem;
 mod index_stmt;
 mod integer;
@@ -32,36 +27,29 @@ mod node;
 mod object_type;
 mod on_commit_action;
 mod param_ref;
-mod parse_result;
 mod partition_bound_spec;
 mod partition_strategy;
+mod privilege;
 mod range_var;
-mod raw_stmt;
 mod rel_persistence;
 mod res_target;
 mod role_spec;
 mod select_stmt;
 mod string;
+mod tree;
 mod type_name;
 mod val;
 mod view_stmt;
 mod with_clause;
 
-use fmt::Print;
-use fmt::Printer;
-use pg_query::protobuf;
-use pg_query::Error;
-use pg_query::Result;
+use crate::fmt::Printer;
+use pg_query::protobuf::ParseResult;
 
 const INDENT: isize = 4;
 
 /// Converts a parsed tree back into a pretty-printed string.
-pub fn unparse(protobuf: &protobuf::ParseResult) -> Result<String> {
+pub fn unparse(protobuf: &ParseResult) -> pg_query::Result<String> {
     let mut p = Printer::new();
-
-    protobuf
-        .print(&mut p)
-        .map_err(|_| Error::Parse(String::new()))?;
-
+    p.tree(protobuf);
     Ok(p.eof())
 }

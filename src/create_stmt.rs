@@ -44,7 +44,7 @@ impl fmt::Print for CreateStmt {
             p.word("(");
             p.hardbreak_if_nonempty();
             for (i, elt) in self.table_elts.iter().enumerate() {
-                elt.print(p)?;
+                p.node(elt);
                 if i < self.table_elts.len() - 1 {
                     p.word(",");
                 }

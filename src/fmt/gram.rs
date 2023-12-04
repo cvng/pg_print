@@ -7,12 +7,11 @@ use crate::rel_persistence::RelPersistence;
 use crate::INDENT;
 use pg_query::protobuf::a_const::Val;
 use pg_query::protobuf::AConst;
+use pg_query::protobuf::AStar;
 use pg_query::protobuf::CollateClause;
 use pg_query::protobuf::DropBehavior;
 use pg_query::protobuf::FunctionParameterMode;
-use pg_query::protobuf::GrantTargetType;
 use pg_query::protobuf::List;
-use pg_query::protobuf::ObjectType;
 use pg_query::protobuf::TypeName;
 use pg_query::Node;
 use pg_query::NodeEnum;
@@ -88,6 +87,16 @@ pub fn a_const_int_val(node: &Node) -> Option<i32> {
 }
 
 impl Printer {
+    pub fn a_const(&mut self, n: &AConst) {
+        n.val
+            .print_in_context(self, &fmt::Context::Constant)
+            .unwrap();
+    }
+
+    pub fn a_star(&mut self, _n: &AStar) {
+        self.word("*");
+    }
+
     pub fn any_name(&mut self, list: &[Node]) -> fmt::Result {
         for (i, part) in list.iter().enumerate() {
             if i > 0 {
@@ -114,7 +123,7 @@ impl Printer {
 
     pub fn expr_list(&mut self, list: &[Node]) -> fmt::Result {
         for (i, expr) in list.iter().enumerate() {
-            expr.print(self)?;
+            self.node(expr);
             self.trailing_comma(i >= list.len() - 1);
         }
 
@@ -139,7 +148,7 @@ impl Printer {
             self.word("(");
 
             for (i, option) in list.iter().enumerate() {
-                option.print(self)?;
+                self.node(option);
                 self.trailing_comma(i >= list.len() - 1);
             }
 
@@ -156,7 +165,7 @@ impl Printer {
             self.word("from ");
 
             for (i, item) in list.iter().enumerate() {
-                item.print(self)?;
+                self.node(item);
                 self.trailing_comma(i >= list.len() - 1);
             }
             self.word(" ");
@@ -168,7 +177,7 @@ impl Printer {
     pub fn where_clause(&mut self, node: Option<&Node>) -> fmt::Result {
         if let Some(node) = node {
             self.word("where ");
-            node.print(self)?;
+            self.node(node);
             self.word(" ");
         }
 
@@ -207,7 +216,7 @@ impl Printer {
             self.cbox(INDENT);
             self.hardbreak_if_nonempty();
             for (i, arg) in list.iter().enumerate() {
-                arg.print(self)?;
+                self.node(arg);
                 self.trailing_comma(i >= list.len() - 1);
             }
             self.space();
@@ -270,7 +279,7 @@ impl Printer {
     pub fn opt_routine_body(&mut self, node: Option<&Node>) -> fmt::Result {
         if let Some(node) = node {
             self.word("as ");
-            node.print(self)?;
+            self.node(node);
             self.nbsp();
         }
 
@@ -289,55 +298,6 @@ impl Printer {
 
     pub fn func_type(&mut self, node: &TypeName) -> fmt::Result {
         node.print(self)?;
-        Ok(())
-    }
-
-    pub fn privilege_target(
-        &mut self,
-        targtype: &GrantTargetType,
-        objtype: &ObjectType,
-        objs: &[Node],
-    ) -> fmt::Result {
-        match targtype {
-            GrantTargetType::AclTargetObject => match objtype {
-                ObjectType::ObjectTable => objs.print(self)?,
-                ObjectType::ObjectSequence => todo!(),
-                ObjectType::ObjectFdw => todo!(),
-                ObjectType::ObjectForeignServer => todo!(),
-                ObjectType::ObjectFunction => todo!(),
-                ObjectType::ObjectProcedure => todo!(),
-                ObjectType::ObjectRoutine => todo!(),
-                ObjectType::ObjectDatabase => todo!(),
-                ObjectType::ObjectDomain => todo!(),
-                ObjectType::ObjectLanguage => todo!(),
-                ObjectType::ObjectLargeobject => todo!(),
-                ObjectType::ObjectSchema => {
-                    self.word("schema ");
-                    self.name_list(objs)?;
-                }
-                ObjectType::ObjectTablespace => todo!(),
-                ObjectType::ObjectType => todo!(),
-                _ => {}
-            },
-            GrantTargetType::AclTargetAllInSchema => match objtype {
-                ObjectType::ObjectTable => todo!(),
-                ObjectType::ObjectSequence => todo!(),
-                ObjectType::ObjectFunction => todo!(),
-                ObjectType::ObjectProcedure => todo!(),
-                ObjectType::ObjectRoutine => todo!(),
-                _ => {}
-            },
-            GrantTargetType::AclTargetDefaults => match objtype {
-                ObjectType::ObjectTable => todo!(),
-                ObjectType::ObjectFunction => todo!(),
-                ObjectType::ObjectSequence => todo!(),
-                ObjectType::ObjectType => todo!(),
-                ObjectType::ObjectSchema => todo!(),
-                _ => {}
-            },
-            _ => {}
-        }
-
         Ok(())
     }
 
@@ -442,7 +402,8 @@ impl Printer {
     }
 
     pub fn qualified_name(&mut self, node: &Node) -> fmt::Result {
-        node.print(self)
+        self.node(node);
+        Ok(())
     }
 
     pub fn name(&mut self, name: String) {
