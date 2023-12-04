@@ -22,20 +22,20 @@ const ESCAPE_STRING_SYNTAX: char = 'E';
 // See https://github.com/pganalyze/libpg_query/blob/15-latest/src/postgres_deparse.c#L53.
 pub fn string_literal(p: &mut Printer, val: &str) {
     if val.contains('\\') {
-        self.word(ESCAPE_STRING_SYNTAX.to_string());
+        p.word(ESCAPE_STRING_SYNTAX.to_string());
     }
 
-    self.word('\''.to_string());
+    p.word('\''.to_string());
 
     for c in val.chars() {
         if c == '\'' || c == '\\' {
-            self.word(c.to_string());
+            p.word(c.to_string());
         }
 
-        self.word(c.to_string());
+        p.word(c.to_string());
     }
 
-    self.word('\''.to_string());
+    p.word('\''.to_string());
 }
 
 pub fn is_op(val: Option<String>) -> bool {
@@ -159,8 +159,8 @@ impl Printer {
         }
     }
 
-    pub fn where_clause(&mut self, node: Option<&Node>) {
-        if let Some(node) = node {
+    pub fn where_clause(&mut self, n: Option<&Node>) {
+        if let Some(node) = n {
             self.word("where ");
             self.node(node);
             self.word(" ");
@@ -206,8 +206,8 @@ impl Printer {
         self.space();
     }
 
-    pub fn func_return(&mut self, node: &TypeName) {
-        node.print(self);
+    pub fn func_return(&mut self, n: &TypeName) {
+        self.type_name(n);
         self.nbsp();
     }
 
@@ -251,16 +251,16 @@ impl Printer {
         }
     }
 
-    pub fn opt_routine_body(&mut self, node: Option<&Node>) {
-        if let Some(node) = node {
+    pub fn opt_routine_body(&mut self, n: Option<&Node>) {
+        if let Some(node) = n {
             self.word("as ");
             self.node(node);
             self.nbsp();
         }
     }
 
-    pub fn arg_class(&mut self, node: &FunctionParameterMode) {
-        node.print(self);
+    pub fn arg_class(&mut self, n: &FunctionParameterMode) {
+        n.print(self);
     }
 
     pub fn param_name(&mut self, val: &str) {
@@ -268,12 +268,12 @@ impl Printer {
         self.word(" ");
     }
 
-    pub fn func_type(&mut self, node: &TypeName) {
-        node.print(self);
+    pub fn func_type(&mut self, n: &TypeName) {
+        self.type_name(n);
     }
 
-    pub fn opt_drop_behavior(&mut self, node: DropBehavior) {
-        match node {
+    pub fn opt_drop_behavior(&mut self, n: &DropBehavior) {
+        match n {
             DropBehavior::DropRestrict => {}
             DropBehavior::DropCascade => self.word("cascade "),
             _ => {}
@@ -325,7 +325,7 @@ impl Printer {
     }
 
     pub fn opt_temp(&mut self, relpersistence: String) {
-        RelPersistence::from(relpersistence).print(self)
+        self.rel_persistence(&RelPersistence::from(relpersistence))
     }
 
     pub fn non_reserved_word_or_scont(&mut self, val: String) {
@@ -345,8 +345,8 @@ impl Printer {
         }
     }
 
-    pub fn signed_iconst(&mut self, node: &Node) {
-        self.word(format!("{}", int_val(node).unwrap()));
+    pub fn signed_iconst(&mut self, n: &Node) {
+        self.word(format!("{}", int_val(n).unwrap()));
     }
 
     pub fn qualified_name_list(&mut self, list: &[Node]) {
@@ -359,8 +359,8 @@ impl Printer {
         }
     }
 
-    pub fn qualified_name(&mut self, node: &Node) {
-        self.node(node);
+    pub fn qualified_name(&mut self, n: &Node) {
+        self.node(n);
     }
 
     pub fn name(&mut self, name: String) {

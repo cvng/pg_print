@@ -44,7 +44,7 @@ impl Printer {
             self.word(" with grant option");
         }
 
-        self.opt_drop_behavior(n.behavior());
+        self.opt_drop_behavior(&n.behavior());
 
         if let Some(grantor) = &n.grantor {
             self.word("granted by ");
