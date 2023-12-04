@@ -110,7 +110,7 @@ impl Printer {
 
     pub fn col_qual_list(&mut self, col: Option<&CollateClause>, list: &[Node]) {
         if let Some(col) = col {
-            col.print(self);
+            self.collate_clause(col);
         }
         self.print_list(list);
     }

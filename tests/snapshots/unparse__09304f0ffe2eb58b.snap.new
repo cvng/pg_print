@@ -1,0 +1,9 @@
+---
+source: tests/unparse.rs
+assertion_line: 38
+expression: "tests/unparse.sql:140"
+---
+create table types (
+    a geometry(point)  not null
+)
+

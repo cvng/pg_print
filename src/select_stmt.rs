@@ -5,7 +5,7 @@ use pg_query::protobuf::SetOperation;
 impl fmt::Print for SelectStmt {
     fn print(&self, p: &mut fmt::Printer) {
         if let Some(with_clause) = &self.with_clause {
-            with_clause.print(p);
+            p.with_clause(with_clause);
             p.word(" ");
         }
 

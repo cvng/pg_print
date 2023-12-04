@@ -1,14 +1,14 @@
-use crate::fmt;
+use crate::fmt::Printer;
 use pg_query::protobuf::WithClause;
 
-impl fmt::Print for WithClause {
-    fn print(&self, p: &mut fmt::Printer) {
-        p.word("with ");
+impl Printer {
+    pub fn with_clause(&mut self, n: &WithClause) {
+        self.word("with ");
 
-        if self.recursive {
-            p.word("recursive ");
+        if n.recursive {
+            self.word("recursive ");
         }
 
-        todo!("{:?}", &self);
+        todo!("{:?}", &n);
     }
 }

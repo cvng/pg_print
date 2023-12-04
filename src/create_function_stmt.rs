@@ -1,18 +1,18 @@
-use crate::fmt;
+use crate::fmt::Printer;
 use pg_query::protobuf::CreateFunctionStmt;
 
-impl fmt::Print for CreateFunctionStmt {
-    fn print(&self, p: &mut fmt::Printer) {
-        p.word("create ");
-        p.opt_or_replace(self.replace);
-        p.word("function ");
-        p.func_name(&self.funcname);
-        p.func_args_with_defaults(&self.parameters);
-        if let Some(return_type) = &self.return_type {
-            p.word("returns ");
-            p.func_return(return_type);
+impl Printer {
+    pub fn create_function_stmt(&mut self, n: &CreateFunctionStmt) {
+        self.word("create ");
+        self.opt_or_replace(n.replace);
+        self.word("function ");
+        self.func_name(&n.funcname);
+        self.func_args_with_defaults(&n.parameters);
+        if let Some(return_type) = &n.return_type {
+            self.word("returns ");
+            self.func_return(return_type);
         }
-        p.opt_createfunc_opt_list(&self.options);
-        p.opt_routine_body(self.sql_body.as_deref())
+        self.opt_createfunc_opt_list(&n.options);
+        self.opt_routine_body(n.sql_body.as_deref())
     }
 }

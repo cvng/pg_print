@@ -1,10 +1,10 @@
-use crate::fmt;
+use crate::fmt::Printer;
 use pg_query::protobuf;
 
-impl fmt::Print for protobuf::String {
-    fn print(&self, p: &mut fmt::Printer) {
-        p.word("'");
-        p.ident(self.sval.clone());
-        p.word("'");
+impl Printer {
+    pub fn string(&mut self, n: &protobuf::String) {
+        self.word("'");
+        self.ident(n.sval.clone());
+        self.word("'");
     }
 }

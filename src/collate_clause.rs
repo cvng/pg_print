@@ -1,19 +1,19 @@
-use crate::fmt;
+use crate::fmt::Printer;
 use pg_query::protobuf::CollateClause;
 use pg_query::NodeEnum;
 
-impl fmt::Print for CollateClause {
-    fn print(&self, p: &mut fmt::Printer) {
-        if let Some(arg) = &self.arg {
+impl Printer {
+    pub fn collate_clause(&mut self, n: &CollateClause) {
+        if let Some(arg) = &n.arg {
             let need_parens = matches!(arg.node.as_ref().unwrap(), NodeEnum::AExpr(_));
 
-            p.optional_word("(", need_parens);
-            p.node(arg);
-            p.optional_word(")", need_parens);
-            p.nbsp();
+            self.optional_word("(", need_parens);
+            self.node(arg);
+            self.optional_word(")", need_parens);
+            self.nbsp();
         }
 
-        p.word("collate ");
-        p.any_name(&self.collname);
+        self.word("collate ");
+        self.any_name(&n.collname);
     }
 }

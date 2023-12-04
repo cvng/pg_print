@@ -1,35 +1,35 @@
-use crate::fmt;
+use crate::fmt::Printer;
 use pg_query::protobuf::ColumnDef;
 
-impl fmt::Print for ColumnDef {
-    fn print(&self, p: &mut fmt::Printer) {
-        if !self.colname.is_empty() {
-            p.ident(self.colname.clone());
+impl Printer {
+    pub fn column_def(&mut self, n: &ColumnDef) {
+        if !n.colname.is_empty() {
+            self.ident(n.colname.clone());
         }
 
-        if let Some(type_name) = &self.type_name {
-            p.nbsp();
-            type_name.print(p);
+        if let Some(type_name) = &n.type_name {
+            self.nbsp();
+            self.type_name(type_name);
         }
 
-        if let Some(raw_default) = &self.raw_default {
-            p.nbsp();
-            p.word("using ");
-            p.node(raw_default);
+        if let Some(raw_default) = &n.raw_default {
+            self.nbsp();
+            self.word("using ");
+            self.node(raw_default);
         }
 
-        if !self.fdwoptions.is_empty() {
-            p.nbsp();
-            p.create_generic_options(&self.fdwoptions);
+        if !n.fdwoptions.is_empty() {
+            self.nbsp();
+            self.create_generic_options(&n.fdwoptions);
         }
 
-        for constraint in self.constraints.iter() {
-            p.nbsp();
-            p.node(constraint);
+        for constraint in n.constraints.iter() {
+            self.nbsp();
+            self.node(constraint);
         }
 
-        if let Some(coll_clause) = &self.coll_clause {
-            coll_clause.print(p);
+        if let Some(coll_clause) = &n.coll_clause {
+            self.collate_clause(coll_clause);
         }
     }
 }
