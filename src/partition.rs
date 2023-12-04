@@ -31,7 +31,7 @@ impl Printer {
 
         self.word(" for values ");
 
-        match n.strategy.clone().try_into().unwrap() {
+        match n.strategy.clone().into() {
             PartitionStrategy::Hash => {
                 self.word(format!(
                     "with (modulus {}, remainder {})",
@@ -50,7 +50,7 @@ impl Printer {
                 self.print_list(&n.upperdatums);
                 self.word(")");
             }
-            _ => unreachable!(),
+            _ => unimplemented!("unknown PartitionStrategy"),
         }
     }
 }
