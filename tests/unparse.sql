@@ -123,7 +123,7 @@
 -- CREATE CAST (bigint AS int4) WITH FUNCTION int4(bigint) AS ASSIGNMENT
 -- CREATE CAST (bigint AS int4) WITHOUT FUNCTION AS IMPLICIT
 -- CREATE CAST (bigint AS int4) WITH INOUT AS ASSIGNMENT
--- CREATE DOMAIN us_postal_code AS text CHECK (\"VALUE\" ~ E'^\\\\d{5}$' OR \"VALUE\" ~ E'^\\\\d{5}-\\\\d{4}$')
+CREATE DOMAIN us_postal_code AS TEXT CHECK( VALUE ~ '^\d{5}$' OR VALUE ~ '^\d{5}-\d{4}$')
 -- CREATE FUNCTION getfoo(int) RETURNS SETOF users AS $$SELECT * FROM \"users\" WHERE users.id = $1;$$ LANGUAGE sql
 -- CREATE OR REPLACE FUNCTION getfoo(int) RETURNS SETOF users AS $$SELECT * FROM \"users\" WHERE users.id = $1;$$ LANGUAGE sql
 -- CREATE OR REPLACE FUNCTION getfoo(int) RETURNS SETOF users AS $$SELECT * FROM \"users\" WHERE users.id = $1;$$ LANGUAGE sql IMMUTABLE

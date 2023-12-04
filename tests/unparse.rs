@@ -6,11 +6,7 @@ use std::path::PathBuf;
 
 #[test]
 fn unparse() {
-    let path = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-        .join("tests/unparse.sql")
-        .strip_prefix(env::current_dir().unwrap())
-        .unwrap()
-        .to_path_buf();
+    let path = PathBuf::from("tests/unparse.sql");
 
     for (mut lineno, case) in fs::read_to_string(&path).unwrap().lines().enumerate() {
         lineno += 1;
@@ -33,12 +29,10 @@ fn unparse() {
 
         let fingerprint = pg_query::fingerprint(case).unwrap().hex.to_string();
 
-        assert_eq!(deparsed, reparsed);
+        let description = format!("{}:{}", path.display(), lineno);
 
-        assert_snapshot!(
-            fingerprint,
-            unparsed,
-            &format!("{}:{}", path.display(), lineno)
-        );
+        assert_eq!(deparsed, reparsed, "{}", &description);
+
+        assert_snapshot!(fingerprint, unparsed, &description);
     }
 }
