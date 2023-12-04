@@ -88,9 +88,7 @@ pub fn a_const_int_val(node: &Node) -> Option<i32> {
 
 impl Printer {
     pub fn a_const(&mut self, n: &AConst) {
-        n.val
-            .print_in_context(self, &fmt::Context::Constant)
-            .unwrap();
+        self.opt_val(n.val.as_ref(), &fmt::Context::Constant);
     }
 
     pub fn a_star(&mut self, _n: &AStar) {

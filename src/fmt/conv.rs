@@ -35,13 +35,7 @@ pub enum Context {
 }
 
 pub trait Print {
-    fn print(&self, p: &mut super::Printer) -> Result {
-        self.print_in_context(p, &Context::default())
-    }
-
-    fn print_in_context(&self, _p: &mut super::Printer, _ctx: &Context) -> Result {
-        Ok(())
-    }
+    fn print(&self, p: &mut super::Printer) -> Result;
 }
 
 impl Printer {
@@ -93,9 +87,8 @@ impl Printer {
         self.spaces(1);
     }
 
-    pub fn nbsp(&mut self) -> Option<()> {
+    pub fn nbsp(&mut self) {
         self.word(" ");
-        Some(())
     }
 
     pub fn hardbreak(&mut self) {
