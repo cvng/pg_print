@@ -1,7 +1,6 @@
 use crate::fmt::a_const_int_val;
 use crate::fmt::int_val;
 use crate::fmt::str_val;
-use crate::fmt::Print;
 use crate::fmt::Printer;
 use crate::interval_fields::IntervalFields;
 use crate::interval_fields::INTERVAL_FULL_PRECISION;
@@ -104,7 +103,7 @@ impl Printer {
             .unwrap()
             .unwrap();
 
-        IntervalFields::from(interval_fields).print(self);
+        self.interval_fields(&IntervalFields::from(interval_fields));
 
         if node.typmods.len() == 2 {
             let precision = node

@@ -236,7 +236,7 @@ impl Printer {
             NodeEnum::PublicationTable(_) => todo!(),
             NodeEnum::InlineCodeBlock(_) => todo!(),
             NodeEnum::CallContext(_) => todo!(),
-            NodeEnum::Integer(n) => n.print(self),
+            NodeEnum::Integer(n) => self.integer(n),
             NodeEnum::Float(_) => todo!(),
             NodeEnum::Boolean(_) => todo!(),
             NodeEnum::String(n) => self.string(n),

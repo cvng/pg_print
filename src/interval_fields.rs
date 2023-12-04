@@ -1,4 +1,4 @@
-use crate::fmt;
+use crate::fmt::Printer;
 
 const MONTH: i32 = 1;
 const YEAR: i32 = 2;
@@ -51,9 +51,9 @@ impl From<i32> for IntervalFields {
     }
 }
 
-impl fmt::Print for IntervalFields {
-    fn print(&self, p: &mut fmt::Printer) {
-        match self {
+impl Printer {
+    pub fn interval_fields(&mut self, n: &IntervalFields) {
+        match n {
             IntervalFields::Year => self.word(" year"),
             IntervalFields::Month => self.word(" month"),
             IntervalFields::Day => self.word(" day"),
