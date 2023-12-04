@@ -1,59 +1,59 @@
-use crate::fmt;
+use crate::fmt::Printer;
 use pg_query::protobuf::IndexStmt;
 
-impl fmt::Print for IndexStmt {
-    fn print(&self, p: &mut fmt::Printer) {
+impl Printer {
+    fn index_stmt(&mut self, n: &IndexStmt) {
         self.word("create ");
 
-        if self.unique {
+        if n.unique {
             self.word("unique ");
         }
 
         self.word("index ");
 
-        if self.concurrent {
+        if n.concurrent {
             self.word("concurrently ");
         }
 
-        if self.if_not_exists {
+        if n.if_not_exists {
             self.word("if not exists ");
         }
 
-        self.ident(self.idxname.clone());
+        self.ident(n.idxname.clone());
         self.nbsp();
 
         self.word("on ");
-        self.relation.as_ref().unwrap().print(p);
+        self.range_var(n.relation.as_ref().unwrap());
         self.nbsp();
 
-        if !&self.access_method.is_empty() {
+        if !&n.access_method.is_empty() {
             self.word("using ");
-            self.ident(self.access_method.clone());
+            self.ident(n.access_method.clone());
             self.nbsp();
         }
 
         self.word("(");
-        self.print_list(&self.index_params);
+        self.print_list(&n.index_params);
         self.word(")");
 
-        if !self.index_including_params.is_empty() {
+        if !n.index_including_params.is_empty() {
             self.word(" include (");
-            self.print_list(&self.index_including_params);
+            self.print_list(&n.index_including_params);
             self.word(") ");
         }
 
-        if self.nulls_not_distinct {
+        if n.nulls_not_distinct {
             self.word("nulls not distinct ");
         }
 
-        self.opt_with(&self.options);
+        self.opt_with(&n.options);
 
-        if !self.table_space.is_empty() {
+        if !n.table_space.is_empty() {
             self.word("tablespace ");
-            self.ident(self.table_space.clone());
+            self.ident(n.table_space.clone());
             self.nbsp();
         }
 
-        self.where_clause(self.where_clause.as_deref());
+        self.where_clause(n.where_clause.as_deref());
     }
 }

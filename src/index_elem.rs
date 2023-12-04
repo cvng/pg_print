@@ -1,37 +1,37 @@
-use crate::fmt;
+use crate::fmt::Printer;
 use pg_query::protobuf::IndexElem;
 use pg_query::protobuf::SortByDir;
 use pg_query::protobuf::SortByNulls;
 
-impl fmt::Print for IndexElem {
-    fn print(&self, p: &mut fmt::Printer) {
-        if !self.name.is_empty() {
-            self.ident(self.name.clone());
-        } else if let Some(expr) = &self.expr {
+impl Printer {
+    pub fn index_elem(&self, n: &IndexElem) {
+        if !n.name.is_empty() {
+            self.ident(n.name.clone());
+        } else if let Some(expr) = &n.expr {
             self.node(expr);
         } else {
-            unreachable!("{:?}", self);
+            unreachable!();
         }
 
-        self.opt_collate(&self.collation);
+        self.opt_collate(&n.collation);
 
-        if !self.opclass.is_empty() {
-            self.any_name(&self.opclass);
+        if !n.opclass.is_empty() {
+            self.any_name(&n.opclass);
 
-            if !self.opclassopts.is_empty() {
-                self.reloptions(&self.opclassopts);
+            if !n.opclassopts.is_empty() {
+                self.reloptions(&n.opclassopts);
             }
 
             self.nbsp();
         }
 
-        match self.ordering() {
+        match n.ordering() {
             SortByDir::SortbyAsc => self.word("asc "),
             SortByDir::SortbyDesc => self.word("desc "),
             _ => {}
         }
 
-        match self.nulls_ordering() {
+        match n.nulls_ordering() {
             SortByNulls::SortbyNullsFirst => self.word("nulls first "),
             SortByNulls::SortbyNullsLast => self.word("nulls last "),
             _ => {}
