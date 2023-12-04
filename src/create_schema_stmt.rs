@@ -1,18 +1,18 @@
-use crate::fmt;
+use crate::fmt::Printer;
 use pg_query::protobuf::CreateSchemaStmt;
 
-impl fmt::Print for CreateSchemaStmt {
-    fn print(&self, p: &mut fmt::Printer) -> fmt::Result {
-        p.word("create schema ");
-        p.optional_word("if not exists ", self.if_not_exists);
-        p.ident(self.schemaname.clone());
+impl Printer {
+    pub fn create_schema_stmt(&mut self, n: &CreateSchemaStmt) {
+        self.word("create schema ");
+        self.optional_word("if not exists ", n.if_not_exists);
+        self.ident(n.schemaname.clone());
 
-        if let Some(authrole) = &self.authrole {
-            p.word("authorization ");
-            authrole.print(p)?;
-            p.nbsp();
+        if let Some(authrole) = &n.authrole {
+            self.word("authorization ");
+            self.role_spec(authrole);
+            self.nbsp();
         }
 
-        self.schema_elts.print(p)
+        self.print_list(&n.schema_elts);
     }
 }

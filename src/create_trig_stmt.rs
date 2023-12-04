@@ -1,6 +1,6 @@
-use crate::fmt;
-use crate::fmt::str_val;
-use crate::fmt::string_literal;
+use crate::fmt::Printer;
+use crate::gram::str_val;
+use crate::gram::string_literal;
 use pg_query::protobuf::CreateTrigStmt;
 
 const TRIGGER_TYPE_BEFORE: usize = 1 << 1;
@@ -11,111 +11,109 @@ const TRIGGER_TYPE_TRUNCATE: usize = 1 << 5;
 const TRIGGER_TYPE_INSTEAD: usize = 1 << 6;
 const TRIGGER_TYPE_AFTER: usize = 0;
 
-impl fmt::Print for CreateTrigStmt {
-    fn print(&self, p: &mut fmt::Printer) -> fmt::Result {
+impl Printer {
+    pub fn create_trig_stmt(&mut self, n: &CreateTrigStmt) {
         let mut skip_events_or = true;
 
-        p.word("create ");
+        self.word("create ");
 
-        if self.replace {
-            p.word("or replace ");
+        if n.replace {
+            self.word("or replace ");
         }
 
-        if self.isconstraint {
-            p.word("constraint ");
+        if n.isconstraint {
+            self.word("constraint ");
         }
 
-        p.word("trigger ");
-        p.ident(self.trigname.clone());
-        p.nbsp();
+        self.word("trigger ");
+        self.ident(n.trigname.clone());
+        self.nbsp();
 
-        match self.timing as usize {
-            TRIGGER_TYPE_BEFORE => p.word("before "),
-            TRIGGER_TYPE_AFTER => p.word("after "),
-            TRIGGER_TYPE_INSTEAD => p.word("instead of "),
+        match n.timing as usize {
+            TRIGGER_TYPE_BEFORE => self.word("before "),
+            TRIGGER_TYPE_AFTER => self.word("after "),
+            TRIGGER_TYPE_INSTEAD => self.word("instead of "),
             _ => {}
         }
 
-        if self.events as usize & TRIGGER_TYPE_INSERT != 0 {
-            p.word("insert ");
+        if n.events as usize & TRIGGER_TYPE_INSERT != 0 {
+            self.word("insert ");
             skip_events_or = false;
         }
 
-        if self.events as usize & TRIGGER_TYPE_DELETE != 0 {
+        if n.events as usize & TRIGGER_TYPE_DELETE != 0 {
             if !skip_events_or {
-                p.word("or ");
+                self.word("or ");
             }
-            p.word("delete ");
+            self.word("delete ");
             skip_events_or = false;
         }
 
-        if self.events as usize & TRIGGER_TYPE_UPDATE != 0 {
+        if n.events as usize & TRIGGER_TYPE_UPDATE != 0 {
             if !skip_events_or {
-                p.word("or ");
+                self.word("or ");
             }
-            p.word("update ");
+            self.word("update ");
 
-            if !self.columns.is_empty() {
-                p.word("of ");
-                p.column_list(&self.columns)?;
-                p.nbsp();
+            if !n.columns.is_empty() {
+                self.word("of ");
+                self.column_list(&n.columns);
+                self.nbsp();
             }
             skip_events_or = false;
         }
 
-        if self.events as usize & TRIGGER_TYPE_TRUNCATE != 0 {
+        if n.events as usize & TRIGGER_TYPE_TRUNCATE != 0 {
             if !skip_events_or {
-                p.word("or ");
+                self.word("or ");
             }
-            p.word("truncate ");
+            self.word("truncate ");
         }
 
-        p.word("on ");
-        self.relation.as_ref().unwrap().print(p)?;
-        p.nbsp();
+        self.word("on ");
+        self.range_var(n.relation.as_ref().unwrap());
+        self.nbsp();
 
-        if !self.transition_rels.is_empty() {
-            p.word("referencing ");
-            for transition_rel in &self.transition_rels {
-                transition_rel.print(p)?;
-                p.nbsp();
+        if !n.transition_rels.is_empty() {
+            self.word("referencing ");
+            for transition_rel in &n.transition_rels {
+                self.node(transition_rel);
+                self.nbsp();
             }
         }
 
-        if let Some(constrrel) = &self.constrrel {
-            p.word("from ");
-            constrrel.print(p)?;
-            p.nbsp();
+        if let Some(constrrel) = &n.constrrel {
+            self.word("from ");
+            self.range_var(constrrel);
+            self.nbsp();
         }
 
-        if self.deferrable {
-            p.word("deferrable ");
+        if n.deferrable {
+            self.word("deferrable ");
         }
 
-        if self.initdeferred {
-            p.word("initially deferred ");
+        if n.initdeferred {
+            self.word("initially deferred ");
         }
 
-        if self.row {
-            p.word("for each row ");
+        if n.row {
+            self.word("for each row ");
         }
 
-        if let Some(when_clause) = &self.when_clause {
-            p.word("when (");
-            when_clause.print(p)?;
-            p.word(") ");
+        if let Some(when_clause) = &n.when_clause {
+            self.word("when (");
+            self.node(when_clause);
+            self.word(") ");
         }
 
-        p.word("execute function ");
-        p.func_name(&self.funcname)?;
+        self.word("execute function ");
+        self.func_name(&n.funcname);
 
-        p.word("(");
-        for (i, arg) in self.args.iter().enumerate() {
-            string_literal(p, &str_val(arg).unwrap())?;
-            p.trailing_comma(i >= self.args.len() - 1);
+        self.word("(");
+        for (i, arg) in n.args.iter().enumerate() {
+            string_literal(self, &str_val(arg).unwrap());
+            self.trailing_comma(i >= n.args.len() - 1);
         }
-        p.word(")");
-
-        Ok(())
+        self.word(")");
     }
 }

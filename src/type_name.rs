@@ -1,8 +1,7 @@
-use crate::fmt;
-use crate::fmt::a_const_int_val;
-use crate::fmt::int_val;
-use crate::fmt::str_val;
-use crate::fmt::Print;
+use crate::fmt::Printer;
+use crate::gram::a_const_int_val;
+use crate::gram::int_val;
+use crate::gram::str_val;
 use crate::interval_fields::IntervalFields;
 use crate::interval_fields::INTERVAL_FULL_PRECISION;
 use crate::name::Name;
@@ -11,106 +10,91 @@ use pg_query::protobuf::TypeName;
 use pg_query::Node;
 use pg_query::NodeEnum;
 
-impl fmt::Print for TypeName {
-    fn print(&self, p: &mut fmt::Printer) -> fmt::Result {
+impl Printer {
+    pub fn type_name(&mut self, n: &TypeName) {
         let mut skip_typmods = false;
 
-        if self.setof {
-            p.word("setof ");
+        if n.setof {
+            self.word("setof ");
         }
 
-        if self.names.len() == 2 && str_val(self.names.first().unwrap()).unwrap() == "pg_catalog" {
-            let name = str_val(self.names.last().unwrap()).unwrap();
+        if n.names.len() == 2 && str_val(n.names.first().unwrap()).unwrap() == "pg_catalog" {
+            let name = str_val(n.names.last().unwrap()).unwrap();
 
             match name.clone().into() {
-                Name::Bpchar => p.word("char"),
-                Name::Varchar => p.word("varchar"),
-                Name::Numeric => p.word("numeric"),
-                Name::Bool => p.word("boolean"),
-                Name::Int2 => p.word("smallint"),
-                Name::Int4 => p.word("int"),
-                Name::Int8 => p.word("bigint"),
-                Name::Real => p.word("real"),
-                Name::Float8 => p.word("double precision"),
-                Name::Time => p.word("time"),
+                Name::Bpchar => self.word("char"),
+                Name::Varchar => self.word("varchar"),
+                Name::Numeric => self.word("numeric"),
+                Name::Bool => self.word("boolean"),
+                Name::Int2 => self.word("smallint"),
+                Name::Int4 => self.word("int"),
+                Name::Int8 => self.word("bigint"),
+                Name::Real => self.word("real"),
+                Name::Float8 => self.word("double precision"),
+                Name::Time => self.word("time"),
                 Name::Timetz => {
                     skip_typmods = true;
-                    p.word("time ");
+                    self.word("time ");
 
-                    if !self.typmods.is_empty() {
-                        p.word("(");
-                        for (i, typmod) in self.typmods.iter().enumerate() {
-                            p.signed_iconst(typmod);
-                            p.trailing_comma(i >= self.typmods.len() - 1);
+                    if !n.typmods.is_empty() {
+                        self.word("(");
+                        for (i, typmod) in n.typmods.iter().enumerate() {
+                            self.signed_iconst(typmod);
+                            self.trailing_comma(i >= n.typmods.len() - 1);
                         }
-                        p.word(") ");
+                        self.word(") ");
                     }
 
-                    p.word("with time zone")
+                    self.word("with time zone")
                 }
-                Name::Timestamp => p.word("timestamp"),
+                Name::Timestamp => self.word("timestamp"),
                 Name::Timestamptz => {
                     skip_typmods = true;
-                    p.word("timestamp ");
+                    self.word("timestamp ");
 
-                    if !self.typmods.is_empty() {
-                        p.word("(");
-                        for (i, typmod) in self.typmods.iter().enumerate() {
-                            p.signed_iconst(typmod);
-                            p.trailing_comma(i >= self.typmods.len() - 1);
+                    if !n.typmods.is_empty() {
+                        self.word("(");
+                        for (i, typmod) in n.typmods.iter().enumerate() {
+                            self.signed_iconst(typmod);
+                            self.trailing_comma(i >= n.typmods.len() - 1);
                         }
-                        p.word(") ");
+                        self.word(") ");
                     }
-                    p.word("with time zone")
+                    self.word("with time zone")
                 }
                 Name::Interval => {
-                    p.word("interval");
+                    self.word("interval");
 
-                    if !self.typmods.is_empty() {
+                    if !n.typmods.is_empty() {
                         skip_typmods = true;
-                        print_interval_typmods(p, self)?;
+                        self.interval_typmods(n);
                     }
                 }
                 Name::Undefined => {
-                    p.word("pg_catalog.");
-                    p.word(name)
+                    self.word("pg_catalog.");
+                    self.word(name)
                 }
             };
         } else {
-            p.any_name(&self.names)?;
+            self.any_name(&n.names);
         }
 
-        if !self.typmods.is_empty() && !skip_typmods {
-            p.word("(");
-            for (i, typmod) in self.typmods.iter().enumerate() {
-                typmod.print(p)?;
-                p.trailing_comma(i >= self.typmods.len() - 1);
+        if !n.typmods.is_empty() && !skip_typmods {
+            self.word("(");
+            for (i, typmod) in n.typmods.iter().enumerate() {
+                self.node(typmod);
+                self.trailing_comma(i >= n.typmods.len() - 1);
             }
-            p.word(")");
+            self.word(")");
         }
 
-        Ok(())
+        self.nbsp();
     }
-}
 
-fn print_interval_typmods(p: &mut fmt::Printer, node: &TypeName) -> fmt::Result {
-    let interval_fields = node
-        .typmods
-        .first()
-        .and_then(a_const_int_val)
-        .map(|ival| Some(NodeEnum::Integer(Integer { ival })))
-        .map(|node| Node { node })
-        .as_ref()
-        .map(int_val)
-        .unwrap()
-        .unwrap();
-
-    IntervalFields::from(interval_fields).print(p)?;
-
-    if node.typmods.len() == 2 {
-        let precision = node
+    pub fn interval_typmods(&mut self, node: &TypeName) {
+        let interval_fields = node
             .typmods
-            .last()
+            .first()
             .and_then(a_const_int_val)
             .map(|ival| Some(NodeEnum::Integer(Integer { ival })))
             .map(|node| Node { node })
@@ -119,10 +103,23 @@ fn print_interval_typmods(p: &mut fmt::Printer, node: &TypeName) -> fmt::Result 
             .unwrap()
             .unwrap();
 
-        if precision != INTERVAL_FULL_PRECISION {
-            p.word(format!(" ({})", precision));
+        self.interval_fields(&IntervalFields::from(interval_fields));
+
+        if node.typmods.len() == 2 {
+            let precision = node
+                .typmods
+                .last()
+                .and_then(a_const_int_val)
+                .map(|ival| Some(NodeEnum::Integer(Integer { ival })))
+                .map(|node| Node { node })
+                .as_ref()
+                .map(int_val)
+                .unwrap()
+                .unwrap();
+
+            if precision != INTERVAL_FULL_PRECISION {
+                self.word(format!(" ({})", precision));
+            }
         }
     }
-
-    Ok(())
 }

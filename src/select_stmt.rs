@@ -1,50 +1,48 @@
-use crate::fmt;
+use crate::fmt::Printer;
 use pg_query::protobuf::SelectStmt;
 use pg_query::protobuf::SetOperation;
 
-impl fmt::Print for SelectStmt {
-    fn print(&self, p: &mut fmt::Printer) -> fmt::Result {
-        if let Some(with_clause) = &self.with_clause {
-            with_clause.print(p)?;
-            p.word(" ");
+impl Printer {
+    pub fn select_stmt(&mut self, n: &SelectStmt) {
+        if let Some(with_clause) = &n.with_clause {
+            self.with_clause(with_clause);
+            self.word(" ");
         }
 
-        match &self.op() {
+        match &n.op() {
             SetOperation::SetopNone => {
-                if !self.values_lists.is_empty() {
-                    p.word("values ");
+                if !n.values_lists.is_empty() {
+                    self.word("values ");
 
-                    for (i, list) in self.values_lists.iter().enumerate() {
-                        p.word("(");
-                        [list.clone()].print(p)?;
-                        p.word(")");
-                        p.trailing_comma(i >= self.values_lists.len() - 1);
+                    for (i, list) in n.values_lists.iter().enumerate() {
+                        self.word("(");
+                        self.print_list(&[list.clone()]);
+                        self.word(")");
+                        self.trailing_comma(i >= n.values_lists.len() - 1);
                     }
 
-                    p.word(" ");
+                    self.word(" ");
                 }
 
-                p.word("select ");
+                self.word("select ");
 
-                if !self.target_list.is_empty() {
-                    if !self.distinct_clause.is_empty() {
-                        p.word("distinct ");
+                if !n.target_list.is_empty() {
+                    if !n.distinct_clause.is_empty() {
+                        self.word("distinct ");
 
-                        p.word("on (");
-                        self.distinct_clause.print(p)?;
-                        p.word(") ");
+                        self.word("on (");
+                        self.print_list(&n.distinct_clause);
+                        self.word(") ");
                     }
 
-                    self.target_list.print(p)?;
-                    p.word(" ");
+                    self.print_list(&n.target_list);
+                    self.word(" ");
                 }
 
-                p.from_clause(&self.from_clause)?;
-                p.where_clause(self.where_clause.as_deref())?;
+                self.from_clause(&n.from_clause);
+                self.where_clause(n.where_clause.as_deref());
             }
-            _ => todo!("{:?}", self.op()),
-        };
-
-        Ok(())
+            _ => todo!(),
+        }
     }
 }

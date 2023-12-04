@@ -1,15 +1,15 @@
-use crate::fmt;
+use crate::fmt::Printer;
 use crate::INDENT;
 use pg_query::protobuf::CreateForeignTableStmt;
 use pg_query::Node;
 use pg_query::NodeEnum;
 
-impl fmt::Print for CreateForeignTableStmt {
-    fn print(&self, p: &mut fmt::Printer) -> fmt::Result {
-        p.word("create foreign table ");
-        p.qualified_name(&Node {
+impl Printer {
+    pub fn create_foreign_table_stmt(&mut self, n: &CreateForeignTableStmt) {
+        self.word("create foreign table ");
+        self.qualified_name(&Node {
             node: Some(NodeEnum::RangeVar(
-                self.base_stmt
+                n.base_stmt
                     .as_ref()
                     .unwrap()
                     .relation
@@ -17,28 +17,27 @@ impl fmt::Print for CreateForeignTableStmt {
                     .unwrap()
                     .clone(), // TODO: expensive clone (size = 152)
             )),
-        })?;
-        p.nbsp();
+        });
+        self.nbsp();
 
-        if !self.base_stmt.as_ref().unwrap().table_elts.is_empty() {
-            p.cbox(INDENT);
-            p.word("(");
-            p.hardbreak_if_nonempty();
-            self.base_stmt.as_ref().unwrap().table_elts.print(p)?;
-            p.hardbreak();
-            p.offset(-INDENT);
-            p.end();
-            p.word(")");
+        if !n.base_stmt.as_ref().unwrap().table_elts.is_empty() {
+            self.cbox(INDENT);
+            self.word("(");
+            self.hardbreak_if_nonempty();
+            self.print_list(&n.base_stmt.as_ref().unwrap().table_elts);
+            self.hardbreak();
+            self.offset(-INDENT);
+            self.end();
+            self.word(")");
         }
 
-        p.opt_inherit(&self.base_stmt.as_ref().unwrap().inh_relations)?;
+        self.opt_inherit(&n.base_stmt.as_ref().unwrap().inh_relations);
 
-        p.hardbreak();
-        p.word("server ");
-        p.name(self.servername.clone());
-        p.nbsp();
+        self.hardbreak();
+        self.word("server ");
+        self.name(n.servername.clone());
+        self.nbsp();
 
-        p.create_generic_options(&self.options)?;
-        Ok(())
+        self.create_generic_options(&n.options);
     }
 }

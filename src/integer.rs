@@ -1,9 +1,10 @@
-use crate::fmt;
+use crate::fmt::Context;
+use crate::fmt::Printer;
 use pg_query::protobuf::a_const::Val;
 use pg_query::protobuf::Integer;
 
-impl fmt::Print for Integer {
-    fn print(&self, p: &mut fmt::Printer) -> fmt::Result {
-        Some(Val::Ival(self.clone())).print(p)
+impl Printer {
+    pub fn integer(&mut self, n: &Integer) {
+        self.opt_val(Some(&Val::Ival(n.clone())), &Context::None);
     }
 }

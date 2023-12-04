@@ -1,61 +1,59 @@
-use crate::fmt;
+use crate::fmt::Printer;
 use pg_query::protobuf::IndexStmt;
 
-impl fmt::Print for IndexStmt {
-    fn print(&self, p: &mut fmt::Printer) -> fmt::Result {
-        p.word("create ");
+impl Printer {
+    pub fn index_stmt(&mut self, n: &IndexStmt) {
+        self.word("create ");
 
-        if self.unique {
-            p.word("unique ");
+        if n.unique {
+            self.word("unique ");
         }
 
-        p.word("index ");
+        self.word("index ");
 
-        if self.concurrent {
-            p.word("concurrently ");
+        if n.concurrent {
+            self.word("concurrently ");
         }
 
-        if self.if_not_exists {
-            p.word("if not exists ");
+        if n.if_not_exists {
+            self.word("if not exists ");
         }
 
-        p.ident(self.idxname.clone());
-        p.nbsp();
+        self.ident(n.idxname.clone());
+        self.nbsp();
 
-        p.word("on ");
-        self.relation.as_ref().unwrap().print(p)?;
-        p.nbsp();
+        self.word("on ");
+        self.range_var(n.relation.as_ref().unwrap());
+        self.nbsp();
 
-        if !&self.access_method.is_empty() {
-            p.word("using ");
-            p.ident(self.access_method.clone());
-            p.nbsp();
+        if !&n.access_method.is_empty() {
+            self.word("using ");
+            self.ident(n.access_method.clone());
+            self.nbsp();
         }
 
-        p.word("(");
-        self.index_params.print(p)?;
-        p.word(")");
+        self.word("(");
+        self.print_list(&n.index_params);
+        self.word(")");
 
-        if !self.index_including_params.is_empty() {
-            p.word(" include (");
-            self.index_including_params.print(p)?;
-            p.word(") ");
+        if !n.index_including_params.is_empty() {
+            self.word(" include (");
+            self.print_list(&n.index_including_params);
+            self.word(") ");
         }
 
-        if self.nulls_not_distinct {
-            p.word("nulls not distinct ");
+        if n.nulls_not_distinct {
+            self.word("nulls not distinct ");
         }
 
-        p.opt_with(&self.options)?;
+        self.opt_with(&n.options);
 
-        if !self.table_space.is_empty() {
-            p.word("tablespace ");
-            p.ident(self.table_space.clone());
-            p.nbsp();
+        if !n.table_space.is_empty() {
+            self.word("tablespace ");
+            self.ident(n.table_space.clone());
+            self.nbsp();
         }
 
-        p.where_clause(self.where_clause.as_deref())?;
-
-        Ok(())
+        self.where_clause(n.where_clause.as_deref());
     }
 }

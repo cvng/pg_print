@@ -1,22 +1,19 @@
-use crate::fmt;
+use crate::fmt::Printer;
 use pg_query::protobuf::ResTarget;
 use pg_query::NodeEnum;
 
-impl fmt::Print for ResTarget {
-    fn print(&self, p: &mut fmt::Printer) -> fmt::Result {
-        if self.val.is_none() {
-        } else if let NodeEnum::ColumnRef(node) = self.val.as_ref().unwrap().node.as_ref().unwrap()
-        {
-            node.print(p)?;
+impl Printer {
+    pub fn res_target(&mut self, n: &ResTarget) {
+        if n.val.is_none() {
+        } else if let NodeEnum::ColumnRef(node) = n.val.as_ref().unwrap().node.as_ref().unwrap() {
+            self.column_ref(node);
         } else {
-            self.val.as_deref().unwrap().print(p)?;
+            self.node(n.val.as_deref().unwrap());
         }
 
-        if !self.name.is_empty() {
-            p.word(" as ");
-            p.ident(self.name.clone());
+        if !n.name.is_empty() {
+            self.word(" as ");
+            self.ident(n.name.clone());
         }
-
-        Ok(())
     }
 }

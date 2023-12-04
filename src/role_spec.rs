@@ -1,18 +1,16 @@
-use crate::fmt;
+use crate::fmt::Printer;
 use pg_query::protobuf::RoleSpec;
 use pg_query::protobuf::RoleSpecType;
 
-impl fmt::Print for RoleSpec {
-    fn print(&self, p: &mut fmt::Printer) -> fmt::Result {
-        match self.roletype() {
-            RoleSpecType::RolespecCstring => p.ident(self.rolename.clone()),
-            RoleSpecType::RolespecCurrentRole => p.word("current_role"),
-            RoleSpecType::RolespecCurrentUser => p.word("current_user"),
-            RoleSpecType::RolespecSessionUser => p.word("session_user"),
-            RoleSpecType::RolespecPublic => p.word("public"),
+impl Printer {
+    pub fn role_spec(&mut self, n: &RoleSpec) {
+        match n.roletype() {
+            RoleSpecType::RolespecCstring => self.ident(n.rolename.clone()),
+            RoleSpecType::RolespecCurrentRole => self.word("current_role"),
+            RoleSpecType::RolespecCurrentUser => self.word("current_user"),
+            RoleSpecType::RolespecSessionUser => self.word("session_user"),
+            RoleSpecType::RolespecPublic => self.word("public"),
             _ => {}
         }
-
-        Ok(())
     }
 }

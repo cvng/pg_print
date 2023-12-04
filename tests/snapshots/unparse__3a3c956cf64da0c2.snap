@@ -3,6 +3,6 @@ source: tests/unparse.rs
 expression: "tests/unparse.sql:142"
 ---
 create table capitals (
-    state char(2)
+    state char(2) 
 )inherits (cities) 
 

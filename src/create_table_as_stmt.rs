@@ -1,12 +1,13 @@
-use crate::fmt;
+use crate::fmt::Printer;
 use pg_query::protobuf::CreateTableAsStmt;
+use pg_query::NodeEnum;
 
-impl fmt::Print for CreateTableAsStmt {
-    fn print(&self, p: &mut fmt::Printer) -> fmt::Result {
-        p.word("create ");
+impl Printer {
+    pub fn create_table_as_stmt(&mut self, n: &CreateTableAsStmt) {
+        self.word("create ");
 
-        p.opt_temp(
-            self.into
+        self.opt_temp(
+            n.into
                 .as_ref()
                 .unwrap()
                 .rel
@@ -14,29 +15,29 @@ impl fmt::Print for CreateTableAsStmt {
                 .unwrap()
                 .relpersistence
                 .clone(),
-        )?;
+        );
 
-        self.objtype().print(p)?;
+        self.object_type(&n.objtype());
 
-        if self.if_not_exists {
-            p.word("if not exists ");
+        if n.if_not_exists {
+            self.word("if not exists ");
         }
 
-        self.into.as_ref().unwrap().print(p)?;
-        p.word(" ");
+        self.into_clause(n.into.as_ref().unwrap());
+        self.word(" ");
 
-        p.word("as ");
+        self.word("as ");
 
-        self.query.as_ref().unwrap().print(p)?;
+        if let NodeEnum::SelectStmt(query) = &n.query.as_ref().unwrap().node.as_ref().unwrap() {
+            self.select_stmt(query);
+        }
 
-        p.word(" ");
+        self.word(" ");
 
-        if let Some(into) = self.into.as_deref() {
+        if let Some(into) = n.into.as_deref() {
             if into.skip_data {
-                p.word("with no data ");
+                self.word("with no data ");
             }
         }
-
-        Ok(())
     }
 }

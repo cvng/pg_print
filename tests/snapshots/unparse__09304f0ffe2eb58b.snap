@@ -3,6 +3,6 @@ source: tests/unparse.rs
 expression: "tests/unparse.sql:140"
 ---
 create table types (
-    a geometry(point) not null
+    a geometry(point)  not null
 )
 

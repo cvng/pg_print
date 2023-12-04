@@ -1,16 +1,16 @@
-use crate::fmt;
-use crate::fmt::str_val;
+use crate::fmt::Printer;
+use crate::gram::str_val;
 use pg_query::protobuf::CreateExtensionStmt;
 use pg_query::NodeEnum;
 
-impl fmt::Print for CreateExtensionStmt {
-    fn print(&self, p: &mut fmt::Printer) -> fmt::Result {
-        p.word("create extension ");
-        p.optional_word("if not exists ", self.if_not_exists);
-        p.ident(self.extname.clone());
-        p.nbsp();
+impl Printer {
+    pub fn create_extension_stmt(&mut self, n: &CreateExtensionStmt) {
+        self.word("create extension ");
+        self.optional_word("if not exists ", n.if_not_exists);
+        self.ident(n.extname.clone());
+        self.nbsp();
 
-        for option in &self.options {
+        for option in &n.options {
             let def_elem = option
                 .node
                 .as_ref()
@@ -22,21 +22,21 @@ impl fmt::Print for CreateExtensionStmt {
 
             match def_elem.defname.as_ref() {
                 "schema" => {
-                    p.word("schema ");
-                    p.ident(str_val(&def_elem.arg.clone().unwrap()).unwrap());
+                    self.word("schema ");
+                    self.ident(str_val(&def_elem.arg.clone().unwrap()).unwrap());
                 }
                 "new_version" => {
-                    p.word("version ");
-                    p.non_reserved_word_or_scont(str_val(&def_elem.arg.clone().unwrap()).unwrap())?;
+                    self.word("version ");
+                    self.non_reserved_word_or_scont(
+                        str_val(&def_elem.arg.clone().unwrap()).unwrap(),
+                    );
                 }
                 "cascade" => {
-                    p.word("cascade ");
+                    self.word("cascade ");
                 }
                 _ => {}
             }
-            p.space();
+            self.space();
         }
-
-        Ok(())
     }
 }

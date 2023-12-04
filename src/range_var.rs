@@ -1,9 +1,8 @@
-use crate::fmt;
+use crate::fmt::Printer;
 use pg_query::protobuf::RangeVar;
 
-impl fmt::Print for RangeVar {
-    fn print(&self, p: &mut fmt::Printer) -> fmt::Result {
-        p.ident(self.relname.clone());
-        Ok(())
+impl Printer {
+    pub fn range_var(&mut self, n: &RangeVar) {
+        self.ident(n.relname.clone());
     }
 }

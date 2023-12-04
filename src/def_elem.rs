@@ -1,20 +1,18 @@
-use crate::fmt;
+use crate::fmt::Printer;
 use pg_query::protobuf::DefElem;
 
-impl fmt::Print for DefElem {
-    fn print(&self, p: &mut fmt::Printer) -> fmt::Result {
-        if !self.defnamespace.is_empty() {
-            p.ident(self.defnamespace.clone());
-            p.word(".");
+impl Printer {
+    pub fn def_elem(&mut self, n: &DefElem) {
+        if !n.defnamespace.is_empty() {
+            self.ident(n.defnamespace.clone());
+            self.word(".");
         }
 
-        p.ident(self.defname.clone());
+        self.ident(n.defname.clone());
 
-        if let Some(arg) = &self.arg {
-            p.word(" = ");
-            arg.print(p)?;
+        if let Some(arg) = &n.arg {
+            self.word(" = ");
+            self.node(arg);
         }
-
-        Ok(())
     }
 }
