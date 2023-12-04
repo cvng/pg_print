@@ -1,7 +1,7 @@
 // Adapted from https://github.com/postgres/postgres/blob/REL_15_STABLE/src/backend/parser/gram.y.
 
-use super::algo::Printer;
-use super::Context;
+use crate::fmt::Context;
+use crate::fmt::Printer;
 use crate::rel_persistence::RelPersistence;
 use crate::INDENT;
 use pg_query::protobuf::a_const::Val;

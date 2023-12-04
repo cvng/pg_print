@@ -1,7 +1,7 @@
-use crate::fmt::str_val;
-use crate::fmt::string_literal;
 use crate::fmt::Printer;
 use pg_query::protobuf::CreateTrigStmt;
+use crate::gram::string_literal;
+use crate::gram::str_val;
 
 const TRIGGER_TYPE_BEFORE: usize = 1 << 1;
 const TRIGGER_TYPE_INSERT: usize = 1 << 2;

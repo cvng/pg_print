@@ -1,6 +1,3 @@
-use crate::fmt::a_const_int_val;
-use crate::fmt::int_val;
-use crate::fmt::str_val;
 use crate::fmt::Printer;
 use crate::interval_fields::IntervalFields;
 use crate::interval_fields::INTERVAL_FULL_PRECISION;
@@ -9,6 +6,9 @@ use pg_query::protobuf::Integer;
 use pg_query::protobuf::TypeName;
 use pg_query::Node;
 use pg_query::NodeEnum;
+use crate::gram::str_val;
+use crate::gram::a_const_int_val;
+use crate::gram::int_val;
 
 impl Printer {
     pub fn type_name(&mut self, n: &TypeName) {

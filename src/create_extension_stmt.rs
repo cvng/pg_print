@@ -1,5 +1,5 @@
-use crate::fmt::str_val;
 use crate::fmt::Printer;
+use crate::gram::str_val;
 use pg_query::protobuf::CreateExtensionStmt;
 use pg_query::NodeEnum;
 

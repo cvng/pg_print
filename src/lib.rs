@@ -16,6 +16,7 @@ mod execute_stmt;
 mod expr;
 mod fmt;
 mod function_parameter;
+mod gram;
 mod index_elem;
 mod index_stmt;
 mod integer;
