@@ -4,11 +4,11 @@ use pg_query::protobuf::CreateStmt;
 use pg_query::NodeEnum;
 
 impl fmt::Print for CreateStmt {
-    fn print(&self, p: &mut fmt::Printer) -> fmt::Result {
+    fn print(&self, p: &mut fmt::Printer) {
         p.cbox(INDENT);
         p.word("create ");
 
-        p.opt_temp(self.relation.as_ref().unwrap().relpersistence.clone())?;
+        p.opt_temp(self.relation.as_ref().unwrap().relpersistence.clone());
 
         p.word("table ");
 
@@ -17,13 +17,13 @@ impl fmt::Print for CreateStmt {
         }
 
         if let Some(relation) = &self.relation {
-            relation.print(p)?;
+            relation.print(p);
             p.nbsp();
         }
 
         if let Some(of_typename) = &self.of_typename {
             p.word("of ");
-            of_typename.print(p)?;
+            of_typename.print(p);
             p.nbsp();
         }
 
@@ -36,7 +36,7 @@ impl fmt::Print for CreateStmt {
                     _ => None,
                 })
                 .unwrap()
-                .print(p)?;
+                .print(p);
             p.word(" ");
         }
 
@@ -58,15 +58,15 @@ impl fmt::Print for CreateStmt {
         };
 
         if let Some(partbound) = &self.partbound {
-            partbound.print(p)?;
+            partbound.print(p);
             p.word(" ");
         } else {
-            p.opt_inherit(&self.inh_relations)?;
+            p.opt_inherit(&self.inh_relations);
         }
 
-        p.opt_with(&self.options)?;
+        p.opt_with(&self.options);
 
-        self.oncommit().print(p)?;
+        self.oncommit().print(p);
 
         if !self.tablespacename.is_empty() {
             p.word("tablespace ");
@@ -74,7 +74,5 @@ impl fmt::Print for CreateStmt {
         }
 
         p.hardbreak();
-
-        Ok(())
     }
 }

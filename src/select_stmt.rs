@@ -3,9 +3,9 @@ use pg_query::protobuf::SelectStmt;
 use pg_query::protobuf::SetOperation;
 
 impl fmt::Print for SelectStmt {
-    fn print(&self, p: &mut fmt::Printer) -> fmt::Result {
+    fn print(&self, p: &mut fmt::Printer) {
         if let Some(with_clause) = &self.with_clause {
-            with_clause.print(p)?;
+            with_clause.print(p);
             p.word(" ");
         }
 
@@ -39,12 +39,10 @@ impl fmt::Print for SelectStmt {
                     p.word(" ");
                 }
 
-                p.from_clause(&self.from_clause)?;
-                p.where_clause(self.where_clause.as_deref())?;
+                p.from_clause(&self.from_clause);
+                p.where_clause(self.where_clause.as_deref());
             }
             _ => todo!("{:?}", self.op()),
-        };
-
-        Ok(())
+        }
     }
 }

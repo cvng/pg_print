@@ -5,7 +5,7 @@ use pg_query::protobuf::CreateDomainStmt;
 impl Printer {
     pub fn create_domain_stmt(&mut self, n: &CreateDomainStmt) {
         self.word("create domain ");
-        self.any_name(&n.domainname).unwrap();
+        self.any_name(&n.domainname);
         self.opt_as();
         if let Some(type_name) = &n.type_name {
             self.type_name(type_name);

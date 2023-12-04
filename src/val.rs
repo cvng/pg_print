@@ -12,17 +12,17 @@ impl Printer {
             Val::Boolval(val) => self.word(if val.boolval { "true" } else { "false" }),
             Val::Sval(val) => match context {
                 fmt::Context::Identifier => self.ident(val.sval.clone()),
-                fmt::Context::Constant => string_literal(self, &val.sval).unwrap(),
+                fmt::Context::Constant => string_literal(self, &val.sval),
                 _ => self.word(val.sval.clone()),
             },
             Val::Bsval(val) => match val.bsval.chars().next().unwrap() {
                 'x' => {
                     self.word("x");
-                    string_literal(self, &val.bsval[1..]).unwrap()
+                    string_literal(self, &val.bsval[1..])
                 }
                 'b' => {
                     self.word("b");
-                    string_literal(self, &val.bsval[1..]).unwrap()
+                    string_literal(self, &val.bsval[1..])
                 }
                 _ => unreachable!(),
             },

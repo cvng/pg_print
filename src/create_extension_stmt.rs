@@ -4,7 +4,7 @@ use pg_query::protobuf::CreateExtensionStmt;
 use pg_query::NodeEnum;
 
 impl fmt::Print for CreateExtensionStmt {
-    fn print(&self, p: &mut fmt::Printer) -> fmt::Result {
+    fn print(&self, p: &mut fmt::Printer) {
         p.word("create extension ");
         p.optional_word("if not exists ", self.if_not_exists);
         p.ident(self.extname.clone());
@@ -27,7 +27,7 @@ impl fmt::Print for CreateExtensionStmt {
                 }
                 "new_version" => {
                     p.word("version ");
-                    p.non_reserved_word_or_scont(str_val(&def_elem.arg.clone().unwrap()).unwrap())?;
+                    p.non_reserved_word_or_scont(str_val(&def_elem.arg.clone().unwrap()).unwrap());
                 }
                 "cascade" => {
                     p.word("cascade ");
@@ -36,7 +36,5 @@ impl fmt::Print for CreateExtensionStmt {
             }
             p.space();
         }
-
-        Ok(())
     }
 }

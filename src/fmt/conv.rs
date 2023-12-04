@@ -35,7 +35,7 @@ pub enum Context {
 }
 
 pub trait Print {
-    fn print(&self, p: &mut super::Printer) -> Result;
+    fn print(&self, p: &mut super::Printer);
 }
 
 impl Printer {

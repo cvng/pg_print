@@ -4,7 +4,7 @@ use pg_query::protobuf::SortByDir;
 use pg_query::protobuf::SortByNulls;
 
 impl fmt::Print for IndexElem {
-    fn print(&self, p: &mut fmt::Printer) -> fmt::Result {
+    fn print(&self, p: &mut fmt::Printer) {
         if !self.name.is_empty() {
             p.ident(self.name.clone());
         } else if let Some(expr) = &self.expr {
@@ -13,13 +13,13 @@ impl fmt::Print for IndexElem {
             unreachable!("{:?}", self);
         }
 
-        p.opt_collate(&self.collation)?;
+        p.opt_collate(&self.collation);
 
         if !self.opclass.is_empty() {
-            p.any_name(&self.opclass)?;
+            p.any_name(&self.opclass);
 
             if !self.opclassopts.is_empty() {
-                p.reloptions(&self.opclassopts)?;
+                p.reloptions(&self.opclassopts);
             }
 
             p.nbsp();
@@ -36,7 +36,5 @@ impl fmt::Print for IndexElem {
             SortByNulls::SortbyNullsLast => p.word("nulls last "),
             _ => {}
         }
-
-        Ok(())
     }
 }

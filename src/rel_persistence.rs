@@ -23,14 +23,12 @@ impl From<String> for RelPersistence {
 }
 
 impl fmt::Print for RelPersistence {
-    fn print(&self, p: &mut fmt::Printer) -> fmt::Result {
+    fn print(&self, p: &mut fmt::Printer) {
         match self {
             Self::Temp => p.word("temporary "),
             Self::Unlogged => p.word("unlogged "),
             Self::Permanent => {}
-            Self::Undefined => return Err(fmt::Error),
+            Self::Undefined => unreachable!(),
         }
-
-        Ok(())
     }
 }

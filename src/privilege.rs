@@ -19,7 +19,7 @@ impl Printer {
         }
 
         if !n.privileges.is_empty() {
-            self.expr_list(&n.privileges).unwrap();
+            self.expr_list(&n.privileges);
             self.nbsp();
         } else {
             self.word("all ");
@@ -45,11 +45,11 @@ impl Printer {
             self.word(" with grant option");
         }
 
-        self.opt_drop_behavior(n.behavior()).unwrap();
+        self.opt_drop_behavior(n.behavior());
 
         if let Some(grantor) = &n.grantor {
             self.word("granted by ");
-            grantor.print(self).unwrap();
+            grantor.print(self);
         }
     }
 
@@ -69,7 +69,7 @@ impl Printer {
 
         if !n.cols.is_empty() {
             self.word("(");
-            self.column_list(&n.cols).unwrap();
+            self.column_list(&n.cols);
             self.word(")");
         }
     }
@@ -95,7 +95,7 @@ impl Printer {
                 ObjectType::ObjectLargeobject => todo!(),
                 ObjectType::ObjectSchema => {
                     self.word("schema ");
-                    self.name_list(objs).unwrap();
+                    self.name_list(objs);
                 }
                 ObjectType::ObjectTablespace => todo!(),
                 ObjectType::ObjectType => todo!(),

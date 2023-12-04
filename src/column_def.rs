@@ -2,14 +2,14 @@ use crate::fmt;
 use pg_query::protobuf::ColumnDef;
 
 impl fmt::Print for ColumnDef {
-    fn print(&self, p: &mut fmt::Printer) -> fmt::Result {
+    fn print(&self, p: &mut fmt::Printer) {
         if !self.colname.is_empty() {
             p.ident(self.colname.clone());
         }
 
         if let Some(type_name) = &self.type_name {
             p.nbsp();
-            type_name.print(p)?;
+            type_name.print(p);
         }
 
         if let Some(raw_default) = &self.raw_default {
@@ -20,7 +20,7 @@ impl fmt::Print for ColumnDef {
 
         if !self.fdwoptions.is_empty() {
             p.nbsp();
-            p.create_generic_options(&self.fdwoptions)?;
+            p.create_generic_options(&self.fdwoptions);
         }
 
         for constraint in self.constraints.iter() {
@@ -29,9 +29,7 @@ impl fmt::Print for ColumnDef {
         }
 
         if let Some(coll_clause) = &self.coll_clause {
-            coll_clause.print(p)?;
+            coll_clause.print(p);
         }
-
-        Ok(())
     }
 }

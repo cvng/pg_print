@@ -3,7 +3,7 @@ use pg_query::protobuf::RoleSpec;
 use pg_query::protobuf::RoleSpecType;
 
 impl fmt::Print for RoleSpec {
-    fn print(&self, p: &mut fmt::Printer) -> fmt::Result {
+    fn print(&self, p: &mut fmt::Printer) {
         match self.roletype() {
             RoleSpecType::RolespecCstring => p.ident(self.rolename.clone()),
             RoleSpecType::RolespecCurrentRole => p.word("current_role"),
@@ -12,7 +12,5 @@ impl fmt::Print for RoleSpec {
             RoleSpecType::RolespecPublic => p.word("public"),
             _ => {}
         }
-
-        Ok(())
     }
 }

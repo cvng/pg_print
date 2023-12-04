@@ -12,7 +12,7 @@ const TRIGGER_TYPE_INSTEAD: usize = 1 << 6;
 const TRIGGER_TYPE_AFTER: usize = 0;
 
 impl fmt::Print for CreateTrigStmt {
-    fn print(&self, p: &mut fmt::Printer) -> fmt::Result {
+    fn print(&self, p: &mut fmt::Printer) {
         let mut skip_events_or = true;
 
         p.word("create ");
@@ -57,7 +57,7 @@ impl fmt::Print for CreateTrigStmt {
 
             if !self.columns.is_empty() {
                 p.word("of ");
-                p.column_list(&self.columns)?;
+                p.column_list(&self.columns);
                 p.nbsp();
             }
             skip_events_or = false;
@@ -71,7 +71,7 @@ impl fmt::Print for CreateTrigStmt {
         }
 
         p.word("on ");
-        self.relation.as_ref().unwrap().print(p)?;
+        self.relation.as_ref().unwrap().print(p);
         p.nbsp();
 
         if !self.transition_rels.is_empty() {
@@ -84,7 +84,7 @@ impl fmt::Print for CreateTrigStmt {
 
         if let Some(constrrel) = &self.constrrel {
             p.word("from ");
-            constrrel.print(p)?;
+            constrrel.print(p);
             p.nbsp();
         }
 
@@ -107,15 +107,13 @@ impl fmt::Print for CreateTrigStmt {
         }
 
         p.word("execute function ");
-        p.func_name(&self.funcname)?;
+        p.func_name(&self.funcname);
 
         p.word("(");
         for (i, arg) in self.args.iter().enumerate() {
-            string_literal(p, &str_val(arg).unwrap())?;
+            string_literal(p, &str_val(arg).unwrap());
             p.trailing_comma(i >= self.args.len() - 1);
         }
         p.word(")");
-
-        Ok(())
     }
 }

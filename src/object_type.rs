@@ -2,7 +2,7 @@ use crate::fmt;
 use pg_query::protobuf::ObjectType;
 
 impl fmt::Print for ObjectType {
-    fn print(&self, p: &mut fmt::Printer) -> fmt::Result {
+    fn print(&self, p: &mut fmt::Printer) {
         match self {
             ObjectType::ObjectAggregate => p.word("aggregate "),
             ObjectType::ObjectOperator => p.word("operator "),
@@ -16,7 +16,5 @@ impl fmt::Print for ObjectType {
             ObjectType::ObjectMatview => p.word("materialized view "),
             _ => todo!("{:?}", self),
         }
-
-        Ok(())
     }
 }

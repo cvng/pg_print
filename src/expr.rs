@@ -24,7 +24,7 @@ impl Printer {
                     self.nbsp();
                 }
 
-                self.qual_op(&n.name).unwrap();
+                self.qual_op(&n.name);
 
                 if let Some(rexpr) = &n.rexpr {
                     self.nbsp();

@@ -2,7 +2,7 @@ use crate::fmt;
 use pg_query::protobuf::ExecuteStmt;
 
 impl fmt::Print for ExecuteStmt {
-    fn print(&self, p: &mut fmt::Printer) -> fmt::Result {
+    fn print(&self, p: &mut fmt::Printer) {
         p.word("execute ");
         p.ident(self.name.clone());
 
@@ -11,7 +11,5 @@ impl fmt::Print for ExecuteStmt {
             p.print_list(&self.params);
             p.word(")");
         }
-
-        Ok(())
     }
 }

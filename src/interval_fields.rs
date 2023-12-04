@@ -52,7 +52,7 @@ impl From<i32> for IntervalFields {
 }
 
 impl fmt::Print for IntervalFields {
-    fn print(&self, p: &mut fmt::Printer) -> fmt::Result {
+    fn print(&self, p: &mut fmt::Printer) {
         match self {
             IntervalFields::Year => p.word(" year"),
             IntervalFields::Month => p.word(" month"),
@@ -68,9 +68,7 @@ impl fmt::Print for IntervalFields {
             IntervalFields::HourToSecond => p.word(" hour to second"),
             IntervalFields::MinuteToSecond => p.word(" minute to second"),
             IntervalFields::FullRange => {}
-            IntervalFields::Undefined => return Err(fmt::Error),
+            IntervalFields::Undefined => unreachable!(),
         }
-
-        Ok(())
     }
 }

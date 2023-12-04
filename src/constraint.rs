@@ -3,7 +3,7 @@ use pg_query::protobuf::ConstrType;
 use pg_query::protobuf::Constraint;
 
 impl fmt::Print for Constraint {
-    fn print(&self, p: &mut fmt::Printer) -> fmt::Result {
+    fn print(&self, p: &mut fmt::Printer) {
         if !self.conname.is_empty() {
             p.word("constraint ");
             p.ident(self.conname.clone());
@@ -39,13 +39,13 @@ impl fmt::Print for Constraint {
         if !self.keys.is_empty() {
             p.nbsp();
             p.word("(");
-            p.column_list(&self.keys)?;
+            p.column_list(&self.keys);
             p.word(")");
         }
 
         match self.contype() {
             ConstrType::ConstrPrimary | ConstrType::ConstrUnique | ConstrType::ConstrExclusion => {
-                p.opt_with(&self.options)?
+                p.opt_with(&self.options);
             }
             _ => {}
         }
@@ -54,7 +54,5 @@ impl fmt::Print for Constraint {
             p.word("using index tablespace ");
             p.ident(self.indexspace.clone());
         }
-
-        Ok(())
     }
 }

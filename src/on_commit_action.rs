@@ -2,7 +2,7 @@ use crate::fmt;
 use pg_query::protobuf::OnCommitAction;
 
 impl fmt::Print for OnCommitAction {
-    fn print(&self, p: &mut fmt::Printer) -> fmt::Result {
+    fn print(&self, p: &mut fmt::Printer) {
         match self {
             OnCommitAction::Undefined => {}
             OnCommitAction::OncommitNoop => {}
@@ -10,7 +10,5 @@ impl fmt::Print for OnCommitAction {
             OnCommitAction::OncommitDeleteRows => p.word(" on commit delete rows"),
             OnCommitAction::OncommitDrop => p.word(" on commit drop"),
         }
-
-        Ok(())
     }
 }

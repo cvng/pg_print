@@ -4,7 +4,7 @@ use pg_query::protobuf::ObjectType;
 use pg_query::NodeEnum;
 
 impl fmt::Print for DefineStmt {
-    fn print(&self, p: &mut fmt::Printer) -> fmt::Result {
+    fn print(&self, p: &mut fmt::Printer) {
         p.cbox(0);
         p.word("create ");
 
@@ -12,7 +12,7 @@ impl fmt::Print for DefineStmt {
             p.word("or replace ");
         }
 
-        self.kind().print(p)?;
+        self.kind().print(p);
 
         if self.if_not_exists {
             p.word("if not exists ");
@@ -26,8 +26,8 @@ impl fmt::Print for DefineStmt {
             | ObjectType::ObjectTsdictionary
             | ObjectType::ObjectTstemplate
             | ObjectType::ObjectTsconfiguration
-            | ObjectType::ObjectCollation => p.any_name(&self.defnames)?,
-            _ => return Err(fmt::Error),
+            | ObjectType::ObjectCollation => p.any_name(&self.defnames),
+            _ => unreachable!(),
         }
         p.space();
 
@@ -50,7 +50,5 @@ impl fmt::Print for DefineStmt {
         }
 
         p.end();
-
-        Ok(())
     }
 }

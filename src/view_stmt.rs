@@ -3,25 +3,25 @@ use pg_query::protobuf::ViewCheckOption;
 use pg_query::protobuf::ViewStmt;
 
 impl fmt::Print for ViewStmt {
-    fn print(&self, p: &mut fmt::Printer) -> fmt::Result {
+    fn print(&self, p: &mut fmt::Printer) {
         p.word("create ");
 
         if self.replace {
             p.word("or replace ");
         }
 
-        p.opt_temp(self.view.as_ref().unwrap().relpersistence.clone())?;
+        p.opt_temp(self.view.as_ref().unwrap().relpersistence.clone());
 
         p.word("view ");
-        self.view.as_ref().unwrap().print(p)?;
+        self.view.as_ref().unwrap().print(p);
 
         if !self.aliases.is_empty() {
             p.word("(");
-            p.column_list(&self.aliases)?;
+            p.column_list(&self.aliases);
             p.word(")");
         }
 
-        p.opt_with(&self.options)?;
+        p.opt_with(&self.options);
 
         p.word(" as ");
         p.node(self.query.as_ref().unwrap());
@@ -32,7 +32,5 @@ impl fmt::Print for ViewStmt {
             ViewCheckOption::CascadedCheckOption => p.word("with check option "),
             _ => {}
         }
-
-        Ok(())
     }
 }

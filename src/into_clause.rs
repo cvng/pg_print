@@ -2,14 +2,14 @@ use crate::fmt;
 use pg_query::protobuf::IntoClause;
 
 impl fmt::Print for IntoClause {
-    fn print(&self, p: &mut fmt::Printer) -> fmt::Result {
+    fn print(&self, p: &mut fmt::Printer) {
         if let Some(rel) = &self.rel {
-            rel.print(p)?;
+            rel.print(p);
         }
 
         if !self.col_names.is_empty() {
             p.word(" (");
-            p.column_list(&self.col_names)?;
+            p.column_list(&self.col_names);
             p.word(")");
         }
 
@@ -19,16 +19,14 @@ impl fmt::Print for IntoClause {
             p.word(" ");
         }
 
-        p.opt_with(&self.options)?;
+        p.opt_with(&self.options);
 
-        self.on_commit().print(p)?;
+        self.on_commit().print(p);
 
         if !self.table_space_name.is_empty() {
             p.word("tablespace ");
             p.ident(self.table_space_name.clone());
             p.word(" ");
         }
-
-        Ok(())
     }
 }

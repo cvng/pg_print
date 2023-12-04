@@ -3,10 +3,10 @@ use crate::partition_strategy::PartitionStrategy;
 use pg_query::protobuf::PartitionBoundSpec;
 
 impl fmt::Print for PartitionBoundSpec {
-    fn print(&self, p: &mut fmt::Printer) -> fmt::Result {
+    fn print(&self, p: &mut fmt::Printer) {
         if self.is_default {
             p.word("default");
-            return Ok(());
+            return;
         }
 
         p.word(" for values ");
@@ -17,13 +17,11 @@ impl fmt::Print for PartitionBoundSpec {
                     "with (modulus {}, remainder {})",
                     self.modulus, self.remainder
                 ));
-                Ok(())
             }
             PartitionStrategy::List => {
                 p.word("in (");
                 p.print_list(&self.listdatums);
                 p.word(")");
-                Ok(())
             }
             PartitionStrategy::Range => {
                 p.word("from (");
@@ -31,9 +29,8 @@ impl fmt::Print for PartitionBoundSpec {
                 p.word(") to (");
                 p.print_list(&self.upperdatums);
                 p.word(")");
-                Ok(())
             }
-            _ => Ok(()),
+            _ => unreachable!(),
         }
     }
 }

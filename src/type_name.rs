@@ -3,6 +3,7 @@ use crate::fmt::a_const_int_val;
 use crate::fmt::int_val;
 use crate::fmt::str_val;
 use crate::fmt::Print;
+use crate::fmt::Printer;
 use crate::interval_fields::IntervalFields;
 use crate::interval_fields::INTERVAL_FULL_PRECISION;
 use crate::name::Name;
@@ -12,7 +13,7 @@ use pg_query::Node;
 use pg_query::NodeEnum;
 
 impl fmt::Print for TypeName {
-    fn print(&self, p: &mut fmt::Printer) -> fmt::Result {
+    fn print(&self, p: &mut fmt::Printer) {
         let mut skip_typmods = false;
 
         if self.setof {
@@ -68,7 +69,7 @@ impl fmt::Print for TypeName {
 
                     if !self.typmods.is_empty() {
                         skip_typmods = true;
-                        print_interval_typmods(p, self)?;
+                        p.interval_typmods(self);
                     }
                 }
                 Name::Undefined => {
@@ -77,7 +78,7 @@ impl fmt::Print for TypeName {
                 }
             };
         } else {
-            p.any_name(&self.names)?;
+            p.any_name(&self.names);
         }
 
         if !self.typmods.is_empty() && !skip_typmods {
@@ -88,29 +89,14 @@ impl fmt::Print for TypeName {
             }
             p.word(")");
         }
-
-        Ok(())
     }
 }
 
-fn print_interval_typmods(p: &mut fmt::Printer, node: &TypeName) -> fmt::Result {
-    let interval_fields = node
-        .typmods
-        .first()
-        .and_then(a_const_int_val)
-        .map(|ival| Some(NodeEnum::Integer(Integer { ival })))
-        .map(|node| Node { node })
-        .as_ref()
-        .map(int_val)
-        .unwrap()
-        .unwrap();
-
-    IntervalFields::from(interval_fields).print(p)?;
-
-    if node.typmods.len() == 2 {
-        let precision = node
+impl Printer {
+    pub fn interval_typmods(&mut self, node: &TypeName) {
+        let interval_fields = node
             .typmods
-            .last()
+            .first()
             .and_then(a_const_int_val)
             .map(|ival| Some(NodeEnum::Integer(Integer { ival })))
             .map(|node| Node { node })
@@ -119,10 +105,23 @@ fn print_interval_typmods(p: &mut fmt::Printer, node: &TypeName) -> fmt::Result 
             .unwrap()
             .unwrap();
 
-        if precision != INTERVAL_FULL_PRECISION {
-            p.word(format!(" ({})", precision));
+        IntervalFields::from(interval_fields).print(self);
+
+        if node.typmods.len() == 2 {
+            let precision = node
+                .typmods
+                .last()
+                .and_then(a_const_int_val)
+                .map(|ival| Some(NodeEnum::Integer(Integer { ival })))
+                .map(|node| Node { node })
+                .as_ref()
+                .map(int_val)
+                .unwrap()
+                .unwrap();
+
+            if precision != INTERVAL_FULL_PRECISION {
+                self.word(format!(" ({})", precision));
+            }
         }
     }
-
-    Ok(())
 }

@@ -3,7 +3,7 @@ use pg_query::protobuf::CollateClause;
 use pg_query::NodeEnum;
 
 impl fmt::Print for CollateClause {
-    fn print(&self, p: &mut fmt::Printer) -> fmt::Result {
+    fn print(&self, p: &mut fmt::Printer) {
         if let Some(arg) = &self.arg {
             let need_parens = matches!(arg.node.as_ref().unwrap(), NodeEnum::AExpr(_));
 
@@ -14,8 +14,6 @@ impl fmt::Print for CollateClause {
         }
 
         p.word("collate ");
-        p.any_name(&self.collname)?;
-
-        Ok(())
+        p.any_name(&self.collname);
     }
 }
