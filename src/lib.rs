@@ -1,3 +1,4 @@
+mod col;
 mod collate_clause;
 mod column_def;
 mod column_ref;
