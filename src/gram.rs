@@ -7,7 +7,6 @@ use crate::INDENT;
 use pg_query::protobuf::a_const::Val;
 use pg_query::protobuf::AConst;
 use pg_query::protobuf::AStar;
-use pg_query::protobuf::CollateClause;
 use pg_query::protobuf::DropBehavior;
 use pg_query::protobuf::FunctionParameterMode;
 use pg_query::protobuf::List;
@@ -17,6 +16,17 @@ use pg_query::NodeEnum;
 
 const NAMEDATALEN: usize = 64;
 const ESCAPE_STRING_SYNTAX: char = 'E';
+
+/// Returns the given expression if it matches any of the given patterns.
+#[macro_export]
+macro_rules! cast {
+    ($expression:expr, $pattern:pat $(if $guard:expr)? $(,)?) => {
+        match $expression {
+            $pattern $(if $guard)? => Some($expression),
+            _ => None
+        }
+    };
+}
 
 // See https://github.com/pganalyze/libpg_query/blob/15-latest/src/postgres_deparse.c#L53.
 pub fn string_literal(p: &mut Printer, val: &str) {
@@ -100,13 +110,6 @@ impl Printer {
 
             self.ident(str_val(part).unwrap());
         }
-    }
-
-    pub fn col_qual_list(&mut self, col: Option<&CollateClause>, list: &[Node]) {
-        if let Some(col) = col {
-            self.collate_clause(col);
-        }
-        self.print_list(list);
     }
 
     pub fn expr_list(&mut self, list: &[Node]) {

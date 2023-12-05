@@ -9,9 +9,8 @@ impl Printer {
         self.opt_as();
         if let Some(type_name) = &n.type_name {
             self.type_name(type_name);
-            self.nbsp();
         }
-        self.col_qual_list(n.coll_clause.as_deref(), &n.constraints);
+        self.col_qual_list(&n.constraints, n.coll_clause.as_deref());
     }
 
     pub fn _alter_domain_stmt(&mut self, _n: &AlterDomainStmt) {

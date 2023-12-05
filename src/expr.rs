@@ -6,14 +6,14 @@ use pg_query::protobuf::BoolExpr;
 use pg_query::protobuf::BoolExprType;
 
 impl Printer {
-    pub fn a_expr(&mut self, n: &AExpr, context: &Context) {
+    pub fn a_expr(&mut self, n: &AExpr, _context: &Context) {
         let need_lexpr_parens = false;
         let need_rexpr_parens = false;
 
         match n.kind() {
             AExprKind::Undefined => {}
             AExprKind::AexprOp => {
-                let need_outer_parens = matches!(context, Context::AExpr);
+                let need_outer_parens = false; // TODO: matches!(context, Context::AExpr);
 
                 self.optional_word("(", need_outer_parens);
 

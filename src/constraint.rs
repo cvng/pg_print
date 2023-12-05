@@ -55,4 +55,10 @@ impl Printer {
             self.ident(n.indexspace.clone());
         }
     }
+
+    pub fn opt_no_inherit(&mut self, no_inherit: bool) {
+        if no_inherit {
+            self.word("no inherit ");
+        }
+    }
 }
