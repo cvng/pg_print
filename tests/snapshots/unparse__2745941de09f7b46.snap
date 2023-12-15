@@ -1,5 +1,0 @@
----
-source: tests/unparse.rs
-expression: "tests/unparse.sql:126"
----
-create domain us_postal_code as text check (value ~ E'^\\d{5}$' or value ~ E'^\\d{5}-\\d{4}$')

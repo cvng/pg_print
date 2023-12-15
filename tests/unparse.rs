@@ -1,11 +1,13 @@
 use insta::assert_snapshot;
+use parser::parse_source;
 use pg_query::parse;
-use std::env;
 use std::fs;
 use std::path::PathBuf;
 
 #[test]
 fn unparse() {
+    env_logger::builder().is_test(true).try_init().unwrap();
+
     let path = PathBuf::from("tests/unparse.sql");
 
     for (mut lineno, case) in fs::read_to_string(&path).unwrap().lines().enumerate() {
@@ -19,9 +21,7 @@ fn unparse() {
             .unwrap()
             .to_string();
 
-        let unparsed = pg_print::unparse(&parse(case).unwrap().protobuf)
-            .unwrap()
-            .to_string();
+        let unparsed = pg_print::unparse(&parse_source(case));
 
         let reparsed = pg_query::deparse(&parse(&unparsed).unwrap().protobuf)
             .unwrap()
