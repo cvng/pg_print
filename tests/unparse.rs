@@ -1,8 +1,17 @@
 use insta::assert_snapshot;
-use parser::parse_source;
 use pg_query::parse;
 use std::fs;
 use std::path::Path;
+
+#[cfg(feature = "unstable")]
+fn parse_source(text: &str) -> parser::Parse {
+    parser::parse_source(text)
+}
+
+#[cfg(not(feature = "unstable"))]
+fn parse_source(text: &str) -> pg_query::protobuf::ParseResult {
+    pg_query::parse(text).unwrap().protobuf
+}
 
 #[test]
 fn unparse() {
@@ -19,10 +28,10 @@ fn unparse() {
         let deparsed = pg_query::deparse(&parse(case).unwrap().protobuf).unwrap();
         let reparsed = pg_query::deparse(&parse(&unparsed).unwrap().protobuf).unwrap();
 
-        let fingerprint = pg_query::fingerprint(case).unwrap();
+        let fingerprint = pg_query::fingerprint(case).unwrap().hex;
         let description = format!("{}:{}", path.display(), line);
 
         assert_eq!(deparsed, reparsed, "{}", &description);
-        assert_snapshot!(fingerprint.hex, unparsed, &description);
+        assert_snapshot!(fingerprint, unparsed, &description);
     }
 }
