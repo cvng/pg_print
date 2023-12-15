@@ -6,7 +6,7 @@ use std::path::Path;
 
 #[test]
 fn unparse() {
-    let path = Path::new("tests/unparse.sql");
+    let path = Path::new("tests/unparse_tests.sql");
 
     for (mut line, case) in fs::read_to_string(path).unwrap().lines().enumerate() {
         line += 1;
