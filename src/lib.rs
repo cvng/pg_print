@@ -45,7 +45,10 @@ mod view_stmt;
 mod with_clause;
 
 use crate::fmt::Printer;
+#[cfg(feature = "unstable")]
 use parser::Parse;
+#[cfg(not(feature = "unstable"))]
+use pg_query::protobuf::ParseResult as Parse;
 
 const INDENT: isize = 4;
 

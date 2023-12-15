@@ -1,9 +1,22 @@
 use crate::fmt::Printer;
 use crate::stmt::RawStmt;
-use parser::Parse;
 
 impl Printer {
-    pub fn parse(&mut self, parse: &Parse) {
+    #[cfg(not(feature = "unstable"))]
+    pub fn parse(&mut self, parse: &pg_query::protobuf::ParseResult) {
+        self.cbox(0);
+        for stmt in &parse.stmts {
+            if let Some(stmt) = &stmt.stmt {
+                if let Some(node) = &stmt.node {
+                    self.stmt(&RawStmt { stmt: node });
+                }
+            }
+        }
+        self.end();
+    }
+
+    #[cfg(feature = "unstable")]
+    pub fn parse(&mut self, parse: &parser::Parse) {
         self.cbox(0);
         for stmt in &parse.stmts {
             self.stmt(&RawStmt { stmt: &stmt.stmt });
