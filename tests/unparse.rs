@@ -28,10 +28,10 @@ fn unparse() {
         let deparsed = pg_query::deparse(&parse(case).unwrap().protobuf).unwrap();
         let reparsed = pg_query::deparse(&parse(&unparsed).unwrap().protobuf).unwrap();
 
-        let fingerprint = pg_query::fingerprint(case).unwrap();
+        let fingerprint = pg_query::fingerprint(case).unwrap().hex;
         let description = format!("{}:{}", path.display(), line);
 
         assert_eq!(deparsed, reparsed, "{}", &description);
-        assert_snapshot!(fingerprint.hex, unparsed, &description);
+        assert_snapshot!(fingerprint, unparsed, &description);
     }
 }
