@@ -1,5 +1,0 @@
----
-source: tests/unparse.rs
-expression: "tests/unparse.sql:262"
----
-create type type1

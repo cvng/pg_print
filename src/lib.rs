@@ -29,6 +29,7 @@ mod node;
 mod object_type;
 mod on_commit_action;
 mod param_ref;
+mod parse;
 mod partition;
 mod privilege;
 mod range_var;
@@ -38,20 +39,19 @@ mod role_spec;
 mod select_stmt;
 mod stmt;
 mod string;
-mod tree;
 mod type_name;
 mod val;
 mod view_stmt;
 mod with_clause;
 
 use crate::fmt::Printer;
-use pg_query::protobuf::ParseResult;
+use parser::Parse;
 
 const INDENT: isize = 4;
 
 /// Converts a parsed tree back into a pretty-printed string.
-pub fn unparse(protobuf: &ParseResult) -> pg_query::Result<String> {
+pub fn unparse(parse: &Parse) -> String {
     let mut p = Printer::new();
-    p.tree(protobuf);
-    Ok(p.eof())
+    p.parse(parse);
+    p.eof()
 }

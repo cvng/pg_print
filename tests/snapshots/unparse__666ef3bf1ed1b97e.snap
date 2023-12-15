@@ -1,5 +1,5 @@
 ---
 source: tests/unparse.rs
-expression: "tests/unparse.sql:133"
+expression: "tests/unparse_tests.sql:133"
 ---
 create schema myschema

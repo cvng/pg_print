@@ -9,6 +9,9 @@ edition = "2021"
 doctest = false
 
 [dependencies]
+codegen = { git = "https://github.com/supabase/postgres_lsp", rev = "25d140d" }
+parser = { git = "https://github.com/supabase/postgres_lsp", rev = "25d140d" }
+pg_query_proto_parser = { git = "https://github.com/supabase/postgres_lsp", rev = "25d140d" }
 pg_query = "0.8.2"
 
 [dev-dependencies]

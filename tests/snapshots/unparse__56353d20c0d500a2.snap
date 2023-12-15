@@ -1,5 +1,5 @@
 ---
 source: tests/unparse.rs
-expression: "tests/unparse.sql:134"
+expression: "tests/unparse_tests.sql:134"
 ---
 create schema authorization joe 

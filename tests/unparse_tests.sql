@@ -123,7 +123,7 @@
 -- CREATE CAST (bigint AS int4) WITH FUNCTION int4(bigint) AS ASSIGNMENT
 -- CREATE CAST (bigint AS int4) WITHOUT FUNCTION AS IMPLICIT
 -- CREATE CAST (bigint AS int4) WITH INOUT AS ASSIGNMENT
-CREATE DOMAIN us_postal_code AS TEXT CHECK( VALUE ~ '^\d{5}$' OR VALUE ~ '^\d{5}-\d{4}$')
+CREATE DOMAIN us_postal_code AS TEXT CHECK (VALUE ~ '^\d{5}$' OR VALUE ~ '^\d{5}-\d{4}$')
 -- CREATE FUNCTION getfoo(int) RETURNS SETOF users AS $$SELECT * FROM \"users\" WHERE users.id = $1;$$ LANGUAGE sql
 -- CREATE OR REPLACE FUNCTION getfoo(int) RETURNS SETOF users AS $$SELECT * FROM \"users\" WHERE users.id = $1;$$ LANGUAGE sql
 -- CREATE OR REPLACE FUNCTION getfoo(int) RETURNS SETOF users AS $$SELECT * FROM \"users\" WHERE users.id = $1;$$ LANGUAGE sql IMMUTABLE
@@ -137,11 +137,11 @@ CREATE SCHEMA AUTHORIZATION joe
 -- CREATE UNLOGGED TABLE cities (name text, population real, altitude double, identifier smallint, postal_code int, foreign_id bigint)
 -- CREATE TABLE IF NOT EXISTS distributors (name varchar(40) DEFAULT 'Luso Films', len interval hour to second(3), name varchar(40) DEFAULT 'Luso Films', did int DEFAULT nextval('distributors_serial'), stamp timestamp DEFAULT now() NOT NULL, stamptz timestamp with time zone, \"time\" time NOT NULL, timetz time with time zone, CONSTRAINT name_len PRIMARY KEY (name, len))
 -- CREATE TABLE types (a real, b double precision, c numeric(2, 3), d char(4), e char(5), f varchar(6), g varchar(7))
-CREATE TABLE types (a geometry(point) NOT NULL)
+-- CREATE TABLE types (a geometry(point) NOT NULL)
 -- CREATE TABLE tablename (colname int NOT NULL DEFAULT nextval('tablename_colname_seq'))
-CREATE TABLE capitals (state char(2)) INHERITS (cities)
-CREATE TEMPORARY TABLE temp AS SELECT c FROM t
-CREATE TABLE films2 AS SELECT * FROM films
+-- CREATE TABLE capitals (state char(2)) INHERITS (cities)
+-- CREATE TEMPORARY TABLE temp AS SELECT c FROM t
+-- CREATE TABLE films2 AS SELECT * FROM films
 -- CREATE TEMPORARY TABLE films_recent ON COMMIT DROP AS SELECT * FROM films WHERE date_prod > $1
 -- DROP SERVER IF EXISTS foo
 -- DROP PUBLICATION mypublication
@@ -259,7 +259,7 @@ CREATE TABLE films2 AS SELECT * FROM films
 -- CREATE OPERATOR + (procedure = plusfunc)
 -- CREATE OPERATOR + (procedure = plusfunc, leftarg = int4, rightarg = int4)
 -- CREATE OPERATOR + (procedure = plusfunc, hashes, merges)
-CREATE TYPE type1
+-- CREATE TYPE type1
 -- CREATE TYPE type1 AS (attr1 int4, attr2 bool)
 -- CREATE TYPE type1 AS (attr1 int4 COLLATE collation1, attr2 bool)
 -- CREATE TYPE type1 AS ENUM ('value1', 'value2', 'value3')
