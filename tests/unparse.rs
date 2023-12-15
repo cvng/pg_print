@@ -3,14 +3,14 @@ use pg_query::parse;
 use std::fs;
 use std::path::Path;
 
-#[cfg(not(feature = "unstable"))]
-fn parse_source(statement: &str) -> pg_query::protobuf::ParseResult {
-    pg_query::parse(statement).unwrap().protobuf
+#[cfg(feature = "unstable")]
+fn parse_source(text: &str) -> parser::Parse {
+    parser::parse_source(text)
 }
 
-#[cfg(feature = "unstable")]
-fn parse_source(statement: &str) -> parser::Parse {
-    parser::parse_source(statement)
+#[cfg(not(feature = "unstable"))]
+fn parse_source(text: &str) -> pg_query::protobuf::ParseResult {
+    pg_query::parse(text).unwrap().protobuf
 }
 
 #[test]
