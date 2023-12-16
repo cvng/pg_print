@@ -86,7 +86,7 @@ impl Printer {
             NodeEnum::AlterTypeStmt(_) => todo!(),
             NodeEnum::DropOwnedStmt(_) => todo!(),
             NodeEnum::ReassignOwnedStmt(_) => todo!(),
-            NodeEnum::CompositeTypeStmt(_) => todo!(),
+            NodeEnum::CompositeTypeStmt(n) => self.composite_type_stmt(n),
             NodeEnum::CreateEnumStmt(_) => todo!(),
             NodeEnum::CreateRangeStmt(_) => todo!(),
             NodeEnum::AlterEnumStmt(_) => todo!(),

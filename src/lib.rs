@@ -2,6 +2,7 @@ mod col;
 mod collate_clause;
 mod column_def;
 mod column_ref;
+mod composite_type;
 mod constraint;
 mod create_extension_stmt;
 mod create_foreign_table_stmt;
