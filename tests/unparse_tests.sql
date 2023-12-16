@@ -123,7 +123,7 @@
 -- CREATE CAST (bigint AS int4) WITH FUNCTION int4(bigint) AS ASSIGNMENT
 -- CREATE CAST (bigint AS int4) WITHOUT FUNCTION AS IMPLICIT
 -- CREATE CAST (bigint AS int4) WITH INOUT AS ASSIGNMENT
-CREATE DOMAIN us_postal_code AS TEXT CHECK (VALUE ~ '^\d{5}$' OR VALUE ~ '^\d{5}-\d{4}$')
+-- CREATE DOMAIN us_postal_code AS TEXT CHECK (VALUE ~ '^\d{5}$' OR VALUE ~ '^\d{5}-\d{4}$')
 -- CREATE FUNCTION getfoo(int) RETURNS SETOF users AS $$SELECT * FROM \"users\" WHERE users.id = $1;$$ LANGUAGE sql
 -- CREATE OR REPLACE FUNCTION getfoo(int) RETURNS SETOF users AS $$SELECT * FROM \"users\" WHERE users.id = $1;$$ LANGUAGE sql
 -- CREATE OR REPLACE FUNCTION getfoo(int) RETURNS SETOF users AS $$SELECT * FROM \"users\" WHERE users.id = $1;$$ LANGUAGE sql IMMUTABLE
@@ -259,8 +259,8 @@ CREATE SCHEMA AUTHORIZATION joe
 -- CREATE OPERATOR + (procedure = plusfunc)
 -- CREATE OPERATOR + (procedure = plusfunc, leftarg = int4, rightarg = int4)
 -- CREATE OPERATOR + (procedure = plusfunc, hashes, merges)
--- CREATE TYPE type1
--- CREATE TYPE type1 AS (attr1 int4, attr2 bool)
+CREATE TYPE type1
+CREATE TYPE type1 AS (attr1 int4, attr2 bool)
 -- CREATE TYPE type1 AS (attr1 int4 COLLATE collation1, attr2 bool)
 -- CREATE TYPE type1 AS ENUM ('value1', 'value2', 'value3')
 -- CREATE TYPE type1 AS RANGE (subtype = int4)

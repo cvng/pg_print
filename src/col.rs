@@ -31,7 +31,7 @@ impl Printer {
                     .as_ref()
                     .and_then(|node| node.node.as_ref())
                     .and_then(|node| cast!(node, NodeEnum::BoolExpr(node)))
-                    .map(|expr| expr.args.to_owned())
+                    .map(|expr| expr.args.clone())
                     .into_iter()
                     .flatten()
                     .map(|node| node.node)

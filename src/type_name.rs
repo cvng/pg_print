@@ -87,8 +87,6 @@ impl Printer {
             }
             self.word(")");
         }
-
-        self.nbsp();
     }
 
     pub fn interval_typmods(&mut self, node: &TypeName) {

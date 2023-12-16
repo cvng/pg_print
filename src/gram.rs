@@ -4,12 +4,15 @@ use crate::fmt::Context;
 use crate::fmt::Printer;
 use crate::rel_persistence::RelPersistence;
 use crate::INDENT;
+use pg_query::protobuf;
 use pg_query::protobuf::a_const::Val;
 use pg_query::protobuf::AConst;
 use pg_query::protobuf::AStar;
+use pg_query::protobuf::ColumnDef;
 use pg_query::protobuf::DropBehavior;
 use pg_query::protobuf::FunctionParameterMode;
 use pg_query::protobuf::List;
+use pg_query::protobuf::RangeVar;
 use pg_query::protobuf::TypeName;
 use pg_query::Node;
 use pg_query::NodeEnum;
@@ -23,6 +26,16 @@ macro_rules! cast {
     ($expression:expr, $pattern:pat $(if $guard:expr)? $(,)?) => {
         match $expression {
             $pattern $(if $guard)? => Some($expression),
+            _ => None
+        }
+    };
+}
+
+#[macro_export]
+macro_rules! cast_node {
+    ($expression:expr, $pattern:pat $(if $guard:expr)? $(,)?) => {
+        match $expression {
+            pg_query::Node { node: Some($pattern) } $(if $guard)? => Some($expression),
             _ => None
         }
     };
@@ -91,6 +104,14 @@ pub fn a_const_int_val(node: &Node) -> Option<i32> {
         }) => Some(val.ival),
         _ => None,
     }
+}
+
+pub fn make_range_var_into_any_name(n: &RangeVar) -> [Node; 1] {
+    [Node {
+        node: Some(NodeEnum::String(protobuf::String {
+            sval: n.relname.clone(),
+        })),
+    }]
 }
 
 impl Printer {
@@ -373,5 +394,32 @@ impl Printer {
         if replace {
             self.word("or replace ");
         }
+    }
+
+    pub fn opt_table_func_element_list(&mut self, list: &[Node]) {
+        if !list.is_empty() {
+            self.table_func_element_list(list)
+        }
+    }
+
+    pub fn table_func_element_list(&mut self, list: &[Node]) {
+        for (i, n) in list.iter().enumerate() {
+            let n = cast_node!(n, NodeEnum::ColumnDef(n)).unwrap();
+            self.table_func_element(n);
+            self.trailing_comma(i >= list.len() - 1)
+        }
+    }
+
+    pub fn table_func_element(&mut self, n: &ColumnDef) {
+        self.col_id(&n.colname);
+        self.nbsp();
+        if let Some(type_name) = &n.type_name {
+            self.type_name(type_name);
+        }
+        self.opt_collate_clause(n.coll_clause.as_deref());
+    }
+
+    pub fn col_id(&mut self, s: &str) {
+        self.ident(s.to_owned())
     }
 }
