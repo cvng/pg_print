@@ -25,7 +25,6 @@ fn unparse() {
         }
 
         let unparsed = pg_print::unparse(&parse_source(case));
-        dbg!(case, &unparsed);
         let deparsed = pg_query::deparse(&parse(case).unwrap().protobuf).unwrap();
         let reparsed = pg_query::deparse(&parse(&unparsed).unwrap().protobuf).unwrap();
 
