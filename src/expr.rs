@@ -1,9 +1,11 @@
-use crate::fmt::Context;
-use crate::fmt::Printer;
+use crate::algo::Printer;
+use crate::conv::Context;
 use pg_query::protobuf::AExpr;
 use pg_query::protobuf::AExprKind;
 use pg_query::protobuf::BoolExpr;
 use pg_query::protobuf::BoolExprType;
+use pg_query::Node;
+use pg_query::NodeEnum;
 
 impl Printer {
     pub fn a_expr(&mut self, n: &AExpr, _context: &Context) {
@@ -95,6 +97,30 @@ impl Printer {
                 self.optional_word(")", need_parens);
             }
             _ => {}
+        }
+    }
+
+    pub fn node(&mut self, n: &Node) {
+        if let Some(node) = &n.node {
+            match node {
+                NodeEnum::RangeVar(n) => self.range_var(n),
+                NodeEnum::BoolExpr(n) => self.bool_expr(n),
+                NodeEnum::AExpr(n) => self.a_expr(n, &Context::None),
+                NodeEnum::ColumnRef(n) => self.column_ref(n),
+                NodeEnum::ResTarget(n) => self.res_target(n),
+                NodeEnum::ColumnDef(n) => self.column_def(n),
+                NodeEnum::IndexElem(n) => self.index_elem(n),
+                NodeEnum::Constraint(n) => self.constraint(n),
+                NodeEnum::DefElem(n) => self.def_elem(n),
+                NodeEnum::AccessPriv(n) => self.access_priv(n),
+                NodeEnum::FunctionParameter(n) => self.function_parameter(n),
+                NodeEnum::RoleSpec(n) => self.role_spec(n),
+                NodeEnum::Integer(n) => self.integer(n),
+                NodeEnum::String(n) => self.string(n),
+                NodeEnum::List(n) => self.list(n),
+                NodeEnum::AConst(n) => self.a_const(n),
+                _ => unimplemented!("{:?}", &n),
+            }
         }
     }
 }
