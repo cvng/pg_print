@@ -1,5 +1,3 @@
-use crate::fmt::Printer;
-
 const MONTH: i32 = 1;
 const YEAR: i32 = 2;
 const DAY: i32 = 3;
@@ -47,28 +45,6 @@ impl From<i32> for IntervalFields {
             x if x == 1 << MINUTE | 1 << SECOND => Self::MinuteToSecond,
             INTERVAL_FULL_RANGE => Self::FullRange,
             _ => Self::Undefined,
-        }
-    }
-}
-
-impl Printer {
-    pub fn interval_fields(&mut self, n: &IntervalFields) {
-        match n {
-            IntervalFields::Year => self.word(" year"),
-            IntervalFields::Month => self.word(" month"),
-            IntervalFields::Day => self.word(" day"),
-            IntervalFields::Hour => self.word(" hour"),
-            IntervalFields::Minute => self.word(" minute"),
-            IntervalFields::Second => self.word(" second"),
-            IntervalFields::YearToMonth => self.word(" year to month"),
-            IntervalFields::DayToHour => self.word(" day to hour"),
-            IntervalFields::DayToMinute => self.word(" day to minute"),
-            IntervalFields::DayToSecond => self.word(" day to second"),
-            IntervalFields::HourToMinute => self.word(" hour to minute"),
-            IntervalFields::HourToSecond => self.word(" hour to second"),
-            IntervalFields::MinuteToSecond => self.word(" minute to second"),
-            IntervalFields::FullRange => {}
-            IntervalFields::Undefined => unreachable!(),
         }
     }
 }

@@ -8,8 +8,6 @@ mod parse;
 mod partition;
 mod rel_persistence;
 mod stmt;
-mod type_name;
-mod val;
 
 use crate::fmt::Printer;
 #[cfg(feature = "unstable")]
