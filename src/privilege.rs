@@ -1,57 +1,10 @@
 use crate::fmt::Printer;
 use pg_query::protobuf::AccessPriv;
-use pg_query::protobuf::GrantStmt;
 use pg_query::protobuf::GrantTargetType;
 use pg_query::protobuf::ObjectType;
 use pg_query::Node;
 
 impl Printer {
-    pub fn grant_stmt(&mut self, n: &GrantStmt) {
-        if n.is_grant {
-            self.word("grant ");
-        } else {
-            self.word("revoke ");
-        }
-
-        if !n.is_grant && n.grant_option {
-            self.word("grant option for ");
-        }
-
-        if !n.privileges.is_empty() {
-            self.expr_list(&n.privileges);
-            self.nbsp();
-        } else {
-            self.word("all ");
-        }
-
-        self.word("on ");
-
-        self.privilege_target(&n.targtype(), &n.objtype(), &n.objects);
-        self.nbsp();
-
-        if n.is_grant {
-            self.word("to ");
-        } else {
-            self.word("from ");
-        }
-
-        for (i, grantee) in n.grantees.iter().enumerate() {
-            self.node(grantee);
-            self.trailing_comma(i >= n.grantees.len() - 1);
-        }
-
-        if n.is_grant && n.grant_option {
-            self.word(" with grant option");
-        }
-
-        self.opt_drop_behavior(&n.behavior());
-
-        if let Some(grantor) = &n.grantor {
-            self.word("granted by ");
-            self.role_spec(grantor);
-        }
-    }
-
     pub fn access_priv(&mut self, n: &AccessPriv) {
         if !n.priv_name.is_empty() {
             match n.priv_name.as_ref() {
@@ -73,7 +26,7 @@ impl Printer {
         }
     }
 
-    fn privilege_target(
+    pub fn privilege_target(
         &mut self,
         targtype: &GrantTargetType,
         objtype: &ObjectType,

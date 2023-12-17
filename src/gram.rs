@@ -17,6 +17,14 @@ use pg_query::protobuf::TypeName;
 use pg_query::Node;
 use pg_query::NodeEnum;
 
+pub const TRIGGER_TYPE_BEFORE: usize = 1 << 1;
+pub const TRIGGER_TYPE_INSERT: usize = 1 << 2;
+pub const TRIGGER_TYPE_DELETE: usize = 1 << 3;
+pub const TRIGGER_TYPE_UPDATE: usize = 1 << 4;
+pub const TRIGGER_TYPE_TRUNCATE: usize = 1 << 5;
+pub const TRIGGER_TYPE_INSTEAD: usize = 1 << 6;
+pub const TRIGGER_TYPE_AFTER: usize = 0;
+
 const NAMEDATALEN: usize = 64;
 const ESCAPE_STRING_SYNTAX: char = 'E';
 
@@ -421,5 +429,9 @@ impl Printer {
 
     pub fn col_id(&mut self, s: &str) {
         self.ident(s.to_owned())
+    }
+
+    pub fn opt_as(&mut self) {
+        self.word(" as ")
     }
 }
