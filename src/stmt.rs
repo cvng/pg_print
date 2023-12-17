@@ -242,7 +242,7 @@ impl Printer {
 
         self.opt_with(&stmt.options);
 
-        self.on_commit_action(&stmt.oncommit());
+        self.on_commit_option(&stmt.oncommit());
 
         if !stmt.tablespacename.is_empty() {
             self.word("tablespace ");

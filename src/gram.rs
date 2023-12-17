@@ -16,6 +16,26 @@ use pg_query::protobuf::RangeVar;
 use pg_query::protobuf::TypeName;
 use pg_query::Node;
 use pg_query::NodeEnum;
+use pg_query::protobuf::CollateClause;
+use pg_query::protobuf::Constraint;
+use pg_query::protobuf::ConstrType;
+use pg_query::protobuf::BoolExprType;
+use pg_query::protobuf::OnCommitAction;
+use pg_query::protobuf::ColumnRef;
+use pg_query::protobuf::DefElem;
+use pg_query::protobuf::FunctionParameter;
+use pg_query::protobuf::IndexElem;
+use pg_query::protobuf::SortByDir;
+use pg_query::protobuf::SortByNulls;
+use pg_query::protobuf::Integer;
+use pg_query::protobuf::IntoClause;
+use pg_query::protobuf::ObjectType;
+use pg_query::protobuf::AccessPriv;
+use pg_query::protobuf::GrantTargetType;
+use pg_query::protobuf::ResTarget;
+use pg_query::protobuf::RoleSpec;
+use pg_query::protobuf::RoleSpecType;
+use pg_query::protobuf::WithClause;
 
 pub const TRIGGER_TYPE_BEFORE: usize = 1 << 1;
 pub const TRIGGER_TYPE_INSERT: usize = 1 << 2;
@@ -433,5 +453,425 @@ impl Printer {
 
     pub fn opt_as(&mut self) {
         self.word(" as ")
+    }
+
+    pub fn col_qual_list(&mut self, list: &[Node], col: Option<&CollateClause>) {
+        for node in list.iter() {
+            if let Some(NodeEnum::Constraint(node)) = &node.node {
+                self.col_constraint(node, col)
+            }
+        }
+    }
+
+    fn col_constraint(&mut self, n: &Constraint, _col: Option<&CollateClause>) {
+        self.col_constraint_elem(n);
+    }
+
+    fn col_constraint_elem(&mut self, n: &Constraint) {
+        match n.contype() {
+            ConstrType::ConstrCheck => {
+                self.word("check ");
+                self.word("(");
+                let expr_list = &n
+                    .raw_expr
+                    .as_ref()
+                    .and_then(|node| node.node.as_ref())
+                    .and_then(|node| cast!(node, NodeEnum::BoolExpr(node)))
+                    .map(|expr| expr.args.clone())
+                    .into_iter()
+                    .flatten()
+                    .map(|node| node.node)
+                    .filter_map(|node| cast!(node, Some(NodeEnum::AExpr(node))))
+                    .collect::<Vec<_>>();
+                for (i, expr) in expr_list.iter().enumerate() {
+                    self.a_expr(expr, &Context::AExpr);
+
+                    match n.raw_expr.as_ref().unwrap().node.as_ref().unwrap() {
+                        NodeEnum::BoolExpr(node) => match &node.boolop() {
+                            BoolExprType::OrExpr => {
+                                if i < expr_list.len() - 1 {
+                                    self.word(" or ")
+                                }
+                            }
+                            _ => todo!(),
+                        },
+                        _ => todo!(),
+                    }
+                }
+                self.word(")");
+                self.opt_no_inherit(n.is_no_inherit);
+            }
+            _ => todo!(),
+        }
+    }
+
+    pub fn opt_collate_clause(&mut self, n: Option<&CollateClause>) {
+        if let Some(n) = n {
+            self.collate_clause(n)
+        }
+    }
+
+    pub fn collate_clause(&mut self, n: &CollateClause) {
+        if let Some(arg) = &n.arg {
+            let need_parens = matches!(arg.node.as_ref().unwrap(), NodeEnum::AExpr(_));
+
+            self.optional_word("(", need_parens);
+            self.node(arg);
+            self.optional_word(")", need_parens);
+            self.nbsp();
+        }
+
+        self.word("collate ");
+        self.any_name(&n.collname);
+    }
+
+    pub fn on_commit_option(&mut self, n: &OnCommitAction) {
+        match n {
+            OnCommitAction::Undefined => {}
+            OnCommitAction::OncommitNoop => {}
+            OnCommitAction::OncommitPreserveRows => self.word(" on commit preserve rows"),
+            OnCommitAction::OncommitDeleteRows => self.word(" on commit delete rows"),
+            OnCommitAction::OncommitDrop => self.word(" on commit drop"),
+        }
+    }
+
+    pub fn column_def(&mut self, n: &ColumnDef) {
+        if !n.colname.is_empty() {
+            self.ident(n.colname.clone());
+        }
+
+        if let Some(type_name) = &n.type_name {
+            self.nbsp();
+            self.type_name(type_name);
+        }
+
+        if let Some(raw_default) = &n.raw_default {
+            self.nbsp();
+            self.word("using ");
+            self.node(raw_default);
+        }
+
+        if !n.fdwoptions.is_empty() {
+            self.nbsp();
+            self.create_generic_options(&n.fdwoptions);
+        }
+
+        for constraint in n.constraints.iter() {
+            self.nbsp();
+            self.node(constraint);
+        }
+
+        if let Some(coll_clause) = &n.coll_clause {
+            self.collate_clause(coll_clause);
+        }
+    }
+
+    pub fn column_ref(&mut self, n: &ColumnRef) {
+        if let NodeEnum::AStar(node) = n.fields.first().unwrap().node.as_ref().unwrap() {
+            self.a_star(node);
+        } else if let NodeEnum::String(node) = n.fields.first().unwrap().node.as_ref().unwrap() {
+            self.col_label(&node.sval);
+        }
+
+        self.opt_indirection(&n.fields, 1);
+    }
+
+    pub fn col_label(&mut self, node: &str) {
+        self.ident(node.to_owned());
+    }
+
+    pub fn opt_indirection(&mut self, _list: &[Node], _offset: usize) {
+        // for (i, item) in list.iter().enumerate().skip(offset) {}
+    }
+
+    pub fn constraint(&mut self, n: &Constraint) {
+        if !n.conname.is_empty() {
+            self.word("constraint ");
+            self.ident(n.conname.clone());
+            self.nbsp();
+        }
+
+        match n.contype() {
+            ConstrType::ConstrDefault => {
+                self.word("default ");
+                if let Some(raw_expr) = &n.raw_expr {
+                    self.node(raw_expr);
+                }
+            }
+            ConstrType::ConstrPrimary => {
+                self.word("primary key");
+            }
+            ConstrType::ConstrUnique => {
+                self.word("unique");
+            }
+            ConstrType::ConstrCheck => {
+                self.word("check (");
+                if let Some(raw_expr) = &n.raw_expr {
+                    self.node(raw_expr);
+                }
+                self.word(")");
+            }
+            ConstrType::ConstrNotnull => {
+                self.word("not null");
+            }
+            _ => todo!(),
+        }
+
+        if !n.keys.is_empty() {
+            self.nbsp();
+            self.word("(");
+            self.column_list(&n.keys);
+            self.word(")");
+        }
+
+        match n.contype() {
+            ConstrType::ConstrPrimary | ConstrType::ConstrUnique | ConstrType::ConstrExclusion => {
+                self.opt_with(&n.options);
+            }
+            _ => {}
+        }
+
+        if !n.indexspace.is_empty() {
+            self.word("using index tablespace ");
+            self.ident(n.indexspace.clone());
+        }
+    }
+
+    pub fn opt_no_inherit(&mut self, no_inherit: bool) {
+        if no_inherit {
+            self.word("no inherit ");
+        }
+    }
+
+    pub fn def_elem(&mut self, n: &DefElem) {
+        if !n.defnamespace.is_empty() {
+            self.ident(n.defnamespace.clone());
+            self.word(".");
+        }
+
+        self.ident(n.defname.clone());
+
+        if let Some(arg) = &n.arg {
+            self.word(" = ");
+            self.node(arg);
+        }
+    }
+
+    pub fn function_parameter(&mut self, n: &FunctionParameter) {
+        self.arg_class(&n.mode());
+        self.param_name(&n.name);
+        self.func_type(n.arg_type.as_ref().unwrap());
+    }
+
+    pub fn function_parameter_mode(&mut self, n: &FunctionParameterMode) {
+        match n {
+            FunctionParameterMode::FuncParamIn => self.word("in "),
+            FunctionParameterMode::FuncParamOut => self.word("out "),
+            FunctionParameterMode::FuncParamInout => self.word("inout "),
+            FunctionParameterMode::FuncParamVariadic => self.word("variadic "),
+            _ => {}
+        }
+    }
+
+    pub fn index_elem(&mut self, n: &IndexElem) {
+        if !n.name.is_empty() {
+            self.ident(n.name.clone());
+        } else if let Some(expr) = &n.expr {
+            self.node(expr);
+        } else {
+            unreachable!();
+        }
+
+        self.opt_collate(&n.collation);
+
+        if !n.opclass.is_empty() {
+            self.any_name(&n.opclass);
+
+            if !n.opclassopts.is_empty() {
+                self.reloptions(&n.opclassopts);
+            }
+
+            self.nbsp();
+        }
+
+        match n.ordering() {
+            SortByDir::SortbyAsc => self.word("asc "),
+            SortByDir::SortbyDesc => self.word("desc "),
+            _ => {}
+        }
+
+        match n.nulls_ordering() {
+            SortByNulls::SortbyNullsFirst => self.word("nulls first "),
+            SortByNulls::SortbyNullsLast => self.word("nulls last "),
+            _ => {}
+        }
+    }
+
+    pub fn integer(&mut self, n: &Integer) {
+        self.opt_val(Some(&Val::Ival(n.clone())), &Context::None);
+    }
+
+    pub fn string(&mut self, n: &protobuf::String) {
+        self.word("'");
+        self.ident(n.sval.clone());
+        self.word("'");
+    }
+
+    #[allow(clippy::wrong_self_convention)]
+    pub fn into_clause(&mut self, n: &IntoClause) {
+        if let Some(rel) = &n.rel {
+            self.range_var(rel);
+        }
+
+        if !n.col_names.is_empty() {
+            self.word(" (");
+            self.column_list(&n.col_names);
+            self.word(")");
+        }
+
+        if !n.access_method.is_empty() {
+            self.word("using ");
+            self.ident(n.access_method.clone());
+            self.word(" ");
+        }
+
+        self.opt_with(&n.options);
+
+        self.on_commit_option(&n.on_commit());
+
+        if !n.table_space_name.is_empty() {
+            self.word("tablespace ");
+            self.ident(n.table_space_name.clone());
+            self.word(" ");
+        }
+    }
+
+    pub fn list(&mut self, n: &List) {
+        for item in &n.items {
+            self.node(item);
+        }
+    }
+
+    pub fn object_type(&mut self, n: &ObjectType) {
+        match n {
+            ObjectType::ObjectAggregate => self.word("aggregate "),
+            ObjectType::ObjectOperator => self.word("operator "),
+            ObjectType::ObjectType => self.word("type "),
+            ObjectType::ObjectTsparser => self.word("text search parser "),
+            ObjectType::ObjectTsdictionary => self.word("text seach dictionary "),
+            ObjectType::ObjectTstemplate => self.word("text search template "),
+            ObjectType::ObjectTsconfiguration => self.word("text search configuration "),
+            ObjectType::ObjectCollation => self.word("collation "),
+            ObjectType::ObjectTable => self.word("table "),
+            ObjectType::ObjectMatview => self.word("materialized view "),
+            _ => todo!(),
+        }
+    }
+
+    pub fn access_priv(&mut self, n: &AccessPriv) {
+        if !n.priv_name.is_empty() {
+            match n.priv_name.as_ref() {
+                "select" => self.word("select"),
+                "references" => self.word("references"),
+                "create" => self.word("create"),
+                _ => self.ident(n.priv_name.clone()),
+            }
+        } else {
+            self.word("all")
+        }
+
+        self.nbsp();
+
+        if !n.cols.is_empty() {
+            self.word("(");
+            self.column_list(&n.cols);
+            self.word(")");
+        }
+    }
+
+    pub fn privilege_target(
+        &mut self,
+        targtype: &GrantTargetType,
+        objtype: &ObjectType,
+        objs: &[Node],
+    ) {
+        match targtype {
+            GrantTargetType::AclTargetObject => match objtype {
+                ObjectType::ObjectTable => self.print_list(objs),
+                ObjectType::ObjectSequence => todo!(),
+                ObjectType::ObjectFdw => todo!(),
+                ObjectType::ObjectForeignServer => todo!(),
+                ObjectType::ObjectFunction => todo!(),
+                ObjectType::ObjectProcedure => todo!(),
+                ObjectType::ObjectRoutine => todo!(),
+                ObjectType::ObjectDatabase => todo!(),
+                ObjectType::ObjectDomain => todo!(),
+                ObjectType::ObjectLanguage => todo!(),
+                ObjectType::ObjectLargeobject => todo!(),
+                ObjectType::ObjectSchema => {
+                    self.word("schema ");
+                    self.name_list(objs);
+                }
+                ObjectType::ObjectTablespace => todo!(),
+                ObjectType::ObjectType => todo!(),
+                _ => {}
+            },
+            GrantTargetType::AclTargetAllInSchema => match objtype {
+                ObjectType::ObjectTable => todo!(),
+                ObjectType::ObjectSequence => todo!(),
+                ObjectType::ObjectFunction => todo!(),
+                ObjectType::ObjectProcedure => todo!(),
+                ObjectType::ObjectRoutine => todo!(),
+                _ => {}
+            },
+            GrantTargetType::AclTargetDefaults => match objtype {
+                ObjectType::ObjectTable => todo!(),
+                ObjectType::ObjectFunction => todo!(),
+                ObjectType::ObjectSequence => todo!(),
+                ObjectType::ObjectType => todo!(),
+                ObjectType::ObjectSchema => todo!(),
+                _ => {}
+            },
+            _ => {}
+        }
+    }
+
+    pub fn range_var(&mut self, n: &RangeVar) {
+        self.ident(n.relname.clone());
+    }
+
+    pub fn res_target(&mut self, n: &ResTarget) {
+        if n.val.is_none() {
+        } else if let NodeEnum::ColumnRef(node) = n.val.as_ref().unwrap().node.as_ref().unwrap() {
+            self.column_ref(node);
+        } else {
+            self.node(n.val.as_deref().unwrap());
+        }
+
+        if !n.name.is_empty() {
+            self.word(" as ");
+            self.ident(n.name.clone());
+        }
+    }
+
+    pub fn role_spec(&mut self, n: &RoleSpec) {
+        match n.roletype() {
+            RoleSpecType::RolespecCstring => self.ident(n.rolename.clone()),
+            RoleSpecType::RolespecCurrentRole => self.word("current_role"),
+            RoleSpecType::RolespecCurrentUser => self.word("current_user"),
+            RoleSpecType::RolespecSessionUser => self.word("session_user"),
+            RoleSpecType::RolespecPublic => self.word("public"),
+            _ => {}
+        }
+    }
+
+    pub fn with_clause(&mut self, n: &WithClause) {
+        self.word("with ");
+
+        if n.recursive {
+            self.word("recursive ");
+        }
+
+        todo!();
     }
 }
