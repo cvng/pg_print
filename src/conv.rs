@@ -9,25 +9,6 @@ use super::algo::Printer;
 use super::algo::SIZE_INFINITY;
 use std::borrow::Cow;
 
-/// Deparse node context: parent / field / identifier / constant.
-#[derive(Default)]
-pub enum Context {
-    #[default]
-    None,
-    InsertRelation,
-    InsertOnConflict,
-    Update,
-    Returning,
-    AExpr,
-    Xmlattributes,
-    Xmlnamespaces,
-    CreateType,
-    AlterType,
-    SetStatement,
-    Identifier,
-    Constant,
-}
-
 impl Printer {
     pub fn ibox(&mut self, indent: isize) {
         self.scan_begin(BeginToken {
