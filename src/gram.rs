@@ -1,12 +1,7 @@
 // Adapted from https://github.com/postgres/postgres/blob/REL_15_STABLE/src/backend/parser/gram.y.
 
-use crate::fmt::Context;
-use crate::fmt::Printer;
-use crate::interval_fields::IntervalFields;
-use crate::interval_fields::INTERVAL_FULL_PRECISION;
-use crate::name::Name;
-use crate::partition::PartitionStrategy;
-use crate::rel_persistence::RelPersistence;
+use crate::algo::Printer;
+use crate::conv::Context;
 use crate::INDENT;
 use pg_query::protobuf;
 use pg_query::protobuf::a_const::Val;
@@ -42,18 +37,148 @@ use pg_query::protobuf::WithClause;
 use pg_query::Node;
 use pg_query::NodeEnum;
 
-pub const TRIGGER_TYPE_BEFORE: usize = 1 << 1;
-pub const TRIGGER_TYPE_INSERT: usize = 1 << 2;
-pub const TRIGGER_TYPE_DELETE: usize = 1 << 3;
-pub const TRIGGER_TYPE_UPDATE: usize = 1 << 4;
-pub const TRIGGER_TYPE_TRUNCATE: usize = 1 << 5;
-pub const TRIGGER_TYPE_INSTEAD: usize = 1 << 6;
-pub const TRIGGER_TYPE_AFTER: usize = 0;
+const MONTH: i32 = 1;
+const YEAR: i32 = 2;
+const DAY: i32 = 3;
+const HOUR: i32 = 10;
+const MINUTE: i32 = 11;
+const SECOND: i32 = 12;
 
-const NAMEDATALEN: usize = 64;
-const ESCAPE_STRING_SYNTAX: char = 'E';
+const TRIGGER_TYPE_BEFORE: usize = 1 << 1;
+const TRIGGER_TYPE_INSERT: usize = 1 << 2;
+const TRIGGER_TYPE_DELETE: usize = 1 << 3;
+const TRIGGER_TYPE_UPDATE: usize = 1 << 4;
+const TRIGGER_TYPE_TRUNCATE: usize = 1 << 5;
+const TRIGGER_TYPE_INSTEAD: usize = 1 << 6;
+const TRIGGER_TYPE_AFTER: usize = 0;
 
-/// Returns the given expression if it matches any of the given patterns.
+const INTERVAL_FULL_RANGE: i32 = 0x7FFF;
+const INTERVAL_FULL_PRECISION: i32 = 0xFFFF;
+
+pub enum IntervalFields {
+    Undefined,
+    Year,
+    Month,
+    Day,
+    Hour,
+    Minute,
+    Second,
+    YearToMonth,
+    DayToHour,
+    DayToMinute,
+    DayToSecond,
+    HourToMinute,
+    HourToSecond,
+    MinuteToSecond,
+    FullRange,
+}
+
+impl From<i32> for IntervalFields {
+    fn from(value: i32) -> Self {
+        match value {
+            x if x == 1 << YEAR => Self::Year,
+            x if x == 1 << MONTH => Self::Month,
+            x if x == 1 << DAY => Self::Day,
+            x if x == 1 << HOUR => Self::Hour,
+            x if x == 1 << MINUTE => Self::Minute,
+            x if x == 1 << SECOND => Self::Second,
+            x if x == 1 << YEAR | 1 << MONTH => Self::YearToMonth,
+            x if x == 1 << DAY | 1 << HOUR => Self::DayToHour,
+            x if x == 1 << DAY | 1 << HOUR | 1 << MINUTE => Self::DayToMinute,
+            x if x == 1 << DAY | 1 << HOUR | 1 << MINUTE | 1 << SECOND => Self::DayToSecond,
+            x if x == 1 << HOUR | 1 << MINUTE => Self::HourToMinute,
+            x if x == 1 << HOUR | 1 << MINUTE | 1 << SECOND => Self::HourToSecond,
+            x if x == 1 << MINUTE | 1 << SECOND => Self::MinuteToSecond,
+            INTERVAL_FULL_RANGE => Self::FullRange,
+            _ => Self::Undefined,
+        }
+    }
+}
+
+pub enum Name {
+    Undefined,
+    Bpchar,
+    Varchar,
+    Numeric,
+    Bool,
+    Int2,
+    Int4,
+    Int8,
+    Real,
+    Float8,
+    Time,
+    Timetz,
+    Timestamp,
+    Timestamptz,
+    Interval,
+}
+
+impl From<String> for Name {
+    fn from(value: String) -> Self {
+        match value.as_ref() {
+            "bpchar" => Self::Bpchar,
+            "varchar" => Self::Varchar,
+            "numeric" => Self::Numeric,
+            "bool" => Self::Bool,
+            "int2" => Self::Int2,
+            "int4" => Self::Int4,
+            "int8" => Self::Int8,
+            "real" | "float4" => Self::Real,
+            "float8" => Self::Float8,
+            "time" => Self::Time,
+            "timetz" => Self::Timetz,
+            "timestamp" => Self::Timestamp,
+            "timestamptz" => Self::Timestamptz,
+            "interval" => Self::Interval,
+            _ => Self::Undefined,
+        }
+    }
+}
+
+const PARTITION_STRATEGY_HASH: char = 'h';
+const PARTITION_STRATEGY_LIST: char = 'l';
+const PARTITION_STRATEGY_RANGE: char = 'r';
+
+pub enum PartitionStrategy {
+    Undefined,
+    Hash,
+    List,
+    Range,
+}
+
+impl From<String> for PartitionStrategy {
+    fn from(value: String) -> Self {
+        match value.chars().next().unwrap() {
+            PARTITION_STRATEGY_HASH => Self::Hash,
+            PARTITION_STRATEGY_LIST => Self::List,
+            PARTITION_STRATEGY_RANGE => Self::Range,
+            _ => Self::Undefined,
+        }
+    }
+}
+
+const RELPERSISTENCE_TEMP: char = 't';
+const RELPERSISTENCE_UNLOGGED: char = 'u';
+const RELPERSISTENCE_PERMANENT: char = 'p';
+
+pub enum RelPersistence {
+    Undefined,
+    Temp,
+    Unlogged,
+    Permanent,
+}
+
+impl From<String> for RelPersistence {
+    fn from(value: String) -> Self {
+        match value.chars().next().unwrap() {
+            RELPERSISTENCE_TEMP => Self::Temp,
+            RELPERSISTENCE_UNLOGGED => Self::Unlogged,
+            RELPERSISTENCE_PERMANENT => Self::Permanent,
+            _ => Self::Undefined,
+        }
+    }
+}
+
 #[macro_export]
 macro_rules! cast {
     ($expression:expr, $pattern:pat $(if $guard:expr)? $(,)?) => {
@@ -74,7 +199,9 @@ macro_rules! cast_node {
     };
 }
 
-// See https://github.com/pganalyze/libpg_query/blob/15-latest/src/postgres_deparse.c#L53.
+const NAMEDATALEN: usize = 64;
+const ESCAPE_STRING_SYNTAX: char = 'E';
+
 pub fn string_literal(p: &mut Printer, val: &str) {
     if val.contains('\\') {
         p.word(ESCAPE_STRING_SYNTAX.to_string());
@@ -585,9 +712,7 @@ impl Printer {
         self.ident(node.to_owned());
     }
 
-    pub fn opt_indirection(&mut self, _list: &[Node], _offset: usize) {
-        // for (i, item) in list.iter().enumerate().skip(offset) {}
-    }
+    pub fn opt_indirection(&mut self, _list: &[Node], _offset: usize) {}
 
     pub fn constraint(&mut self, n: &Constraint) {
         if !n.conname.is_empty() {
@@ -1077,6 +1202,53 @@ impl Printer {
             IntervalFields::MinuteToSecond => self.word(" minute to second"),
             IntervalFields::FullRange => {}
             IntervalFields::Undefined => unreachable!(),
+        }
+    }
+
+    pub fn trigger_action_time(&mut self, timing: i32) {
+        match timing as usize {
+            TRIGGER_TYPE_BEFORE => self.word("before "),
+            TRIGGER_TYPE_AFTER => self.word("after "),
+            TRIGGER_TYPE_INSTEAD => self.word("instead of "),
+            _ => {}
+        }
+    }
+
+    pub fn trigger_events(&mut self, events: i32, columns: &[Node]) {
+        let mut skip_events_or = true;
+
+        if events as usize & TRIGGER_TYPE_INSERT != 0 {
+            self.word("insert ");
+            skip_events_or = false;
+        }
+
+        if events as usize & TRIGGER_TYPE_DELETE != 0 {
+            if !skip_events_or {
+                self.word("or ");
+            }
+            self.word("delete ");
+            skip_events_or = false;
+        }
+
+        if events as usize & TRIGGER_TYPE_UPDATE != 0 {
+            if !skip_events_or {
+                self.word("or ");
+            }
+            self.word("update ");
+
+            if !columns.is_empty() {
+                self.word("of ");
+                self.column_list(columns);
+                self.nbsp();
+            }
+            skip_events_or = false;
+        }
+
+        if events as usize & TRIGGER_TYPE_TRUNCATE != 0 {
+            if !skip_events_or {
+                self.word("or ");
+            }
+            self.word("truncate ");
         }
     }
 }

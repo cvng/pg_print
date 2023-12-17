@@ -1,25 +1,21 @@
+mod algo;
+mod conv;
 mod expr;
-mod fmt;
 mod gram;
-mod interval_fields;
-mod name;
-mod node;
-mod parse;
-mod partition;
-mod rel_persistence;
 mod stmt;
+mod tree;
 
-use crate::fmt::Printer;
+use crate::algo::Printer;
 #[cfg(feature = "unstable")]
-use parser::Parse;
+use parser::Parse as ParseResult;
 #[cfg(not(feature = "unstable"))]
-use pg_query::protobuf::ParseResult as Parse;
+use pg_query::protobuf::ParseResult;
 
 const INDENT: isize = 4;
 
 /// Converts a parsed tree back into a pretty-printed string.
-pub fn unparse(parse: &Parse) -> String {
+pub fn unparse(tree: &ParseResult) -> String {
     let mut p = Printer::new();
-    p.parse(parse);
+    p.tree(tree);
     p.eof()
 }

@@ -1,14 +1,7 @@
-use crate::fmt::Printer;
+use crate::algo::Printer;
 use crate::gram::make_range_var_into_any_name;
 use crate::gram::str_val;
 use crate::gram::string_literal;
-use crate::gram::TRIGGER_TYPE_AFTER;
-use crate::gram::TRIGGER_TYPE_BEFORE;
-use crate::gram::TRIGGER_TYPE_DELETE;
-use crate::gram::TRIGGER_TYPE_INSERT;
-use crate::gram::TRIGGER_TYPE_INSTEAD;
-use crate::gram::TRIGGER_TYPE_TRUNCATE;
-use crate::gram::TRIGGER_TYPE_UPDATE;
 use crate::INDENT;
 use pg_query::protobuf::CompositeTypeStmt;
 use pg_query::protobuf::CreateDomainStmt;
@@ -291,8 +284,6 @@ impl Printer {
     }
 
     fn create_trig_stmt(&mut self, stmt: &CreateTrigStmt) {
-        let mut skip_events_or = true;
-
         self.word("create ");
 
         if stmt.replace {
@@ -307,46 +298,8 @@ impl Printer {
         self.ident(stmt.trigname.clone());
         self.nbsp();
 
-        match stmt.timing as usize {
-            TRIGGER_TYPE_BEFORE => self.word("before "),
-            TRIGGER_TYPE_AFTER => self.word("after "),
-            TRIGGER_TYPE_INSTEAD => self.word("instead of "),
-            _ => {}
-        }
-
-        if stmt.events as usize & TRIGGER_TYPE_INSERT != 0 {
-            self.word("insert ");
-            skip_events_or = false;
-        }
-
-        if stmt.events as usize & TRIGGER_TYPE_DELETE != 0 {
-            if !skip_events_or {
-                self.word("or ");
-            }
-            self.word("delete ");
-            skip_events_or = false;
-        }
-
-        if stmt.events as usize & TRIGGER_TYPE_UPDATE != 0 {
-            if !skip_events_or {
-                self.word("or ");
-            }
-            self.word("update ");
-
-            if !stmt.columns.is_empty() {
-                self.word("of ");
-                self.column_list(&stmt.columns);
-                self.nbsp();
-            }
-            skip_events_or = false;
-        }
-
-        if stmt.events as usize & TRIGGER_TYPE_TRUNCATE != 0 {
-            if !skip_events_or {
-                self.word("or ");
-            }
-            self.word("truncate ");
-        }
+        self.trigger_action_time(stmt.timing);
+        self.trigger_events(stmt.events, &stmt.columns);
 
         self.word("on ");
         self.range_var(stmt.relation.as_ref().unwrap());
