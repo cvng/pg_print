@@ -495,11 +495,9 @@ dependencies = [
 name = "pg_print"
 version = "0.2.0"
 dependencies = [
- "codegen",
  "insta",
  "parser",
  "pg_query",
- "pg_query_proto_parser",
 ]
 
 [[package]]

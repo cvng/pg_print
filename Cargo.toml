@@ -9,13 +9,11 @@ edition = "2021"
 doctest = false
 
 [dependencies]
-codegen = { git = "https://github.com/supabase/postgres_lsp", rev = "25d140d", optional = true }
 parser = { git = "https://github.com/supabase/postgres_lsp", rev = "25d140d", optional = true }
-pg_query_proto_parser = { git = "https://github.com/supabase/postgres_lsp", rev = "25d140d", optional = true }
 pg_query = "0.8.2"
 
 [dev-dependencies]
 insta = "1.34.0"
 
 [features]
-unstable = ["dep:codegen", "dep:parser", "dep:pg_query_proto_parser"]
+unstable = ["dep:parser"]
