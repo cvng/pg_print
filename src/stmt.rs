@@ -176,7 +176,7 @@ impl Printer {
         self.cbox(INDENT);
         self.word("create ");
 
-        self.opt_temp(stmt.relation.as_ref().unwrap().relpersistence.clone());
+        self.opt_temp(&stmt.relation.as_ref().unwrap().relpersistence);
 
         self.word("table ");
 
@@ -249,14 +249,14 @@ impl Printer {
         self.word("create ");
 
         self.opt_temp(
-            stmt.into
+            &stmt
+                .into
                 .as_ref()
                 .unwrap()
                 .rel
                 .as_ref()
                 .unwrap()
-                .relpersistence
-                .clone(),
+                .relpersistence,
         );
 
         self.object_type(&stmt.objtype());
@@ -557,7 +557,7 @@ impl Printer {
             self.word("or replace ");
         }
 
-        self.opt_temp(stmt.view.as_ref().unwrap().relpersistence.clone());
+        self.opt_temp(&stmt.view.as_ref().unwrap().relpersistence);
 
         self.word("view ");
         self.range_var(stmt.view.as_ref().unwrap());

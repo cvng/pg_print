@@ -1,5 +1,4 @@
 use crate::algo::Printer;
-use crate::conv::Context;
 use pg_query::protobuf::AExpr;
 use pg_query::protobuf::AExprKind;
 use pg_query::protobuf::BoolExpr;
@@ -8,14 +7,14 @@ use pg_query::Node;
 use pg_query::NodeEnum;
 
 impl Printer {
-    pub fn a_expr(&mut self, n: &AExpr, _context: &Context) {
+    pub fn a_expr(&mut self, n: &AExpr) {
         let need_lexpr_parens = false;
         let need_rexpr_parens = false;
 
         match n.kind() {
             AExprKind::Undefined => {}
             AExprKind::AexprOp => {
-                let need_outer_parens = false; // TODO: matches!(context, Context::AExpr);
+                let need_outer_parens = false; // TODO: matches!(context);
 
                 self.optional_word("(", need_outer_parens);
 
@@ -105,7 +104,7 @@ impl Printer {
             match node {
                 NodeEnum::RangeVar(n) => self.range_var(n),
                 NodeEnum::BoolExpr(n) => self.bool_expr(n),
-                NodeEnum::AExpr(n) => self.a_expr(n, &Context::None),
+                NodeEnum::AExpr(n) => self.a_expr(n),
                 NodeEnum::ColumnRef(n) => self.column_ref(n),
                 NodeEnum::ResTarget(n) => self.res_target(n),
                 NodeEnum::ColumnDef(n) => self.column_def(n),

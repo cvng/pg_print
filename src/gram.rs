@@ -1,7 +1,6 @@
 // Adapted from https://github.com/postgres/postgres/blob/REL_15_STABLE/src/backend/parser/gram.y.
 
 use crate::algo::Printer;
-use crate::conv::Context;
 use crate::INDENT;
 use pg_query::protobuf;
 use pg_query::protobuf::a_const::Val;
@@ -44,6 +43,17 @@ const HOUR: i32 = 10;
 const MINUTE: i32 = 11;
 const SECOND: i32 = 12;
 
+const INTERVAL_FULL_RANGE: i32 = 0x7FFF;
+const INTERVAL_FULL_PRECISION: i32 = 0xFFFF;
+
+const PARTITION_STRATEGY_HASH: &str = "h";
+const PARTITION_STRATEGY_LIST: &str = "l";
+const PARTITION_STRATEGY_RANGE: &str = "r";
+
+const RELPERSISTENCE_TEMP: &str = "t";
+const RELPERSISTENCE_UNLOGGED: &str = "u";
+const RELPERSISTENCE_PERMANENT: &str = "p";
+
 const TRIGGER_TYPE_BEFORE: usize = 1 << 1;
 const TRIGGER_TYPE_INSERT: usize = 1 << 2;
 const TRIGGER_TYPE_DELETE: usize = 1 << 3;
@@ -52,144 +62,6 @@ const TRIGGER_TYPE_TRUNCATE: usize = 1 << 5;
 const TRIGGER_TYPE_INSTEAD: usize = 1 << 6;
 const TRIGGER_TYPE_AFTER: usize = 0;
 
-const INTERVAL_FULL_RANGE: i32 = 0x7FFF;
-const INTERVAL_FULL_PRECISION: i32 = 0xFFFF;
-
-pub enum IntervalFields {
-    Undefined,
-    Year,
-    Month,
-    Day,
-    Hour,
-    Minute,
-    Second,
-    YearToMonth,
-    DayToHour,
-    DayToMinute,
-    DayToSecond,
-    HourToMinute,
-    HourToSecond,
-    MinuteToSecond,
-    FullRange,
-}
-
-impl From<i32> for IntervalFields {
-    fn from(value: i32) -> Self {
-        match value {
-            x if x == 1 << YEAR => Self::Year,
-            x if x == 1 << MONTH => Self::Month,
-            x if x == 1 << DAY => Self::Day,
-            x if x == 1 << HOUR => Self::Hour,
-            x if x == 1 << MINUTE => Self::Minute,
-            x if x == 1 << SECOND => Self::Second,
-            x if x == 1 << YEAR | 1 << MONTH => Self::YearToMonth,
-            x if x == 1 << DAY | 1 << HOUR => Self::DayToHour,
-            x if x == 1 << DAY | 1 << HOUR | 1 << MINUTE => Self::DayToMinute,
-            x if x == 1 << DAY | 1 << HOUR | 1 << MINUTE | 1 << SECOND => Self::DayToSecond,
-            x if x == 1 << HOUR | 1 << MINUTE => Self::HourToMinute,
-            x if x == 1 << HOUR | 1 << MINUTE | 1 << SECOND => Self::HourToSecond,
-            x if x == 1 << MINUTE | 1 << SECOND => Self::MinuteToSecond,
-            INTERVAL_FULL_RANGE => Self::FullRange,
-            _ => Self::Undefined,
-        }
-    }
-}
-
-pub enum Name {
-    Undefined,
-    Bpchar,
-    Varchar,
-    Numeric,
-    Bool,
-    Int2,
-    Int4,
-    Int8,
-    Real,
-    Float8,
-    Time,
-    Timetz,
-    Timestamp,
-    Timestamptz,
-    Interval,
-}
-
-impl From<String> for Name {
-    fn from(value: String) -> Self {
-        match value.as_ref() {
-            "bpchar" => Self::Bpchar,
-            "varchar" => Self::Varchar,
-            "numeric" => Self::Numeric,
-            "bool" => Self::Bool,
-            "int2" => Self::Int2,
-            "int4" => Self::Int4,
-            "int8" => Self::Int8,
-            "real" | "float4" => Self::Real,
-            "float8" => Self::Float8,
-            "time" => Self::Time,
-            "timetz" => Self::Timetz,
-            "timestamp" => Self::Timestamp,
-            "timestamptz" => Self::Timestamptz,
-            "interval" => Self::Interval,
-            _ => Self::Undefined,
-        }
-    }
-}
-
-const PARTITION_STRATEGY_HASH: char = 'h';
-const PARTITION_STRATEGY_LIST: char = 'l';
-const PARTITION_STRATEGY_RANGE: char = 'r';
-
-pub enum PartitionStrategy {
-    Undefined,
-    Hash,
-    List,
-    Range,
-}
-
-impl From<String> for PartitionStrategy {
-    fn from(value: String) -> Self {
-        match value.chars().next().unwrap() {
-            PARTITION_STRATEGY_HASH => Self::Hash,
-            PARTITION_STRATEGY_LIST => Self::List,
-            PARTITION_STRATEGY_RANGE => Self::Range,
-            _ => Self::Undefined,
-        }
-    }
-}
-
-const RELPERSISTENCE_TEMP: char = 't';
-const RELPERSISTENCE_UNLOGGED: char = 'u';
-const RELPERSISTENCE_PERMANENT: char = 'p';
-
-pub enum RelPersistence {
-    Undefined,
-    Temp,
-    Unlogged,
-    Permanent,
-}
-
-impl From<String> for RelPersistence {
-    fn from(value: String) -> Self {
-        match value.chars().next().unwrap() {
-            RELPERSISTENCE_TEMP => Self::Temp,
-            RELPERSISTENCE_UNLOGGED => Self::Unlogged,
-            RELPERSISTENCE_PERMANENT => Self::Permanent,
-            _ => Self::Undefined,
-        }
-    }
-}
-
-#[macro_export]
-macro_rules! cast {
-    ($expression:expr, $pattern:pat $(if $guard:expr)? $(,)?) => {
-        match $expression {
-            $pattern $(if $guard)? => Some($expression),
-            _ => None
-        }
-    };
-}
-
-#[macro_export]
 macro_rules! cast_node {
     ($expression:expr, $pattern:pat $(if $guard:expr)? $(,)?) => {
         match $expression {
@@ -276,7 +148,7 @@ pub fn make_range_var_into_any_name(n: &RangeVar) -> [Node; 1] {
 
 impl Printer {
     pub fn a_const(&mut self, n: &AConst) {
-        self.opt_val(n.val.as_ref(), &Context::Constant);
+        self.opt_val(n.val.as_ref());
     }
 
     pub fn a_star(&mut self, _n: &AStar) {
@@ -507,8 +379,8 @@ impl Printer {
         self.qualified_name_list(list);
     }
 
-    pub fn opt_temp(&mut self, relpersistence: String) {
-        self.rel_persistence(&RelPersistence::from(relpersistence))
+    pub fn opt_temp(&mut self, relpersistence: &str) {
+        self.rel_persistence(relpersistence)
     }
 
     pub fn non_reserved_word_or_scont(&mut self, val: String) {
@@ -607,16 +479,15 @@ impl Printer {
                 let expr_list = &n
                     .raw_expr
                     .as_ref()
-                    .and_then(|node| node.node.as_ref())
-                    .and_then(|node| cast!(node, NodeEnum::BoolExpr(node)))
+                    .map(|node| node.as_ref())
+                    .and_then(|node| cast_node!(node, NodeEnum::BoolExpr(node)))
                     .map(|expr| expr.args.clone())
                     .into_iter()
                     .flatten()
-                    .map(|node| node.node)
-                    .filter_map(|node| cast!(node, Some(NodeEnum::AExpr(node))))
+                    .filter_map(|node| cast_node!(node, NodeEnum::AExpr(node)))
                     .collect::<Vec<_>>();
                 for (i, expr) in expr_list.iter().enumerate() {
-                    self.a_expr(expr, &Context::AExpr);
+                    self.a_expr(expr);
 
                     match n.raw_expr.as_ref().unwrap().node.as_ref().unwrap() {
                         NodeEnum::BoolExpr(node) => match &node.boolop() {
@@ -838,7 +709,7 @@ impl Printer {
     }
 
     pub fn integer(&mut self, n: &Integer) {
-        self.opt_val(Some(&Val::Ival(n.clone())), &Context::None);
+        self.opt_val(Some(&Val::Ival(n.clone())));
     }
 
     pub fn string(&mut self, n: &protobuf::String) {
@@ -1012,19 +883,19 @@ impl Printer {
 
         self.word(" for values ");
 
-        match n.strategy.clone().into() {
-            PartitionStrategy::Hash => {
+        match n.strategy.as_str() {
+            PARTITION_STRATEGY_HASH => {
                 self.word(format!(
                     "with (modulus {}, remainder {})",
                     n.modulus, n.remainder
                 ));
             }
-            PartitionStrategy::List => {
+            PARTITION_STRATEGY_LIST => {
                 self.word("in (");
                 self.print_list(&n.listdatums);
                 self.word(")");
             }
-            PartitionStrategy::Range => {
+            PARTITION_STRATEGY_RANGE => {
                 self.word("from (");
                 self.print_list(&n.lowerdatums);
                 self.word(") to (");
@@ -1035,12 +906,12 @@ impl Printer {
         }
     }
 
-    pub fn rel_persistence(&mut self, n: &RelPersistence) {
+    pub fn rel_persistence(&mut self, n: &str) {
         match n {
-            RelPersistence::Temp => self.word("temporary "),
-            RelPersistence::Unlogged => self.word("unlogged "),
-            RelPersistence::Permanent => {}
-            RelPersistence::Undefined => unreachable!(),
+            RELPERSISTENCE_PERMANENT => {}
+            RELPERSISTENCE_UNLOGGED => self.word("unlogged "),
+            RELPERSISTENCE_TEMP => self.word("temporary "),
+            _ => unreachable!(),
         }
     }
 
@@ -1054,18 +925,18 @@ impl Printer {
         if n.names.len() == 2 && str_val(n.names.first().unwrap()).unwrap() == "pg_catalog" {
             let name = str_val(n.names.last().unwrap()).unwrap();
 
-            match name.clone().into() {
-                Name::Bpchar => self.word("char"),
-                Name::Varchar => self.word("varchar"),
-                Name::Numeric => self.word("numeric"),
-                Name::Bool => self.word("boolean"),
-                Name::Int2 => self.word("smallint"),
-                Name::Int4 => self.word("int"),
-                Name::Int8 => self.word("bigint"),
-                Name::Real => self.word("real"),
-                Name::Float8 => self.word("double precision"),
-                Name::Time => self.word("time"),
-                Name::Timetz => {
+            match name.as_str() {
+                "bpchar" => self.word("char"),
+                "varchar" => self.word("varchar"),
+                "numeric" => self.word("numeric"),
+                "bool" => self.word("boolean"),
+                "int2" => self.word("smallint"),
+                "int4" => self.word("int"),
+                "int8" => self.word("bigint"),
+                "real" | "float4" => self.word("real"),
+                "float8" => self.word("double precision"),
+                "time" => self.word("time"),
+                "timetz" => {
                     skip_typmods = true;
                     self.word("time ");
 
@@ -1080,8 +951,8 @@ impl Printer {
 
                     self.word("with time zone")
                 }
-                Name::Timestamp => self.word("timestamp"),
-                Name::Timestamptz => {
+                "timestamp" => self.word("timestamp"),
+                "timestamptz" => {
                     skip_typmods = true;
                     self.word("timestamp ");
 
@@ -1095,7 +966,7 @@ impl Printer {
                     }
                     self.word("with time zone")
                 }
-                Name::Interval => {
+                "interval" => {
                     self.word("interval");
 
                     if !n.typmods.is_empty() {
@@ -1103,7 +974,7 @@ impl Printer {
                         self.interval_typmods(n);
                     }
                 }
-                Name::Undefined => {
+                _ => {
                     self.word("pg_catalog.");
                     self.word(name)
                 }
@@ -1134,7 +1005,7 @@ impl Printer {
             .unwrap()
             .unwrap();
 
-        self.interval_fields(&IntervalFields::from(interval_fields));
+        self.interval_fields(interval_fields);
 
         if node.typmods.len() == 2 {
             let precision = node
@@ -1154,16 +1025,17 @@ impl Printer {
         }
     }
 
-    pub fn val(&mut self, val: &Val, context: &Context) {
+    pub fn val(&mut self, val: &Val) {
         match val {
             Val::Ival(val) => self.word(format!("{}", val.ival)),
             Val::Fval(val) => self.word(val.fval.clone()),
             Val::Boolval(val) => self.word(if val.boolval { "true" } else { "false" }),
-            Val::Sval(val) => match context {
-                Context::Identifier => self.ident(val.sval.clone()),
-                Context::Constant => string_literal(self, &val.sval),
-                _ => self.word(val.sval.clone()),
-            },
+            Val::Sval(val) => {
+                todo!("{:#?}", &val)
+                // Identifier => self.ident(val.sval.clone()),
+                // Constant => string_literal(self, &val.sval),
+                // _ => self.word(val.sval.clone()),
+            }
             Val::Bsval(val) => match val.bsval.chars().next().unwrap() {
                 'x' => {
                     self.word("x");
@@ -1178,30 +1050,32 @@ impl Printer {
         }
     }
 
-    pub fn opt_val(&mut self, val: Option<&Val>, context: &Context) {
+    pub fn opt_val(&mut self, val: Option<&Val>) {
         match val {
-            Some(val) => self.val(val, context),
+            Some(val) => self.val(val),
             None => self.word("null"),
         }
     }
 
-    pub fn interval_fields(&mut self, n: &IntervalFields) {
+    pub fn interval_fields(&mut self, n: i32) {
         match n {
-            IntervalFields::Year => self.word(" year"),
-            IntervalFields::Month => self.word(" month"),
-            IntervalFields::Day => self.word(" day"),
-            IntervalFields::Hour => self.word(" hour"),
-            IntervalFields::Minute => self.word(" minute"),
-            IntervalFields::Second => self.word(" second"),
-            IntervalFields::YearToMonth => self.word(" year to month"),
-            IntervalFields::DayToHour => self.word(" day to hour"),
-            IntervalFields::DayToMinute => self.word(" day to minute"),
-            IntervalFields::DayToSecond => self.word(" day to second"),
-            IntervalFields::HourToMinute => self.word(" hour to minute"),
-            IntervalFields::HourToSecond => self.word(" hour to second"),
-            IntervalFields::MinuteToSecond => self.word(" minute to second"),
-            IntervalFields::FullRange => {}
-            IntervalFields::Undefined => unreachable!(),
+            x if x == 1 << YEAR => self.word(" year"),
+            x if x == 1 << MONTH => self.word(" month"),
+            x if x == 1 << DAY => self.word(" day"),
+            x if x == 1 << HOUR => self.word(" hour"),
+            x if x == 1 << MINUTE => self.word(" minute"),
+            x if x == 1 << SECOND => self.word(" second"),
+            x if x == 1 << YEAR | 1 << MONTH => self.word(" year to month"),
+            x if x == 1 << DAY | 1 << HOUR => self.word(" day to hour"),
+            x if x == 1 << DAY | 1 << HOUR | 1 << MINUTE => self.word(" day to minute"),
+            x if x == 1 << DAY | 1 << HOUR | 1 << MINUTE | 1 << SECOND => {
+                self.word(" day to second")
+            }
+            x if x == 1 << HOUR | 1 << MINUTE => self.word(" hour to minute"),
+            x if x == 1 << HOUR | 1 << MINUTE | 1 << SECOND => self.word(" hour to second"),
+            x if x == 1 << MINUTE | 1 << SECOND => self.word(" minute to second"),
+            INTERVAL_FULL_RANGE => {}
+            _ => unreachable!(),
         }
     }
 
