@@ -128,7 +128,7 @@ dependencies = [
 [[package]]
 name = "codegen"
 version = "0.0.0"
-source = "git+https://github.com/supabase/postgres_lsp?rev=b63a8d4#b63a8d40881efff941659fde3ca47b613fd5008c"
+source = "git+https://github.com/supabase/postgres_lsp?rev=9c694d7#9c694d7209aa98048e9cb27d01dcf0abb4213f8d"
 dependencies = [
  "pg_query_proto_parser",
  "proc-macro2",
@@ -462,7 +462,7 @@ dependencies = [
 [[package]]
 name = "parser"
 version = "0.0.0"
-source = "git+https://github.com/supabase/postgres_lsp?rev=b63a8d4#b63a8d40881efff941659fde3ca47b613fd5008c"
+source = "git+https://github.com/supabase/postgres_lsp?rev=9c694d7#9c694d7209aa98048e9cb27d01dcf0abb4213f8d"
 dependencies = [
  "codegen",
  "cstree",
@@ -519,7 +519,7 @@ dependencies = [
 [[package]]
 name = "pg_query_proto_parser"
 version = "0.0.0"
-source = "git+https://github.com/supabase/postgres_lsp?rev=b63a8d4#b63a8d40881efff941659fde3ca47b613fd5008c"
+source = "git+https://github.com/supabase/postgres_lsp?rev=9c694d7#9c694d7209aa98048e9cb27d01dcf0abb4213f8d"
 dependencies = [
  "convert_case",
  "protobuf",

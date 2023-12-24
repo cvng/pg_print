@@ -9,7 +9,7 @@ edition = "2021"
 doctest = false
 
 [dependencies]
-parser = { git = "https://github.com/supabase/postgres_lsp", rev = "b63a8d4", optional = true }
+parser = { git = "https://github.com/supabase/postgres_lsp", rev = "9c694d7", optional = true }
 pg_query = "0.8.2"
 
 [dev-dependencies]
