@@ -23,9 +23,7 @@ pub fn unparse(tree: &ParseResult) -> String {
 /// Parses the given SQL statement into the given abstract syntax tree.
 pub fn parse(statement: &str) -> Option<ParseResult> {
     #[cfg(feature = "unstable")]
-    return parser::parse_source(statement);
+    return Some(parser::parse_source(statement));
     #[cfg(not(feature = "unstable"))]
-    return pg_query::parse(statement)
-        .map(|result| result.protobuf)
-        .ok();
+    return pg_query::parse(statement).map(|r| r.protobuf).ok();
 }
